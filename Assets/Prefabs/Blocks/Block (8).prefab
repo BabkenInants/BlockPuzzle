@@ -231,9 +231,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93ae1b25ca7f74ecb8c7fc1dc82f3047, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  sizeX: 3
-  sizeY: 2
-  blockShape: 010101010101
   cells:
   - {fileID: 722171802387337552}
   - {fileID: 5881909622417219}
@@ -241,6 +238,10 @@ MonoBehaviour:
   - {fileID: 1209468845947215466}
   - {fileID: 4003487264108468572}
   - {fileID: 4863550620533022835}
+  sizeX: 3
+  sizeY: 2
+  blockShape: 010101010101
+  notPickedSize: 0.7
 --- !u!61 &1137618179251427716
 BoxCollider2D:
   m_ObjectHideFlags: 0

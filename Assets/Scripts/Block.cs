@@ -7,12 +7,12 @@ public class Block : MonoBehaviour
     [HideInInspector] public int sizeX = 3;
     [HideInInspector] public int sizeY = 3;
     [HideInInspector] public bool[] blockShape;
+    [SerializeField] private float notPickedSize = .7f;
     public bool[,] blockShapeMatrix { get; private set; }
-    private bool _isPicked = false;
+    private bool _isPicked;
     private Camera _mainCam;
     private Vector3 _startPos;
     private Vector3 _mouseOffset;
-    private float notPickedSize = .7f;
 
     private void Awake()
     {
@@ -78,13 +78,13 @@ public class Block : MonoBehaviour
     {
         if (_isPicked)
         {
-            float minDistanceFromCursorY = Field.Instance.minBlockDistanceFromCursorY;
-            float maxDistanceFromCursorY = Field.Instance.maxBlockDistanceFromCursorY;
-            float minDistanceFromCursorX = Field.Instance.minBlockDistanceFromCursorX;
-            float maxDistanceFromCursorX = Field.Instance.maxBlockDistanceFromCursorX;
+            float minY = Field.Instance.minBlockDistanceFromCursorY;
+            float maxY = Field.Instance.maxBlockDistanceFromCursorY;
+            float minX = Field.Instance.minBlockDistanceFromCursorX;
+            float maxX = Field.Instance.maxBlockDistanceFromCursorX;
             Vector3 mousePos = Input.mousePosition;
-            float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxDistanceFromCursorY, minDistanceFromCursorY, maxDistanceFromCursorY);;
-            float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxDistanceFromCursorX, minDistanceFromCursorX, maxDistanceFromCursorX);;
+            float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);
+            float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxX, minX, maxX);
             Vector3 offset = _mouseOffset +  new Vector3(xOffset, yOffset);
             Vector3 position = _mainCam.ScreenToWorldPoint(Input.mousePosition) + offset;
             position.z = 0;

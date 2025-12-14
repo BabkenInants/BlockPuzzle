@@ -1,12 +1,11 @@
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class BlockSpawner : MonoBehaviour
 {
     public static BlockSpawner Instance;
+    public GameObject[] blocks;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private GameObject[] blockPrefabs;
-    public GameObject[] blocks;
     [SerializeField] private Color[] colors;
 
     private void Awake()
@@ -31,12 +30,17 @@ public class BlockSpawner : MonoBehaviour
         foreach (var block in blocks)
             if (block != null)
                 return;
+        SpawnBlocks();
+    }
+
+    private void SpawnBlocks()
+    {
         for (int i = 0; i < spawnPoints.Length; i++)
         {
             blocks[i] = Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Length)], spawnPoints[i].position,
                 Quaternion.identity);
             blocks[i].GetComponent<Block>().SetColor(colors[Random.Range(0, colors.Length)]);
-            Field.Instance.CheckIfGameIsOver();
         }
+        Field.Instance.CheckIfGameIsOver();
     }
 }
