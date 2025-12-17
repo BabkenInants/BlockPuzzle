@@ -180,10 +180,6 @@ MonoBehaviour:
   - {fileID: 5456571150733414868, guid: 92846664ad42747f6991025cdcb83279, type: 3}
   - {fileID: 4218647058775937973, guid: ca81e70f798804a4eb89968c4c8ec4d8, type: 3}
   - {fileID: 4396987542601405729, guid: 2dc9dc82da43d489d94db4af4b5205d0, type: 3}
-  - {fileID: 8613790211220170828, guid: ef2a4a97fcbf8441e959094e80a5bef0, type: 3}
-  - {fileID: 4364295601992306526, guid: 4e62802b5e2dc438b8362edf971b03d7, type: 3}
-  - {fileID: 6967560060208433201, guid: 817d1a7dc75cb4926b8473a947b4f36b, type: 3}
-  - {fileID: 1369699636396564647, guid: 0e460d4e4e6be472181125c8fcf452ea, type: 3}
   colors:
   - {r: 0, g: 0.7529412, b: 0, a: 1}
   - {r: 0.5019608, g: 0.8392157, b: 0.99215686, a: 1}
@@ -201,7 +197,7 @@ Transform:
   m_GameObject: {fileID: 45406432}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: -2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

@@ -25,22 +25,23 @@ public class Field : MonoBehaviour
     
     private Transform _lastCell;
     private Transform[,] _fieldCells;
-    private bool[,] _cellIsFree;
+    public bool[,] cellIsFree { get; private set; }
     private List<Vector2Int> _lastPreviewedCells;
+    private int score = 0;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
         _fieldCells = new Transform[cellsCountY, cellsCountX];
-        _cellIsFree = new bool[cellsCountY, cellsCountX];
+        cellIsFree = new bool[cellsCountY, cellsCountX];
+        for (int i = 0; i < cellsCountY; i++) 
+            for(int j = 0; j < cellsCountX; j++)
+                cellIsFree[i, j] = true;
     }
 
     void Start()
     {
-        for (int i = 0; i < cellsCountX; i++) 
-            for(int j = 0; j < cellsCountY; j++)
-                _cellIsFree[i, j] = true;
         GenerateField();
     }
     
@@ -65,7 +66,7 @@ public class Field : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     
-    public void CheckIfGameIsOver()
+    private void CheckIfGameIsOver()
     {
         List<Block> currentBlocks = new List<Block>();
         foreach(var block in BlockSpawner.Instance.blocks)
@@ -78,11 +79,11 @@ public class Field : MonoBehaviour
         bool atLeastOneBlockCanBePlaced = false;
         foreach(var block in  currentBlocks)
         {
-            for (int row = 0; row < cellsCountY; row++)
+            for (int row = 0; row <= cellsCountY - block.sizeY; row++)
             {
-                for (int col = 0; col < cellsCountX; col++)
+                for (int col = 0; col <= cellsCountX - block.sizeX; col++)
                 {
-                    if (CheckIfBlockCanBePlacedAtCell(block, row, col))
+                    if (CheckIfBlockCanBePlacedAtCell(cellIsFree, block, row, col))
                     {
                         atLeastOneBlockCanBePlaced = true;
                         break;
@@ -95,27 +96,38 @@ public class Field : MonoBehaviour
         if (!atLeastOneBlockCanBePlaced)
         {
             //Game Over
-            gameOverMenu.SetActive(true);
+            EndGame();
         }
     }
-    
+
+    public void EndGame()
+    {
+        gameOverMenu.SetActive(true);
+    }
+
     #region Placement
 
     //Implement only after checking if the cells are free
-    public void PlaceBlock(Transform[] cells, Color color, GameObject blockObj)
+    public int PlaceBlock(Transform[] cells, Color color, GameObject blockObj)
     {
         _lastPreviewedCells = new List<Vector2Int>();
         for (int i = 0; i < cells.Length; i++)
         {
             Vector2Int position = GetCellCoordinatesOnField(cells[i].position);
-            _cellIsFree[position.x, position.y] = false;
+            cellIsFree[position.x, position.y] = false;
             _fieldCells[position.x, position.y].GetComponent<SpriteRenderer>().sprite = notEmptyCell;
             _fieldCells[position.x, position.y].GetComponent<SpriteRenderer>().color = color;
-            BlockSpawner.Instance.RemoveBlock(blockObj);
         }
-        CheckForRowOrColumnRemoval();
+        BlockSpawner.Instance.RemoveBlock(blockObj);
+        int rowsAndColumnsRemoved = CheckForRowOrColumnRemoval();
+        score += cells.Length;
+        int rcScore = rowsAndColumnsRemoved * 1000 + rowsAndColumnsRemoved * 100; //rows and columns removed score
+        score += rcScore;
+        //Debug.Log(score);
+        return score;
     }
     
+    //Used only for drag and drop
     public bool CheckIfBlockCanBePlaced(Transform[] cells)
     {
         //Trying to preview and also checking if the block can be placed in its current position
@@ -128,42 +140,34 @@ public class Field : MonoBehaviour
                 cells[i].position.y <= _lastCell.position.y - (cellSize * .5f - .05f))
                 return false;
             Vector2Int position = GetCellCoordinatesOnField(cells[i].position);
-            if (!_cellIsFree[position.x, position.y]) return false;
+            if (!cellIsFree[position.x, position.y]) return false;
         }
         return true;
     }
 
-    private bool CheckIfBlockCanBePlacedAtCell(Block block, int row, int col)
+    //Don't use if the block is out of the field(check it in loop instead, it's more efficient)
+    public bool CheckIfBlockCanBePlacedAtCell(bool[,] field, Block block, int row, int col)
     {
         for (int y = 0; y < block.sizeY; y++)
             for (int x = 0; x < block.sizeX; x++)
             {
-                if (!block.blockShapeMatrix[y, x]) 
+                if (!block.blockShape[y * block.sizeX + x]) 
                     continue;
-                
-                int fieldRow = row + y;
-                int fieldCol = col + x;
-                
-                //checking if the block is outside the field
-                if (fieldRow < 0 || fieldRow >= cellsCountY ||
-                    fieldCol < 0 || fieldCol >= cellsCountX)
-                    return false;
-                
                 //checking if the cell is not free
-                if (!_cellIsFree[fieldRow, fieldCol])
+                if (field[row + y, col + x] == false)
                     return false;
             }
         return true;
     }
-
+    
     private Vector2Int GetCellCoordinatesOnField(Vector3 position)
     {
         float x = position.x - firstCell.position.x;
         float y = firstCell.position.y - position.y;
         x /= cellSize;
         y /= cellSize;
-        int row = Convert.ToInt32(y);
-        int col = Convert.ToInt32(x);
+        var row = Convert.ToInt32(y);
+        var col = Convert.ToInt32(x);
         row = Math.Clamp(row, 0, cellsCountY - 1);
         col = Math.Clamp(col, 0, cellsCountX - 1);
         return new Vector2Int(row, col);
@@ -197,16 +201,16 @@ public class Field : MonoBehaviour
     
     #region Removing full rows and columns
     
-    private void CheckForRowOrColumnRemoval()
+    private int CheckForRowOrColumnRemoval()
     {
         List<int> fullRows = new List<int>();
         List<int> fullCols = new List<int>();
         //Checking rows
-        for (int i = 0; i < cellsCountX; i++)
+        for (int i = 0; i < cellsCountY; i++)
         {
             bool rowIsFull = true;
-            for (int j = 0; j < cellsCountY; j++)
-                if (_cellIsFree[i, j])
+            for (int j = 0; j < cellsCountX; j++)
+                if (cellIsFree[i, j])
                 {
                     rowIsFull = false;
                     break;
@@ -214,11 +218,11 @@ public class Field : MonoBehaviour
             if (rowIsFull) fullRows.Add(i);
         }
         //Checking columns
-        for (int j = 0; j < cellsCountY; j++)
+        for (int j = 0; j < cellsCountX; j++)
         {
             bool colIsFull = true;
-            for (int i = 0; i < cellsCountX; i++)
-                if (_cellIsFree[i, j])
+            for (int i = 0; i < cellsCountY; i++)
+                if (cellIsFree[i, j])
                 {
                     colIsFull = false;
                     break;
@@ -234,12 +238,13 @@ public class Field : MonoBehaviour
         foreach (int col in fullCols)
             StartCoroutine(RemoveColumn(col));
         CheckIfGameIsOver();
+        return fullRows.Count + fullCols.Count;
     }
 
     private IEnumerator RemoveRow(int row)
     {
         for(int j = 0; j < cellsCountX; j++)
-            _cellIsFree[row, j] = true;
+            cellIsFree[row, j] = true;
         for (int j = 0; j < cellsCountX; j++)
         {
             _fieldCells[row, j].GetComponent<SpriteRenderer>().sprite = emptyCell;
@@ -247,10 +252,12 @@ public class Field : MonoBehaviour
             yield return new WaitForSeconds(0.02f);
         }
     }
+    
     private IEnumerator RemoveColumn(int col)
     {
-        for(int i = 0; i < cellsCountX; i++)
-            _cellIsFree[i, col] = true;
+        for(int i = 0; i < cellsCountY; i++)
+            cellIsFree[i, col] = true;
+        
         for (int i = 0; i < cellsCountY; i++)
         {
             _fieldCells[i, col].GetComponent<SpriteRenderer>().sprite = emptyCell;

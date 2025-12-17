@@ -1,5 +1,5 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 
 public class Block : MonoBehaviour
 {
@@ -8,63 +8,16 @@ public class Block : MonoBehaviour
     [HideInInspector] public int sizeY = 3;
     [HideInInspector] public bool[] blockShape;
     [SerializeField] private float notPickedSize = .7f;
-    public bool[,] blockShapeMatrix { get; private set; }
     private bool _isPicked;
     private Camera _mainCam;
     private Vector3 _startPos;
     private Vector3 _mouseOffset;
 
-    private void Awake()
-    {
-        SetSize(notPickedSize);
-        GenerateBlockShapeMatrix();
-    }
+    private void Awake() => SetSize(notPickedSize);
 
-    private void Start()
-    {
-        _mainCam = Camera.main;
-    }
-
-    public void SetColor(Color color)
-    {
-        foreach (var cell in cells)
-            cell.GetComponent<SpriteRenderer>().color = color;
-    }
-
-    private void GenerateBlockShapeMatrix()
-    {
-        blockShapeMatrix = new bool[sizeY, sizeX];
-        for (int row = 0; row < sizeY; row++)
-            for (int col = 0; col < sizeX; col++)
-                blockShapeMatrix[row, col] = blockShape[row * sizeX + col];
-    }
+    private void Start() => _mainCam = Camera.main;
     
-    private void SetSize(float size) =>
-        StartCoroutine(SizeChangeRoutine(transform.localScale, new Vector3(size, size, 1), .05f));
-
-    private IEnumerator PositionTranslateRoutine(Vector3 startPos, Vector3 endPos, float duration)
-    {
-        float estimatedTime = 0f;
-        while (estimatedTime < duration)
-        {
-            estimatedTime += Time.deltaTime;
-            transform.position = Vector3.Lerp(startPos, endPos, estimatedTime / duration);
-            yield return null;
-        }
-        transform.position = endPos;
-    }
-    
-    private IEnumerator SizeChangeRoutine(Vector3 startSize, Vector3 endSize, float duration)
-    {
-        float estimatedTime = 0f;
-        while (estimatedTime < duration)
-        {
-            estimatedTime += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(startSize, endSize, estimatedTime / duration);
-            yield return null;
-        }
-        transform.localScale = endSize;
-    }
+    #region Drag and drop
     
     private void OnMouseDown()
     {
@@ -107,4 +60,47 @@ public class Block : MonoBehaviour
             StartCoroutine(PositionTranslateRoutine(transform.position, _startPos, .1f));
         }
     }
+    
+    #endregion
+
+    #region Visuals
+    
+    public void SetColor(Color color)
+    {
+        foreach (var cell in cells)
+            cell.GetComponent<SpriteRenderer>().color = color;
+    }
+    
+    private void SetSize(float size) =>
+        StartCoroutine(SizeChangeRoutine(transform.localScale, new Vector3(size, size, 1), .05f));
+    
+    #endregion
+
+    #region Coroutines
+    
+    private IEnumerator PositionTranslateRoutine(Vector3 startPos, Vector3 endPos, float duration)
+    {
+        float estimatedTime = 0f;
+        while (estimatedTime < duration)
+        {
+            estimatedTime += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, endPos, estimatedTime / duration);
+            yield return null;
+        }
+        transform.position = endPos;
+    }
+    
+    private IEnumerator SizeChangeRoutine(Vector3 startSize, Vector3 endSize, float duration)
+    {
+        float estimatedTime = 0f;
+        while (estimatedTime < duration)
+        {
+            estimatedTime += Time.deltaTime;
+            transform.localScale = Vector3.Lerp(startSize, endSize, estimatedTime / duration);
+            yield return null;
+        }
+        transform.localScale = endSize;
+    }
+    
+    #endregion
 }

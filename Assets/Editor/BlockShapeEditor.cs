@@ -16,7 +16,7 @@ public class BlockShapeEditor : Editor
             shape.blockShape = new bool[shape.sizeX * shape.sizeY];
         GUILayout.Space(10);
         
-        // Draw grid
+        //Draw grid
         for (int y = 0; y < shape.sizeY; y++)
         {
             GUILayout.BeginHorizontal();
