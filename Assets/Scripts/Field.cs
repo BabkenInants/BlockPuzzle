@@ -47,7 +47,6 @@ public class Field : MonoBehaviour
             cellIsFree[cell.x, cell.y] = false;
         int rowsAndColumnsRemoved = CheckForRowOrColumnRemoval(ref changesAfterMove);
         GameEvents.RaiseChangesAfterMoveReport(changesAfterMove);
-        GameEvents.RaiseRequestGameOverCheck();
     }
     
     //Used only for drag and drop
