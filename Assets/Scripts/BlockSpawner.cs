@@ -5,49 +5,78 @@ using Random = UnityEngine.Random;
 
 public class BlockSpawner : MonoBehaviour
 {
-    public static BlockSpawner Instance;
+    public bool isReady{get; private set;}
+    [SerializeField] private Settings settings;
+    [SerializeField] private Field field;
     public GameObject[] blocks;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private GameObject[] blockPrefabs;
     [SerializeField] private GameObject[] smallBlockPrefabs;
     [SerializeField] private Color[] colors;
-    private bool gameIsRunning = true;
+    private bool _gameIsOver;
     
-    private void Awake()
+    private void Start()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-    }
-    
-    private void Start() =>
         blocks = new GameObject[spawnPoints.Length];
+        isReady = true;
+        SpawnBlocks();
+    }
+
+    private void OnEnable()
+    {
+        GameEvents.OnGameOver += OnGameOver;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnGameOver -= OnGameOver;
+    }
+
+    private void OnGameOver() => _gameIsOver = true;
+    
+    private void SpawnBlocks()
+    {
+        if(_gameIsOver) return;
+        List<GameObject> blocksToSpawn = GenerateNextBlocks();
+        //ToDo switch to events
+        if (blocksToSpawn == null)
+        {
+            GameEvents.RaiseGameOver();
+            return;
+        }
+        for (var i = 0; i < spawnPoints.Length; i++)
+        {
+            blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
+            blocks[i].GetComponent<Block>().SetColor(colors[Random.Range(0, colors.Length)]);
+            blocks[i].GetComponent<Block>().InitSettings(settings);
+        }
+    }
 
     public void RemoveBlock(GameObject block)
     {
-        for(int i = 0; i < spawnPoints.Length; i++)
-            if(blocks[i] == block)
+        if(_gameIsOver) return;
+        bool spawnNewBlocks = true;
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            if (blocks[i] == block)
                 blocks[i] = null;
+            else if (blocks[i] != null) spawnNewBlocks = false;
+        }
         Destroy(block);
+        if(spawnNewBlocks) SpawnBlocks();
     }
 
-    private void Update()
-    {
-        if (!gameIsRunning) return;
-        foreach (var block in blocks)
-            if (block != null)
-                return;
-        SpawnBlocks();
-    }
+    #region Field simulation and new blocks generation
 
     private List<GameObject> GenerateNextBlocks()
     {
         var nextBlocks = new List<GameObject>();
-        var tempField = (bool[,])Field.Instance.cellIsFree.Clone();
+        var tempField = (bool[,]) field.cellIsFree.Clone();
         
         for (var i = 0; i < spawnPoints.Length; i++)
         {
-            GameObject tempBlock = null;
-            var tempPosition = new Vector2Int();
+            GameObject tempBlock;
+            Vector2Int tempPosition;
             if (!FindBlockForField(tempField, blockPrefabs.ToList(), out tempBlock, out tempPosition))
             {
                 //Fallback(small blocks)
@@ -64,7 +93,7 @@ public class BlockSpawner : MonoBehaviour
     }
 
     //true - found, false - no blocks for this field
-    private bool FindBlockForField(bool[,] field, List<GameObject> blocksArr, out GameObject tempBlock, 
+    private bool FindBlockForField(bool[,] tempField, List<GameObject> blocksArr, out GameObject tempBlock, 
         out Vector2Int tempPosition)
     { 
         tempBlock = null;
@@ -72,14 +101,14 @@ public class BlockSpawner : MonoBehaviour
         while(blocksArr.Count > 0)
         {
             tempBlock = blocksArr[Random.Range(0, blocksArr.Count)];
-            if (!CheckIfBlockCanBePlacedInAnyCell(field, tempBlock.GetComponent<Block>(), ref tempPosition))
+            if (!CheckIfBlockCanBePlacedInAnyCell(tempField, tempBlock.GetComponent<Block>(), ref tempPosition))
                 blocksArr.Remove(tempBlock);
             else break;
         }
         return blocksArr.Count > 0;
     }
 
-    private void PlaceBlockAndRemoveColsAndRows(ref bool[,] field, Block block, Vector2Int position)
+    private void PlaceBlockAndRemoveColsAndRows(ref bool[,] tempField, Block block, Vector2Int position)
     {
         //true - free, false - busy
         
@@ -88,22 +117,22 @@ public class BlockSpawner : MonoBehaviour
             for (int x = 0; x < block.sizeX; x++)
             {
                 if (!block.blockShape[y * block.sizeX + x]) continue;
-                field[y + position.y, x + position.x] = false;
+                tempField[y + position.y, x + position.x] = false;
             }
 
-        var rowsToRemove = new List<int>();
-        var colsToRemove = new List<int>();
+        var rowsToRemove = new bool[settings.cellsCountY];
+        var colsToRemove = new bool[settings.cellsCountX];
 
-        int h = field.GetLength(0); // rows (Y)
-        int w = field.GetLength(1); // cols (X)
+        int h = tempField.GetLength(0); // rows (Y)
+        int w = tempField.GetLength(1); // cols (X)
 
         // Rows
         for (int y = 0; y < h; y++)
         {
             bool rowIsFull = true;
             for (int x = 0; x < w; x++)
-                if (field[y, x]) { rowIsFull = false; break; }
-            if (rowIsFull) rowsToRemove.Add(y);
+                if (tempField[y, x]) { rowIsFull = false; break; }
+            if (rowIsFull) rowsToRemove[y] = true;
         }
 
         // Cols
@@ -111,26 +140,31 @@ public class BlockSpawner : MonoBehaviour
         {
             bool colIsFull = true;
             for (int y = 0; y < h; y++)
-                if (field[y, x]) { colIsFull = false; break; }
-            if (colIsFull) colsToRemove.Add(x);
+                if (tempField[y, x]) { colIsFull = false; break; }
+            if (colIsFull) colsToRemove[x] = true;
         }
 
         // Remove rows
-        foreach (int y in rowsToRemove)
-            for (int x = 0; x < w; x++)
-                field[y, x] = true;
+        for (int y = 0; y < rowsToRemove.Length; y++)
+            if(rowsToRemove[y])
+                for (int x = 0; x < w; x++)
+                    tempField[y, x] = true;
 
         // Remove cols
-        foreach (int x in colsToRemove)
-            for (int y = 0; y < h; y++)
-                field[y, x] = true;
+        for (int x = 0; x < colsToRemove.Length; x++)
+            if(colsToRemove[x])
+                for (int y = 0; y < h; y++)
+                {
+                    if (rowsToRemove[y]) continue;
+                    tempField[y, x] = true;
+                }
     }
     
-    private bool CheckIfBlockCanBePlacedInAnyCell(bool[,] field, Block block, ref Vector2Int position)
+    private bool CheckIfBlockCanBePlacedInAnyCell(bool[,] tempField, Block block, ref Vector2Int position)
     {
-        for (var y = 0; y <= field.GetLength(0) - block.sizeY; y++)
-            for (var x = 0; x <= field.GetLength(1) - block.sizeX; x++)
-                if (Field.Instance.CheckIfBlockCanBePlacedAtCell(field, block, y, x))
+        for (var y = 0; y <= tempField.GetLength(0) - block.sizeY; y++)
+            for (var x = 0; x <= tempField.GetLength(1) - block.sizeX; x++)
+                if (field.CheckIfBlockCanBePlacedAtCell(tempField, block, y, x))
                 {
                     position = new Vector2Int(x, y);
                     return true;
@@ -138,20 +172,5 @@ public class BlockSpawner : MonoBehaviour
         return false;
     }
     
-    private void SpawnBlocks()
-    {
-        List<GameObject> blocksToSpawn = GenerateNextBlocks();
-        //ToDo switch to events
-        if (blocksToSpawn == null)
-        {
-            Field.Instance.EndGame();
-            gameIsRunning = false;
-            return;
-        }
-        for (var i = 0; i < spawnPoints.Length; i++)
-        {
-            blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
-            blocks[i].GetComponent<Block>().SetColor(colors[Random.Range(0, colors.Length)]);
-        }
-    }
+    #endregion
 }

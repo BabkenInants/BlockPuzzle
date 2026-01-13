@@ -1,151 +1,71 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Field : MonoBehaviour
 {
-    public static Field Instance { get; private set; }
-    
-    [SerializeField] private Transform firstCell;
-    [SerializeField] private GameObject cellPrefab;
-    [SerializeField] private Color defaultCellColor;
-    [SerializeField] private Color cellPreviewColor;
-    [SerializeField] private GameObject gameOverMenu;
-    [field: SerializeField] public float minBlockDistanceFromCursorY {get; private set; } = 1f;
-    [field: SerializeField] public float maxBlockDistanceFromCursorY {get; private set; } = 5f;
-    [field: SerializeField] public float minBlockDistanceFromCursorX {get; private set; } = -.5f;
-    [field: SerializeField] public float maxBlockDistanceFromCursorX {get; private set; } = 1f;
-    [field: SerializeField] public float cellSize { get; private set; } = .5f;
-    [field: SerializeField] public Sprite emptyCell { get; private set; }
-    [field: SerializeField] public Sprite notEmptyCell { get; private set; }
-    [field: SerializeField] public int cellsCountX { get; private set; } = 8;
-    [field: SerializeField] public int cellsCountY { get; private set; } = 8;
-    
-    private Transform _lastCell;
-    private Transform[,] _fieldCells;
+    public bool isReady{get; private set;}
     public bool[,] cellIsFree { get; private set; }
-    private List<Vector2Int> _lastPreviewedCells;
-    private int score = 0;
+    [SerializeField] private Settings settings;
+    private Transform _firstCell;
+    private int _score;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-        _fieldCells = new Transform[cellsCountY, cellsCountX];
-        cellIsFree = new bool[cellsCountY, cellsCountX];
-        for (int i = 0; i < cellsCountY; i++) 
-            for(int j = 0; j < cellsCountX; j++)
+        isReady = true;
+        cellIsFree = new bool[settings.cellsCountY, settings.cellsCountX];
+        for (int i = 0; i < settings.cellsCountY; i++) 
+            for(int j = 0; j < settings.cellsCountX; j++)
                 cellIsFree[i, j] = true;
     }
 
-    void Start()
-    {
-        GenerateField();
-    }
-    
-    private void GenerateField()
-    {
-        _fieldCells[0, 0] = firstCell;
-        for (int i = 0; i < cellsCountY; i++)
-        {
-            for (int j = 0; j < cellsCountX; j++)
-            {
-                if (i == 0 && j == 0) continue;
-                Vector3 position = firstCell.position + new Vector3(j * cellSize, -i * cellSize, 0f);
-                _fieldCells[i, j] = Instantiate(cellPrefab, position, 
-                    Quaternion.identity, transform).transform;
-            }
-        }
-        _lastCell = _fieldCells[cellsCountY - 1, cellsCountX - 1];
-    }
+    public void InitFirstCell(Transform firstCell) =>
+        _firstCell = firstCell;
 
-    public void Restart()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-    
-    private void CheckIfGameIsOver()
-    {
-        List<Block> currentBlocks = new List<Block>();
-        foreach(var block in BlockSpawner.Instance.blocks)
-        {
-            if (block == null) continue;
-            Block currentBlock = block.GetComponent<Block>();
-            currentBlocks.Add(currentBlock);
-        }
-        if(currentBlocks.Count == 0) return;
-        bool atLeastOneBlockCanBePlaced = false;
-        foreach(var block in  currentBlocks)
-        {
-            for (int row = 0; row <= cellsCountY - block.sizeY; row++)
-            {
-                for (int col = 0; col <= cellsCountX - block.sizeX; col++)
-                {
-                    if (CheckIfBlockCanBePlacedAtCell(cellIsFree, block, row, col))
-                    {
-                        atLeastOneBlockCanBePlaced = true;
-                        break;
-                    }
-                }
-                if (atLeastOneBlockCanBePlaced) break;
-            }
-            if (atLeastOneBlockCanBePlaced) break;
-        }
-        if (!atLeastOneBlockCanBePlaced)
-        {
-            //Game Over
-            EndGame();
-        }
-    }
-
-    public void EndGame()
-    {
-        gameOverMenu.SetActive(true);
-    }
+    //TODO Transfer this function to ui manager
+    public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
     #region Placement
+    
+    public Vector2Int GetCellCoordinatesOnField(Vector3 position)
+    {
+        float x = position.x - _firstCell.position.x;
+        float y = _firstCell.position.y - position.y;
+        x /= settings.cellSize;
+        y /= settings.cellSize;
+        var row = Mathf.RoundToInt(y);
+        var col = Mathf.RoundToInt(x);
+        return new Vector2Int(row, col);
+    }
 
     //Implement only after checking if the cells are free
-    public int PlaceBlock(Transform[] cells, Color color, GameObject blockObj)
+    public void PlaceBlock(Vector2Int[] cells, Color color)
     {
-        _lastPreviewedCells = new List<Vector2Int>();
-        for (int i = 0; i < cells.Length; i++)
-        {
-            Vector2Int position = GetCellCoordinatesOnField(cells[i].position);
-            cellIsFree[position.x, position.y] = false;
-            _fieldCells[position.x, position.y].GetComponent<SpriteRenderer>().sprite = notEmptyCell;
-            _fieldCells[position.x, position.y].GetComponent<SpriteRenderer>().color = color;
-        }
-        BlockSpawner.Instance.RemoveBlock(blockObj);
-        int rowsAndColumnsRemoved = CheckForRowOrColumnRemoval();
-        score += cells.Length;
-        int rcScore = rowsAndColumnsRemoved * 1000 + rowsAndColumnsRemoved * 100; //rows and columns removed score
-        score += rcScore;
-        //Debug.Log(score);
-        return score;
+        ChangesAfterMove changesAfterMove = new ChangesAfterMove();
+        changesAfterMove.BlockCellsPositions = cells;
+        changesAfterMove.BlockColor = color;
+        foreach (Vector2Int cell in cells)
+            cellIsFree[cell.x, cell.y] = false;
+        int rowsAndColumnsRemoved = CheckForRowOrColumnRemoval(ref changesAfterMove);
+        GameEvents.RaiseChangesAfterMoveReport(changesAfterMove);
+        GameEvents.RaiseRequestGameOverCheck();
     }
     
     //Used only for drag and drop
     public bool CheckIfBlockCanBePlaced(Transform[] cells)
     {
         //Trying to preview and also checking if the block can be placed in its current position
-        for (int i = 0; i < cells.Length; i++)
+        foreach(Transform cell in cells)
         {
-            if (cells[i].position.x <= firstCell.position.x - (cellSize * .5f - .05f)||
-                cells[i].position.x >= _lastCell.position.x + (cellSize * .5f - .05f))
+            Vector2Int position = GetCellCoordinatesOnField(cell.position);
+            if (position.x < 0 || position.y < 0 || position.x >= settings.cellsCountY ||
+                position.y >= settings.cellsCountX)
                 return false;
-            if (cells[i].position.y >= firstCell.position.y + (cellSize * .5f - .05f) ||
-                cells[i].position.y <= _lastCell.position.y - (cellSize * .5f - .05f))
-                return false;
-            Vector2Int position = GetCellCoordinatesOnField(cells[i].position);
             if (!cellIsFree[position.x, position.y]) return false;
         }
         return true;
     }
 
-    //Don't use if the block is out of the field(check it in loop instead, it's more efficient)
+    //Don't use if the block is out of the field(use this function in loops, it's more efficient)
     public bool CheckIfBlockCanBePlacedAtCell(bool[,] field, Block block, int row, int col)
     {
         for (int y = 0; y < block.sizeY; y++)
@@ -159,112 +79,86 @@ public class Field : MonoBehaviour
             }
         return true;
     }
-    
-    private Vector2Int GetCellCoordinatesOnField(Vector3 position)
-    {
-        float x = position.x - firstCell.position.x;
-        float y = firstCell.position.y - position.y;
-        x /= cellSize;
-        y /= cellSize;
-        var row = Convert.ToInt32(y);
-        var col = Convert.ToInt32(x);
-        row = Math.Clamp(row, 0, cellsCountY - 1);
-        col = Math.Clamp(col, 0, cellsCountX - 1);
-        return new Vector2Int(row, col);
-    }
-    
-    #region Previewing
-    
-    //Implement only after checking if the cells are free
-    public void PreviewCells(Transform[] cells)
-    {
-        _lastPreviewedCells = new List<Vector2Int>();
-        for (int i = 0; i < cells.Length; i++)
-        {
-            Vector2Int position =  GetCellCoordinatesOnField(cells[i].position);
-            _lastPreviewedCells.Add(position);
-            _fieldCells[position.x, position.y].GetComponent<SpriteRenderer>().color = cellPreviewColor;
-        }
-    }
-
-    public void HideCellsPreview()
-    {
-        List<Vector2Int> cells = _lastPreviewedCells;
-        if (cells == null) return;
-        foreach (Vector2Int cell in cells)
-            _fieldCells[cell[0], cell[1]].GetComponent<SpriteRenderer>().color = defaultCellColor;
-    }
-
-    #endregion
 
     #endregion
     
     #region Removing full rows and columns
     
-    private int CheckForRowOrColumnRemoval()
+    private int CheckForRowOrColumnRemoval(ref ChangesAfterMove changesAfterMove)
     {
-        List<int> fullRows = new List<int>();
-        List<int> fullCols = new List<int>();
+        var fullRows = new bool[settings.cellsCountY];
+        var fullCols = new bool[settings.cellsCountX];
         //Checking rows
-        for (int i = 0; i < cellsCountY; i++)
+        for (int i = 0; i < settings.cellsCountY; i++)
         {
             bool rowIsFull = true;
-            for (int j = 0; j < cellsCountX; j++)
+            for (int j = 0; j < settings.cellsCountX; j++)
                 if (cellIsFree[i, j])
                 {
                     rowIsFull = false;
                     break;
                 }
-            if (rowIsFull) fullRows.Add(i);
+            fullRows[i] = rowIsFull;
         }
         //Checking columns
-        for (int j = 0; j < cellsCountX; j++)
+        for (int j = 0; j < settings.cellsCountX; j++)
         {
             bool colIsFull = true;
-            for (int i = 0; i < cellsCountY; i++)
+            for (int i = 0; i < settings.cellsCountY; i++)
                 if (cellIsFree[i, j])
                 {
                     colIsFull = false;
                     break;
                 }
-            if (colIsFull) fullCols.Add(j);
+            fullCols[j] = colIsFull;
         }
+        
+        var rowsNColsRemoved = 0;
         
         //Removing full rows
-        foreach (int row in fullRows)
-            StartCoroutine(RemoveRow(row));
-        
+        for (var row = 0; row < fullRows.Length; row++)
+            if (fullRows[row])
+            {
+                RemoveRow(row);
+                rowsNColsRemoved++;
+            }
+
         //Removing full columns
-        foreach (int col in fullCols)
-            StartCoroutine(RemoveColumn(col));
-        CheckIfGameIsOver();
-        return fullRows.Count + fullCols.Count;
+        for (var col = 0; col < fullCols.Length; col++)
+            if (fullCols[col])
+            {
+                RemoveColumn(col, fullRows);
+                rowsNColsRemoved++;
+            }
+        changesAfterMove.FullRows = (bool[]) fullRows.Clone();
+        changesAfterMove.FullCols = (bool[]) fullCols.Clone();
+        return rowsNColsRemoved;
     }
 
-    private IEnumerator RemoveRow(int row)
+    private void RemoveRow(int row)
     {
-        for(int j = 0; j < cellsCountX; j++)
+        for(int j = 0; j < settings.cellsCountX; j++)
             cellIsFree[row, j] = true;
-        for (int j = 0; j < cellsCountX; j++)
-        {
-            _fieldCells[row, j].GetComponent<SpriteRenderer>().sprite = emptyCell;
-            _fieldCells[row, j].GetComponent<SpriteRenderer>().color = defaultCellColor;
-            yield return new WaitForSeconds(0.02f);
-        }
     }
     
-    private IEnumerator RemoveColumn(int col)
+    private void RemoveColumn(int col, bool[] fullRows)
     {
-        for(int i = 0; i < cellsCountY; i++)
-            cellIsFree[i, col] = true;
-        
-        for (int i = 0; i < cellsCountY; i++)
+        for (int i = 0; i < settings.cellsCountY; i++)
         {
-            _fieldCells[i, col].GetComponent<SpriteRenderer>().sprite = emptyCell;
-            _fieldCells[i, col].GetComponent<SpriteRenderer>().color = defaultCellColor;
-            yield return new WaitForSeconds(0.02f);
+            if(fullRows[i]) continue;
+            cellIsFree[i, col] = true;
         }
     } 
 
     #endregion
+}
+
+public class ChangesAfterMove
+{
+    //BlockPlacement
+    public Vector2Int[] BlockCellsPositions;
+    public Color BlockColor;
+    //RowsAndColumnsRemoved
+    public bool[] FullRows;
+    public bool[] FullCols;
 }

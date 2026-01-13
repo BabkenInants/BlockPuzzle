@@ -148,6 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd693d0cc2a34495a0494a70a575f80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  settings: {fileID: 11400000, guid: 332df0a2d081a48689871761b43841df, type: 2}
+  field: {fileID: 736265129}
   blocks: []
   spawnPoints:
   - {fileID: 1994386145}
@@ -184,6 +186,16 @@ MonoBehaviour:
   - {fileID: 4364295601992306526, guid: 4e62802b5e2dc438b8362edf971b03d7, type: 3}
   - {fileID: 6967560060208433201, guid: 817d1a7dc75cb4926b8473a947b4f36b, type: 3}
   - {fileID: 1369699636396564647, guid: 0e460d4e4e6be472181125c8fcf452ea, type: 3}
+  smallBlockPrefabs:
+  - {fileID: 4396987542601405729, guid: 991e04aaef9cd4706a9f76231bb7f3a1, type: 3}
+  - {fileID: 6990745283675571670, guid: 6b5ac881ce6c24f7cab3d884bd01d0fb, type: 3}
+  - {fileID: 6183902098893057101, guid: 05591306a2f4f4d6a8850af5eb83d983, type: 3}
+  - {fileID: 3083192805538972200, guid: 5c2145c0cd32143d291415800d9aeddd, type: 3}
+  - {fileID: 2774996786515161511, guid: a955d1c18981e49eba9132694084bc19, type: 3}
+  - {fileID: 5312309622096247570, guid: 4478830ea4bcd4227bc43274ee2ccac8, type: 3}
+  - {fileID: 4920408409697412232, guid: f5264c5c2961b4737b923632e7adf2ae, type: 3}
+  - {fileID: 7055817461446177434, guid: 486fd79c2e6e942b687f2d476d6cd2d7, type: 3}
+  - {fileID: 6096826533973895730, guid: 3aab28830967141899fc4c8378236fa5, type: 3}
   colors:
   - {r: 0, g: 0.7529412, b: 0, a: 1}
   - {r: 0.5019608, g: 0.8392157, b: 0.99215686, a: 1}
@@ -634,6 +646,7 @@ GameObject:
   m_Component:
   - component: {fileID: 736265128}
   - component: {fileID: 736265129}
+  - component: {fileID: 736265130}
   m_Layer: 0
   m_Name: Field
   m_TagString: Untagged
@@ -670,20 +683,72 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b6059e5473154c38951284d264effb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  firstCell: {fileID: 2064070104}
-  cellPrefab: {fileID: 40837118694815055, guid: a14003c64ddae4ba9b906ac4d09fb07d, type: 3}
-  defaultCellColor: {r: 0.43137255, g: 0.43137255, b: 0.43137255, a: 1}
-  cellPreviewColor: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 1}
+  settings: {fileID: 11400000, guid: 332df0a2d081a48689871761b43841df, type: 2}
+  fieldGraphics: {fileID: 736265130}
+  blockSpawner: {fileID: 45406433}
+--- !u!114 &736265130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 736265127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a96b02b582374ae6b42e0520ba835389, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldGraphics
+  <firstCell>k__BackingField: {fileID: 2064070104}
+  settings: {fileID: 11400000, guid: 332df0a2d081a48689871761b43841df, type: 2}
+--- !u!1 &1092235368
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1092235370}
+  - component: {fileID: 1092235369}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1092235369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092235368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de7e4e8174af4b739f08e80ff9bf1ba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
   gameOverMenu: {fileID: 593837410}
-  <minBlockDistanceFromCursorY>k__BackingField: 1
-  <maxBlockDistanceFromCursorY>k__BackingField: 5
-  <minBlockDistanceFromCursorX>k__BackingField: -0.5
-  <maxBlockDistanceFromCursorX>k__BackingField: 1
-  <cellSize>k__BackingField: 0.65
-  <emptyCell>k__BackingField: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  <notEmptyCell>k__BackingField: {fileID: 21300000, guid: b3458b1a4cfb446328f745e0c20ac2f4, type: 3}
-  <cellsCountX>k__BackingField: 8
-  <cellsCountY>k__BackingField: 8
+  field: {fileID: 736265129}
+  fieldGraphics: {fileID: 736265130}
+  blockSpawner: {fileID: 45406433}
+  settings: {fileID: 11400000, guid: 332df0a2d081a48689871761b43841df, type: 2}
+--- !u!4 &1092235370
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092235368}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1573333488
 GameObject:
   m_ObjectHideFlags: 0
@@ -1196,10 +1261,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7288502815930530135, guid: a14003c64ddae4ba9b906ac4d09fb07d, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1210,6 +1271,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 519420032}
+  - {fileID: 1092235370}
   - {fileID: 736265128}
   - {fileID: 45406434}
   - {fileID: 1592929364}
