@@ -49,7 +49,7 @@ public class Block : MonoBehaviour
         Vector3 mousePos = Input.mousePosition;
         float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);
         float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxX, minX, maxX);
-        Vector3 offset = _mouseOffset +  new Vector3(xOffset, yOffset);
+        Vector3 offset = _mouseOffset + new Vector3(xOffset, yOffset);
         Vector3 mp = Input.mousePosition;
         mp.z = -_mainCam.transform.position.z;
         Vector3 world = _mainCam.ScreenToWorldPoint(mp);

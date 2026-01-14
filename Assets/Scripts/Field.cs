@@ -7,14 +7,13 @@ public class Field : MonoBehaviour
     public bool[,] cellIsFree { get; private set; }
     [SerializeField] private Settings settings;
     private Transform _firstCell;
-    private int _score;
 
     private void Awake()
     {
         isReady = true;
-        cellIsFree = new bool[settings.cellsCountY, settings.cellsCountX];
-        for (int i = 0; i < settings.cellsCountY; i++) 
-            for(int j = 0; j < settings.cellsCountX; j++)
+        cellIsFree = new bool[settings.rowsCount, settings.columnsCount];
+        for (int i = 0; i < settings.rowsCount; i++) 
+            for(int j = 0; j < settings.columnsCount; j++)
                 cellIsFree[i, j] = true;
     }
 
@@ -25,28 +24,17 @@ public class Field : MonoBehaviour
     public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
     #region Placement
-    
-    public Vector2Int GetCellCoordinatesOnField(Vector3 position)
-    {
-        float x = position.x - _firstCell.position.x;
-        float y = _firstCell.position.y - position.y;
-        x /= settings.cellSize;
-        y /= settings.cellSize;
-        var row = Mathf.RoundToInt(y);
-        var col = Mathf.RoundToInt(x);
-        return new Vector2Int(row, col);
-    }
 
     //Implement only after checking if the cells are free
-    public void PlaceBlock(Vector2Int[] cells, Color color)
+    public ChangesAfterMove PlaceBlock(GridPos[] cells, Color color)
     {
         ChangesAfterMove changesAfterMove = new ChangesAfterMove();
         changesAfterMove.BlockCellsPositions = cells;
         changesAfterMove.BlockColor = color;
-        foreach (Vector2Int cell in cells)
-            cellIsFree[cell.x, cell.y] = false;
+        foreach (GridPos cell in cells)
+            cellIsFree[cell.Row, cell.Column] = false;
         int rowsAndColumnsRemoved = CheckForRowOrColumnRemoval(ref changesAfterMove);
-        GameEvents.RaiseChangesAfterMoveReport(changesAfterMove);
+        return changesAfterMove;
     }
     
     //Used only for drag and drop
@@ -55,11 +43,10 @@ public class Field : MonoBehaviour
         //Trying to preview and also checking if the block can be placed in its current position
         foreach(Transform cell in cells)
         {
-            Vector2Int position = GetCellCoordinatesOnField(cell.position);
-            if (position.x < 0 || position.y < 0 || position.x >= settings.cellsCountY ||
-                position.y >= settings.cellsCountX)
+            GridPos position = FieldUtils.GetCellCoordinatesOnField(cell.position, _firstCell.position, settings.cellSize);
+            if (!position.IsValid(settings.rowsCount, settings.columnsCount))
                 return false;
-            if (!cellIsFree[position.x, position.y]) return false;
+            if (!cellIsFree[position.Row, position.Column]) return false;
         }
         return true;
     }
@@ -85,13 +72,13 @@ public class Field : MonoBehaviour
     
     private int CheckForRowOrColumnRemoval(ref ChangesAfterMove changesAfterMove)
     {
-        var fullRows = new bool[settings.cellsCountY];
-        var fullCols = new bool[settings.cellsCountX];
+        var fullRows = new bool[settings.rowsCount];
+        var fullCols = new bool[settings.columnsCount];
         //Checking rows
-        for (int i = 0; i < settings.cellsCountY; i++)
+        for (int i = 0; i < settings.rowsCount; i++)
         {
             bool rowIsFull = true;
-            for (int j = 0; j < settings.cellsCountX; j++)
+            for (int j = 0; j < settings.columnsCount; j++)
                 if (cellIsFree[i, j])
                 {
                     rowIsFull = false;
@@ -100,10 +87,10 @@ public class Field : MonoBehaviour
             fullRows[i] = rowIsFull;
         }
         //Checking columns
-        for (int j = 0; j < settings.cellsCountX; j++)
+        for (int j = 0; j < settings.columnsCount; j++)
         {
             bool colIsFull = true;
-            for (int i = 0; i < settings.cellsCountY; i++)
+            for (int i = 0; i < settings.rowsCount; i++)
                 if (cellIsFree[i, j])
                 {
                     colIsFull = false;
@@ -136,13 +123,13 @@ public class Field : MonoBehaviour
 
     private void RemoveRow(int row)
     {
-        for(int j = 0; j < settings.cellsCountX; j++)
+        for(int j = 0; j < settings.columnsCount; j++)
             cellIsFree[row, j] = true;
     }
     
     private void RemoveColumn(int col, bool[] fullRows)
     {
-        for (int i = 0; i < settings.cellsCountY; i++)
+        for (int i = 0; i < settings.rowsCount; i++)
         {
             if(fullRows[i]) continue;
             cellIsFree[i, col] = true;
@@ -150,14 +137,4 @@ public class Field : MonoBehaviour
     } 
 
     #endregion
-}
-
-public class ChangesAfterMove
-{
-    //BlockPlacement
-    public Vector2Int[] BlockCellsPositions;
-    public Color BlockColor;
-    //RowsAndColumnsRemoved
-    public bool[] FullRows;
-    public bool[] FullCols;
 }

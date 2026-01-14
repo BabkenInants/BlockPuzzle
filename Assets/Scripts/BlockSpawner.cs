@@ -76,7 +76,7 @@ public class BlockSpawner : MonoBehaviour
         for (var i = 0; i < spawnPoints.Length; i++)
         {
             GameObject tempBlock;
-            Vector2Int tempPosition;
+            GridPos tempPosition;
             if (!FindBlockForField(tempField, blockPrefabs.ToList(), out tempBlock, out tempPosition))
             {
                 //Fallback(small blocks)
@@ -94,10 +94,10 @@ public class BlockSpawner : MonoBehaviour
 
     //true - found, false - no blocks for this field
     private bool FindBlockForField(bool[,] tempField, List<GameObject> blocksArr, out GameObject tempBlock, 
-        out Vector2Int tempPosition)
+        out GridPos tempPosition)
     { 
         tempBlock = null;
-        tempPosition = new Vector2Int();
+        tempPosition = new GridPos();
         while(blocksArr.Count > 0)
         {
             tempBlock = blocksArr[Random.Range(0, blocksArr.Count)];
@@ -108,7 +108,7 @@ public class BlockSpawner : MonoBehaviour
         return blocksArr.Count > 0;
     }
 
-    private void PlaceBlockAndRemoveColsAndRows(ref bool[,] tempField, Block block, Vector2Int position)
+    private void PlaceBlockAndRemoveColsAndRows(ref bool[,] tempField, Block block, GridPos position)
     {
         //true - free, false - busy
         
@@ -117,11 +117,11 @@ public class BlockSpawner : MonoBehaviour
             for (int x = 0; x < block.sizeX; x++)
             {
                 if (!block.blockShape[y * block.sizeX + x]) continue;
-                tempField[y + position.y, x + position.x] = false;
+                tempField[y + position.Row, x + position.Column] = false;
             }
 
-        var rowsToRemove = new bool[settings.cellsCountY];
-        var colsToRemove = new bool[settings.cellsCountX];
+        var rowsToRemove = new bool[settings.rowsCount];
+        var colsToRemove = new bool[settings.columnsCount];
 
         int h = tempField.GetLength(0); // rows (Y)
         int w = tempField.GetLength(1); // cols (X)
@@ -160,13 +160,13 @@ public class BlockSpawner : MonoBehaviour
                 }
     }
     
-    private bool CheckIfBlockCanBePlacedInAnyCell(bool[,] tempField, Block block, ref Vector2Int position)
+    private bool CheckIfBlockCanBePlacedInAnyCell(bool[,] tempField, Block block, ref GridPos position)
     {
         for (var y = 0; y <= tempField.GetLength(0) - block.sizeY; y++)
             for (var x = 0; x <= tempField.GetLength(1) - block.sizeX; x++)
                 if (field.CheckIfBlockCanBePlacedAtCell(tempField, block, y, x))
                 {
-                    position = new Vector2Int(x, y);
+                    position = new GridPos(y, x);
                     return true;
                 }
         return false;

@@ -48,12 +48,13 @@ public class GameManager : MonoBehaviour
         }
         if (field.CheckIfBlockCanBePlaced(block.cells))
         {
-            var cellsPositions = new Vector2Int[block.cells.Length];
+            var cellsPositions = new GridPos[block.cells.Length];
             for(int i = 0; i < cellsPositions.Length; i++)
-                cellsPositions[i] = field.GetCellCoordinatesOnField(block.cells[i].position);
-            field.PlaceBlock(cellsPositions, block.cells[0].GetComponent<SpriteRenderer>().color);
+                cellsPositions[i] = FieldUtils.GetCellCoordinatesOnField(block.cells[i].position, 
+                    fieldGraphics.firstCell.position, settings.cellSize);
+            ChangesAfterMove changes = field.PlaceBlock(cellsPositions, block.cells[0].GetComponent<SpriteRenderer>().color);
             blockSpawner.RemoveBlock(block.gameObject);
-            GameEvents.RaiseRequestGameOverCheck();
+            StartCoroutine(HandleChangesAfterMove(changes));
         }
         else
         {
@@ -80,9 +81,9 @@ public class GameManager : MonoBehaviour
         var atLeastOneBlockCanBePlaced = false;
         foreach(var block in  currentBlocks)
         {
-            for (int row = 0; row <= settings.cellsCountY - block.sizeY; row++)
+            for (int row = 0; row <= settings.rowsCount - block.sizeY; row++)
             {
-                for (int col = 0; col <= settings.cellsCountX - block.sizeX; col++)
+                for (int col = 0; col <= settings.columnsCount - block.sizeX; col++)
                 {
                     if (field.CheckIfBlockCanBePlacedAtCell(field.cellIsFree, block, row, col))
                     {
@@ -107,16 +108,21 @@ public class GameManager : MonoBehaviour
     }
     
     #endregion
-    
-    private void GetChangesAfterMove(ChangesAfterMove changes)
+
+    private IEnumerator HandleChangesAfterMove(ChangesAfterMove changes)
     {
         fieldGraphics.PlaceBlock(changes.BlockCellsPositions, changes.BlockColor);
+        
         for (var i = 0; i < changes.FullRows.Length; i++)
             if (changes.FullRows[i]) StartCoroutine(fieldGraphics.RemoveRow(i));
         for(var i = 0; i < changes.FullCols.Length; i++)
             if (changes.FullCols[i]) StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows));
+        
+        yield return new WaitForSeconds(0.02f * Mathf.Max(settings.columnsCount, settings.rowsCount + .5f));
+    
+        GameEvents.RaiseRequestGameOverCheck();
     }
-
+    
     private void Subscribe()
     {
         GameEvents.OnBlockPicked += OnBlockPicked;
@@ -124,7 +130,6 @@ public class GameManager : MonoBehaviour
         GameEvents.OnBlockUnpicked += OnBlockUnpicked;
         GameEvents.RequestGameOverCheck += GameOverCheck;
         GameEvents.OnGameOver += EndGame;
-        GameEvents.ChangesAfterMoveReport += GetChangesAfterMove;
     }
 
     private void Unsubscribe()
@@ -134,6 +139,5 @@ public class GameManager : MonoBehaviour
         GameEvents.OnBlockUnpicked -= OnBlockUnpicked;
         GameEvents.RequestGameOverCheck -= GameOverCheck;
         GameEvents.OnGameOver -= EndGame;
-        GameEvents.ChangesAfterMoveReport -= GetChangesAfterMove;
     }
 }

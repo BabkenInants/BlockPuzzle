@@ -5,8 +5,8 @@ public class Settings : ScriptableObject
 {
     [field: Header("Field")]
     [field: SerializeField] public float cellSize { get; private set; } = .5f;
-    [field: SerializeField] public int cellsCountX { get; private set; } = 8;
-    [field: SerializeField] public int cellsCountY { get; private set; } = 8;
+    [field: SerializeField] public int columnsCount { get; private set; } = 8;
+    [field: SerializeField] public int rowsCount { get; private set; } = 8;
     [field: SerializeField] public Sprite emptyCell { get; private set; }
     [field: SerializeField] public Sprite notEmptyCell { get; private set; }
     [SerializeField] public GameObject cellPrefab;
