@@ -19,4 +19,10 @@ public class Settings : ScriptableObject
     [field: SerializeField] public float maxBlockDistanceFromCursorY {get; private set; } = 5f;
     [field: SerializeField] public float minBlockDistanceFromCursorX {get; private set; } = -.5f;
     [field: SerializeField] public float maxBlockDistanceFromCursorX {get; private set; } = 1f;
+    
+    [field: Space(10f)]
+    [field: Header("Camera")]
+    [field: SerializeField] public float width {get; private set; } = 6.5f;
+    [field: SerializeField] public float height {get; private set; } = 12f;
+    [field: SerializeField] public Vector3 camCenter {get; private set; } = new Vector3(0, -1, -10);
 }

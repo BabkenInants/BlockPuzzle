@@ -28,9 +28,11 @@ public class Field : MonoBehaviour
     //Implement only after checking if the cells are free
     public ChangesAfterMove PlaceBlock(GridPos[] cells, Color color)
     {
-        ChangesAfterMove changesAfterMove = new ChangesAfterMove();
-        changesAfterMove.BlockCellsPositions = cells;
-        changesAfterMove.BlockColor = color;
+        ChangesAfterMove changesAfterMove = new ChangesAfterMove
+        {
+            BlockCellsPositions = cells,
+            BlockColor = color
+        };
         foreach (GridPos cell in cells)
             cellIsFree[cell.Row, cell.Column] = false;
         int rowsAndColumnsRemoved = CheckForRowOrColumnRemoval(ref changesAfterMove);

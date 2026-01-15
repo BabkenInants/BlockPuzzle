@@ -118,8 +118,10 @@ public class GameManager : MonoBehaviour
         for(var i = 0; i < changes.FullCols.Length; i++)
             if (changes.FullCols[i]) StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows));
         
-        yield return new WaitForSeconds(0.02f * Mathf.Max(settings.columnsCount, settings.rowsCount + .5f));
-    
+        float animationTime = 0.02f * Mathf.Max(settings.columnsCount, settings.rowsCount);
+        const float delayBeforeGameOver = 0.5f;
+        yield return new WaitForSeconds(animationTime + delayBeforeGameOver);
+        
         GameEvents.RaiseRequestGameOverCheck();
     }
     
