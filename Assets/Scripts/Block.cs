@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
@@ -19,7 +20,23 @@ public class Block : MonoBehaviour
     private void Awake() => SetSize(notPickedSize);
 
     private void Start() => _mainCam = Camera.main;
-    
+
+    private void EndGame()
+    {
+        _canPick = false;
+        if(_isPicked) PutBlockBack(true);
+    }
+
+    private void OnEnable()
+    {
+        GameEvents.OnGameOver += EndGame;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnGameOver -= EndGame;
+    }
+
     public void InitSettings(Settings settings) => _settings = settings;
     
     #region Drag and drop
@@ -66,12 +83,12 @@ public class Block : MonoBehaviour
         _isPicked = false;
     }
     
-    public void PutBlockBack()
+    public void PutBlockBack(bool disableCanPick = false)
     {
         _canPick = false;
         _isPicked = false;
         SetSize(notPickedSize);
-        StartCoroutine(PositionTranslateRoutine(transform.position, _startPos, .1f));
+        StartCoroutine(PositionTranslateRoutine(transform.position, _startPos, .1f, disableCanPick));
     }
     
     #endregion
@@ -95,7 +112,7 @@ public class Block : MonoBehaviour
 
     #region Coroutines
     
-    private IEnumerator PositionTranslateRoutine(Vector3 startPos, Vector3 endPos, float duration)
+    private IEnumerator PositionTranslateRoutine(Vector3 startPos, Vector3 endPos, float duration, bool disableCanPick)
     {
         float estimatedTime = 0f;
         while (estimatedTime < duration)
@@ -105,7 +122,7 @@ public class Block : MonoBehaviour
             yield return null;
         }
         transform.position = endPos;
-        _canPick = true;
+        if(!disableCanPick) _canPick = true;
     }
     
     private IEnumerator SizeChangeRoutine(Vector3 startSize, Vector3 endSize, float duration)

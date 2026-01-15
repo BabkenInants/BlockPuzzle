@@ -6,6 +6,7 @@ using UnityEngine;
 public class FieldGraphics : MonoBehaviour
 {
     public bool isReady{get; private set;}
+    public int activeAnimationCoroutines { get; private set; } = 0;
     [field:SerializeField] public Transform firstCell{get; private set;}
     [SerializeField] private Settings settings;
     private Transform[,] _fieldCells;
@@ -50,16 +51,19 @@ public class FieldGraphics : MonoBehaviour
 
     public IEnumerator RemoveRow(int row)
     {
+        activeAnimationCoroutines++;
         for (int j = 0; j < settings.columnsCount; j++)
         {
             _spriteRenderers[row, j].sprite = settings.emptyCell;
             _spriteRenderers[row, j].color = settings.defaultCellColor;
             yield return new WaitForSeconds(0.02f);
         }
+        activeAnimationCoroutines--;
     }
     
     public IEnumerator RemoveColumn(int col, bool[] fullRows)
     {
+        activeAnimationCoroutines++;
         for (int i = 0; i < settings.rowsCount; i++)
         {
             if(fullRows[i]) continue;
@@ -67,6 +71,7 @@ public class FieldGraphics : MonoBehaviour
             _spriteRenderers[i, col].color = settings.defaultCellColor;
             yield return new WaitForSeconds(0.02f);
         }
+        activeAnimationCoroutines--;
     } 
 
     #endregion

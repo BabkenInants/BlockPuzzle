@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b3458b1a4cfb446328f745e0c20ac2f4
+guid: 7b98f37cfa5534370975ffe27aadce73
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6750033715232265413
-    second: Cell_0
+      213: 4115737888746439701
+    second: FieldCell 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 508
+  spritePixelsToUnits: 520
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cell_0
+      name: FieldCell 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5c4545a96efecad50800000000000000
-      internalID: 6750033715232265413
+      spriteID: 514095fbdc90e1930800000000000000
+      internalID: 4115737888746439701
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Cell_0: 6750033715232265413
+      FieldCell 1_0: 4115737888746439701
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

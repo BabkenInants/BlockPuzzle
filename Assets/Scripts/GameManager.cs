@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour
             ChangesAfterMove changes = field.PlaceBlock(cellsPositions, block.cells[0].GetComponent<SpriteRenderer>().color);
             blockSpawner.RemoveBlock(block.gameObject);
             StartCoroutine(HandleChangesAfterMove(changes));
+            GameEvents.RaiseCalculateNewScore(changes);
         }
         else
         {
@@ -68,7 +69,7 @@ public class GameManager : MonoBehaviour
     
     #region Game Over
     
-    private void GameOverCheck()
+    private void CheckGameOver()
     {
         var currentBlocks = new List<Block>();
         foreach(var block in blockSpawner.blocks)
@@ -99,13 +100,6 @@ public class GameManager : MonoBehaviour
         if (!atLeastOneBlockCanBePlaced)
             GameEvents.RaiseGameOver();
     }
-
-    private void EndGame()
-    {
-        if (_gameIsOver) return;
-        gameOverMenu.SetActive(true);
-        _gameIsOver = true;
-    }
     
     #endregion
 
@@ -117,12 +111,12 @@ public class GameManager : MonoBehaviour
             if (changes.FullRows[i]) StartCoroutine(fieldGraphics.RemoveRow(i));
         for(var i = 0; i < changes.FullCols.Length; i++)
             if (changes.FullCols[i]) StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows));
+
+        while (fieldGraphics.activeAnimationCoroutines > 0)
+            yield return null;
+        yield return new WaitForSeconds(.5f);
         
-        float animationTime = 0.02f * Mathf.Max(settings.columnsCount, settings.rowsCount);
-        const float delayBeforeGameOver = 0.5f;
-        yield return new WaitForSeconds(animationTime + delayBeforeGameOver);
-        
-        GameEvents.RaiseRequestGameOverCheck();
+        GameEvents.RaiseCheckGameOver();
     }
     
     private void Subscribe()
@@ -130,8 +124,7 @@ public class GameManager : MonoBehaviour
         GameEvents.OnBlockPicked += OnBlockPicked;
         GameEvents.OnBlockMoved += OnBlockMoved;
         GameEvents.OnBlockUnpicked += OnBlockUnpicked;
-        GameEvents.RequestGameOverCheck += GameOverCheck;
-        GameEvents.OnGameOver += EndGame;
+        GameEvents.CheckGameOver += CheckGameOver;
     }
 
     private void Unsubscribe()
@@ -139,7 +132,6 @@ public class GameManager : MonoBehaviour
         GameEvents.OnBlockPicked -= OnBlockPicked;
         GameEvents.OnBlockMoved -= OnBlockMoved;
         GameEvents.OnBlockUnpicked -= OnBlockUnpicked;
-        GameEvents.RequestGameOverCheck -= GameOverCheck;
-        GameEvents.OnGameOver -= EndGame;
+        GameEvents.CheckGameOver -= CheckGameOver;
     }
 }
