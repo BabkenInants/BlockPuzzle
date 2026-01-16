@@ -106,12 +106,25 @@ public class GameManager : MonoBehaviour
     private IEnumerator HandleChangesAfterMove(ChangesAfterMove changes)
     {
         fieldGraphics.PlaceBlock(changes.BlockCellsPositions, changes.BlockColor);
+        int rowsAndColsRemoved = 0;
         
         for (var i = 0; i < changes.FullRows.Length; i++)
-            if (changes.FullRows[i]) StartCoroutine(fieldGraphics.RemoveRow(i));
+            if (changes.FullRows[i])
+            {
+                rowsAndColsRemoved++;
+                StartCoroutine(fieldGraphics.RemoveRow(i));
+            }
         for(var i = 0; i < changes.FullCols.Length; i++)
-            if (changes.FullCols[i]) StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows));
+            if (changes.FullCols[i])
+            {
+                rowsAndColsRemoved++;
+                StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows));
+            }
 
+        if (rowsAndColsRemoved == 0) HapticManager.Light();
+        else StartCoroutine(HapticManager.PlayHapticsInARowRoutine(HapticManager.HapticType.Heavy, 
+                rowsAndColsRemoved));
+        
         while (fieldGraphics.activeAnimationCoroutines > 0)
             yield return null;
         yield return new WaitForSeconds(.5f);

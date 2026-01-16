@@ -26,4 +26,4 @@ MonoBehaviour:
   <maxBlockDistanceFromCursorX>k__BackingField: 1
   <width>k__BackingField: 6
   <height>k__BackingField: 12
-  <camCenter>k__BackingField: {x: 0, y: -1, z: -10}
+  <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
