@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Field : MonoBehaviour
 {
@@ -20,12 +19,9 @@ public class Field : MonoBehaviour
     public void InitFirstCell(Transform firstCell) =>
         _firstCell = firstCell;
 
-    //TODO Transfer this function to ui manager
-    public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
     #region Placement
 
-    //Implement only after checking if the cells are free
+    ///Implement only after checking if the cells are free
     public ChangesAfterMove PlaceBlock(GridPos[] cells, Color color)
     {
         ChangesAfterMove changesAfterMove = new ChangesAfterMove
@@ -39,7 +35,7 @@ public class Field : MonoBehaviour
         return changesAfterMove;
     }
     
-    //Used only for drag and drop
+    ///Used only for drag and drop
     public bool CheckIfBlockCanBePlaced(Transform[] cells)
     {
         //Trying to preview and also checking if the block can be placed in its current position
@@ -50,21 +46,6 @@ public class Field : MonoBehaviour
                 return false;
             if (!cellIsFree[position.Row, position.Column]) return false;
         }
-        return true;
-    }
-
-    //Don't use if the block is out of the field(use this function in loops, it's more efficient)
-    public bool CheckIfBlockCanBePlacedAtCell(bool[,] field, Block block, int row, int col)
-    {
-        for (int y = 0; y < block.sizeY; y++)
-            for (int x = 0; x < block.sizeX; x++)
-            {
-                if (!block.blockShape[y * block.sizeX + x]) 
-                    continue;
-                //checking if the cell is not free
-                if (field[row + y, col + x] == false)
-                    return false;
-            }
         return true;
     }
 

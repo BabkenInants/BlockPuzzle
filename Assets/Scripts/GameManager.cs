@@ -86,7 +86,7 @@ public class GameManager : MonoBehaviour
             {
                 for (int col = 0; col <= settings.columnsCount - block.sizeX; col++)
                 {
-                    if (field.CheckIfBlockCanBePlacedAtCell(field.cellIsFree, block, row, col))
+                    if (FieldUtils.CheckIfBlockCanBePlacedAtCell(field.cellIsFree, block, row, col))
                     {
                         atLeastOneBlockCanBePlaced = true;
                         break;

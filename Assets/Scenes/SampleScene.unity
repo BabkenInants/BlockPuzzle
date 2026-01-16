@@ -1467,8 +1467,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 736265129}
-        m_TargetAssemblyTypeName: Field, Assembly-CSharp
+      - m_Target: {fileID: 1592929365}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
         m_MethodName: Restart
         m_Mode: 1
         m_Arguments:

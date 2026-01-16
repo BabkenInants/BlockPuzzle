@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using System.Collections;
 
@@ -8,6 +7,7 @@ public class Block : MonoBehaviour
     [field: SerializeField] public float notPickedSize { get; private set; } = .7f;
     [HideInInspector] public int sizeX = 3;
     [HideInInspector] public int sizeY = 3;
+    ///true - busy, false - free
     [HideInInspector] public bool[] blockShape;
     private bool _isPicked;
     private Camera _mainCam;

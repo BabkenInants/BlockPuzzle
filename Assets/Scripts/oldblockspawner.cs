@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Random = UnityEngine.Random;
 
-public class BlockSpawner : MonoBehaviour
+public class oldblockspawner : MonoBehaviour
 {
     public bool isReady{get; private set;}
     [SerializeField] private Settings settings;
@@ -79,6 +79,7 @@ public class BlockSpawner : MonoBehaviour
             GridPos tempPosition;
             if (!FindBlockForField(tempField, blockPrefabs.ToList(), out tempBlock, out tempPosition))
             {
+                //Fallback(small blocks)
                 if (!FindBlockForField(tempField, smallBlockPrefabs.ToList(), out tempBlock, out tempPosition))
                 {
                     Debug.Log("No enough block prefabs");
@@ -97,20 +98,9 @@ public class BlockSpawner : MonoBehaviour
     { 
         tempBlock = null;
         tempPosition = new GridPos();
-        var busyCells = 0;
-        for (var i = 0; i < tempField.GetLength(0); i++)
-            for(var j = 0; j < tempField.GetLength(1); j++)
-                if(!tempField[i, j]) busyCells++;
-        int busyCellsPercentage = Mathf.FloorToInt((float) busyCells * 100 / (settings.rowsCount * settings.columnsCount));
         while(blocksArr.Count > 0)
         {
             tempBlock = blocksArr[Random.Range(0, blocksArr.Count)];
-            int blockLength = tempBlock.GetComponent<Block>().cells.Length;
-            if (busyCellsPercentage > 70 && blockLength > 4)
-            {
-                blocksArr.Remove(tempBlock);
-                continue;
-            }
             if (!CheckIfBlockCanBePlacedInAnyCell(tempField, tempBlock.GetComponent<Block>(), ref tempPosition))
                 blocksArr.Remove(tempBlock);
             else break;

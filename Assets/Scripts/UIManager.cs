@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class UIManager : MonoBehaviour
         gameOverMenu.SetActive(true);
         _gameIsOver = true;
     }
+    
+    public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
     private void UpdateScore(int score)
     {
