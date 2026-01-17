@@ -17,6 +17,24 @@ public static class FieldUtils
         col = Math.Clamp(col, 0, cellsCountX - 1);
         return new GridPos(row, col);
     }
+
+    public static int RateField(bool[,] field)
+    {
+        var score = 0;
+        for(var row = 0; row < field.GetLength(0); row++)
+            for (var col = 0; col < field.GetLength(1); col++)
+            {
+                if (!field[row, col]) continue; //if cell is not free
+                var temp = 1;
+                if(row > 0 && field[row - 1, col]) temp++;
+                if(row + 1 < field.GetLength(0) && field[row + 1, col]) temp++;
+                if(col > 0 && field[row, col - 1]) temp++;
+                if(col + 1 < field.GetLength(1) && field[row, col + 1]) temp++;
+                if (temp == 1) {score -= 5; continue;}
+                score += temp * temp;
+            }
+        return score;
+    }
     
     ///Don't use if the block is out of the field(use this function in loops, it's more efficient)
     public static bool CheckIfBlockCanBePlacedAtCell(bool[,] field, Block block, int row, int col)
@@ -54,7 +72,12 @@ public struct GridPos
         Row = row;
         Column = column;
     }
-    
+
+    public override string ToString()
+    {
+        return $"({Row}, {Column})";
+    }
+
     public bool IsValid(int maxRows, int maxColumns)
     {
         return Row >= 0 && Row < maxRows && Column >= 0 && Column < maxColumns;

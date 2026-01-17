@@ -3,6 +3,7 @@ using UnityEngine;
 public class Field : MonoBehaviour
 {
     public bool isReady{get; private set;}
+    /// true - free, false - busy
     public bool[,] cellIsFree { get; private set; }
     [SerializeField] private Settings settings;
     private Transform _firstCell;

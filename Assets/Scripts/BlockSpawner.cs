@@ -22,23 +22,18 @@ public class BlockSpawner : MonoBehaviour
         SpawnBlocks();
     }
 
-    private void OnEnable()
-    {
+    private void OnEnable() =>
         GameEvents.OnGameOver += OnGameOver;
-    }
 
-    private void OnDisable()
-    {
+    private void OnDisable() =>
         GameEvents.OnGameOver -= OnGameOver;
-    }
 
     private void OnGameOver() => _gameIsOver = true;
     
     private void SpawnBlocks()
     {
         if(_gameIsOver) return;
-        List<GameObject> blocksToSpawn = GenerateNextBlocks();
-        //ToDo switch to events
+        GameObject[] blocksToSpawn = GenerateNextBlocks();
         if (blocksToSpawn == null)
         {
             GameEvents.RaiseGameOver();
@@ -68,16 +63,14 @@ public class BlockSpawner : MonoBehaviour
 
     #region Field simulation and new blocks generation
 
-    private List<GameObject> GenerateNextBlocks()
+    private GameObject[] GenerateNextBlocks()
     {
-        var nextBlocks = new List<GameObject>();
+        var nextBlocks = new GameObject[spawnPoints.Length];
         var tempField = (bool[,]) field.cellIsFree.Clone();
         
         for (var i = 0; i < spawnPoints.Length; i++)
         {
-            GameObject tempBlock;
-            GridPos tempPosition;
-            if (!FindBlockForField(tempField, blockPrefabs.ToList(), out tempBlock, out tempPosition))
+            if (!FindBlockForField(tempField, blockPrefabs.ToList(), out GameObject tempBlock, out GridPos tempPosition))
             {
                 if (!FindBlockForField(tempField, smallBlockPrefabs.ToList(), out tempBlock, out tempPosition))
                 {
@@ -85,40 +78,80 @@ public class BlockSpawner : MonoBehaviour
                     return null;
                 }
             }
-            nextBlocks.Add(tempBlock);
-            PlaceBlockAndRemoveColsAndRows(ref tempField, tempBlock.GetComponent<Block>(), tempPosition);
+            nextBlocks[i] = tempBlock;
+            PlaceBlockAndUpdateField(ref tempField, tempBlock.GetComponent<Block>(), tempPosition, out bool[] rowsRemoved, out bool[] colsRemoved);
         }
         return nextBlocks;
     }
 
-    //true - found, false - no blocks for this field
+    ///true - found, false - no blocks for this field
     private bool FindBlockForField(bool[,] tempField, List<GameObject> blocksArr, out GameObject tempBlock, 
         out GridPos tempPosition)
     { 
         tempBlock = null;
         tempPosition = new GridPos();
-        var busyCells = 0;
-        for (var i = 0; i < tempField.GetLength(0); i++)
-            for(var j = 0; j < tempField.GetLength(1); j++)
-                if(!tempField[i, j]) busyCells++;
-        int busyCellsPercentage = Mathf.FloorToInt((float) busyCells * 100 / (settings.rowsCount * settings.columnsCount));
-        while(blocksArr.Count > 0)
+        var candidates = new List<BlockCandidate>();
+        int length = blocksArr.Count;
+        for(var i = 0; i < length; i++)
         {
             tempBlock = blocksArr[Random.Range(0, blocksArr.Count)];
-            int blockLength = tempBlock.GetComponent<Block>().cells.Length;
-            if (busyCellsPercentage > 70 && blockLength > 4)
-            {
+            if (!GetBestPositionForBlock(tempBlock.GetComponent<Block>(), tempField, out GridPos position,  out int grade))
                 blocksArr.Remove(tempBlock);
-                continue;
-            }
-            if (!CheckIfBlockCanBePlacedInAnyCell(tempField, tempBlock.GetComponent<Block>(), ref tempPosition))
-                blocksArr.Remove(tempBlock);
-            else break;
+            else
+                candidates.Add(new BlockCandidate(tempBlock, position, grade));
+            if (candidates.Count >= 10) break;
         }
-        return blocksArr.Count > 0;
+        if(candidates.Count == 0) return false;
+
+        int bestGrade = -1;
+        BlockCandidate bestCandidate = candidates[0];
+        
+        foreach (var candidate in candidates)
+            if(candidate.Score > bestGrade)
+                bestCandidate = candidate;
+        
+        tempBlock = bestCandidate.Block;
+        tempPosition = bestCandidate.Position;
+        Debug.Log(tempBlock.name + ": " + tempPosition);
+        return true;
+    }
+    
+    ///true - found, false - no position for this block
+    private bool GetBestPositionForBlock(Block block, bool[,] tempField, out GridPos position, out int bestGrade)
+    {
+        var tempPos = new GridPos(-1, -1);
+        int maxGrade = -1;
+        var foundPosition = false;
+        for (var row = 0; row <= settings.rowsCount - block.sizeY; row++)
+        {
+            for (var col = 0; col <= settings.columnsCount - block.sizeX; col++)
+            {
+                if (FieldUtils.CheckIfBlockCanBePlacedAtCell(tempField, block, row, col))
+                {
+                    foundPosition = true;
+                    PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), out bool[] rowWasRemoved, out bool[] colWasRemoved);
+                    int grade = FieldUtils.RateField(tempField);
+                    RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), rowWasRemoved, colWasRemoved);
+                    if (grade > maxGrade)
+                    {
+                        maxGrade = grade;
+                        tempPos = new GridPos(row, col);
+                        if (grade == block.sizeX + block.sizeY)
+                        {
+                            position = tempPos;
+                            bestGrade = grade;
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        position = tempPos;
+        bestGrade = maxGrade;
+        return foundPosition;
     }
 
-    private void PlaceBlockAndRemoveColsAndRows(ref bool[,] tempField, Block block, GridPos position)
+    private void PlaceBlockAndUpdateField(ref bool[,] tempField, Block block, GridPos position, out bool[] rowWasRemoved, out bool[] colWasRemoved)
     {
         //true - free, false - busy
         
@@ -133,23 +166,20 @@ public class BlockSpawner : MonoBehaviour
         var rowsToRemove = new bool[settings.rowsCount];
         var colsToRemove = new bool[settings.columnsCount];
 
-        int h = tempField.GetLength(0); // rows (Y)
-        int w = tempField.GetLength(1); // cols (X)
-
         // Rows
-        for (int y = 0; y < h; y++)
+        for (int y = 0; y < rowsToRemove.Length; y++)
         {
             bool rowIsFull = true;
-            for (int x = 0; x < w; x++)
+            for (int x = 0; x < colsToRemove.Length; x++)
                 if (tempField[y, x]) { rowIsFull = false; break; }
             if (rowIsFull) rowsToRemove[y] = true;
         }
 
         // Cols
-        for (int x = 0; x < w; x++)
+        for (int x = 0; x < colsToRemove.Length; x++)
         {
             bool colIsFull = true;
-            for (int y = 0; y < h; y++)
+            for (int y = 0; y < rowsToRemove.Length; y++)
                 if (tempField[y, x]) { colIsFull = false; break; }
             if (colIsFull) colsToRemove[x] = true;
         }
@@ -157,30 +187,56 @@ public class BlockSpawner : MonoBehaviour
         // Remove rows
         for (int y = 0; y < rowsToRemove.Length; y++)
             if(rowsToRemove[y])
-                for (int x = 0; x < w; x++)
+                for (int x = 0; x < colsToRemove.Length; x++)
                     tempField[y, x] = true;
 
         // Remove cols
         for (int x = 0; x < colsToRemove.Length; x++)
             if(colsToRemove[x])
-                for (int y = 0; y < h; y++)
+                for (int y = 0; y < rowsToRemove.Length; y++)
                 {
                     if (rowsToRemove[y]) continue;
                     tempField[y, x] = true;
                 }
+        rowWasRemoved = rowsToRemove;
+        colWasRemoved = colsToRemove;
     }
-    
-    private bool CheckIfBlockCanBePlacedInAnyCell(bool[,] tempField, Block block, ref GridPos position)
+
+    private void RemoveBlockAndRevertField(ref bool[,] tempField, Block block, GridPos position, bool[] rowWasRemoved,
+        bool[] colWasRemoved)
     {
-        for (var y = 0; y <= tempField.GetLength(0) - block.sizeY; y++)
-            for (var x = 0; x <= tempField.GetLength(1) - block.sizeX; x++)
-                if (FieldUtils.CheckIfBlockCanBePlacedAtCell(tempField, block, y, x))
-                {
-                    position = new GridPos(y, x);
-                    return true;
-                }
-        return false;
+        //restoring removed rows
+        for(var row = 0; row < rowWasRemoved.Length; row++)
+            if (rowWasRemoved[row])
+                for(var col = 0; col < colWasRemoved.Length; col++)
+                    tempField[row, col] = false;
+        //restoring removed cols
+        for (var col = 0; col < colWasRemoved.Length; col++)
+            if(colWasRemoved[col])
+                for (var row = 0; row < rowWasRemoved.Length; row++)
+                    tempField[row, col] = false;
+        //removing block
+        for (var y = 0; y < block.sizeY; y++)
+            for (var x = 0; x < block.sizeX; x++)
+            {
+                if (!block.blockShape[y * block.sizeX + x]) continue;
+                tempField[y + position.Row, x + position.Column] = true;
+            }
     }
     
     #endregion
+}
+
+public struct BlockCandidate
+{
+    public GameObject Block;
+    public GridPos Position;
+    public int Score;
+
+    public BlockCandidate(GameObject block, GridPos position, int score)
+    {
+        Block = block;
+        Position = position;
+        Score = score;
+    }
 }
