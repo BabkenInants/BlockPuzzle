@@ -19,6 +19,8 @@ public class Settings : ScriptableObject
     [field: SerializeField] public float maxBlockDistanceFromCursorY {get; private set; } = 5f;
     [field: SerializeField] public float minBlockDistanceFromCursorX {get; private set; } = -.5f;
     [field: SerializeField] public float maxBlockDistanceFromCursorX {get; private set; } = 1f;
+    [field: SerializeField] public int blockCellsDefaultSpriteLayer {get; private set; } = 1;
+    [field: SerializeField] public int blockCellsPickedSpriteLayer {get; private set; } = 3;
     
     [field: Space(10f)]
     [field: Header("Camera")]

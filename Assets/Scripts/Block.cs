@@ -52,6 +52,8 @@ public class Block : MonoBehaviour
         Vector3 world = _mainCam.ScreenToWorldPoint(mp);
         _mouseOffset = transform.position - world;
         SetSize(_settings.cellSize * 2);
+        foreach (var cell in cells)
+            cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsPickedSpriteLayer;
     }
 
     private void OnMouseDrag()
@@ -81,6 +83,8 @@ public class Block : MonoBehaviour
         if(!_isPicked) return;
         GameEvents.RaiseOnBlockUnpicked(this);
         _isPicked = false;
+        foreach (var cell in cells)
+            cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsDefaultSpriteLayer;
     }
     
     public void PutBlockBack(bool disableCanPick = false)

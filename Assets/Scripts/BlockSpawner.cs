@@ -29,6 +29,15 @@ public class BlockSpawner : MonoBehaviour
         GameEvents.OnGameOver -= OnGameOver;
 
     private void OnGameOver() => _gameIsOver = true;
+
+    private void ShuffleArray<T>(ref T[] array)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            int r = Random.Range(0, array.Length);
+            (array[i], array[r]) = (array[r], array[i]);
+        }
+    }
     
     private void SpawnBlocks()
     {
@@ -39,6 +48,11 @@ public class BlockSpawner : MonoBehaviour
             GameEvents.RaiseGameOver();
             return;
         }
+        foreach (var block in blocksToSpawn)
+            Debug.Log(block.name);
+        ShuffleArray(ref blocksToSpawn);
+        foreach (var block in blocksToSpawn)
+            Debug.Log(block.name);
         for (var i = 0; i < spawnPoints.Length; i++)
         {
             blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
