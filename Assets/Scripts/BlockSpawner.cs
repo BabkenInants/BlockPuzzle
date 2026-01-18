@@ -50,7 +50,7 @@ public class BlockSpawner : MonoBehaviour
     public void RemoveBlock(GameObject block)
     {
         if(_gameIsOver) return;
-        bool spawnNewBlocks = true;
+        var spawnNewBlocks = true;
         for (int i = 0; i < spawnPoints.Length; i++)
         {
             if (blocks[i] == block)
@@ -71,13 +71,11 @@ public class BlockSpawner : MonoBehaviour
         for (var i = 0; i < spawnPoints.Length; i++)
         {
             if (!FindBlockForField(tempField, blockPrefabs.ToList(), out GameObject tempBlock, out GridPos tempPosition))
-            {
                 if (!FindBlockForField(tempField, smallBlockPrefabs.ToList(), out tempBlock, out tempPosition))
                 {
                     Debug.Log("No enough block prefabs");
                     return null;
                 }
-            }
             nextBlocks[i] = tempBlock;
             PlaceBlockAndUpdateField(ref tempField, tempBlock.GetComponent<Block>(), tempPosition, out bool[] rowsRemoved, out bool[] colsRemoved);
         }
@@ -94,21 +92,18 @@ public class BlockSpawner : MonoBehaviour
         int length = blocksArr.Count;
         for(var i = 0; i < length; i++)
         {
-            tempBlock = blocksArr[Random.Range(0, blocksArr.Count)];
-            if (!GetBestPositionForBlock(tempBlock.GetComponent<Block>(), tempField, out GridPos position,  out int grade))
-                blocksArr.Remove(tempBlock);
-            else
+            tempBlock = blocksArr[i];
+            if (GetBestPositionForBlock(tempBlock.GetComponent<Block>(), tempField, out GridPos position,  out int grade))
                 candidates.Add(new BlockCandidate(tempBlock, position, grade));
-            if (candidates.Count >= 10) break;
         }
-        if(candidates.Count == 0) return false;
 
-        int bestGrade = -1;
-        BlockCandidate bestCandidate = candidates[0];
-        
-        foreach (var candidate in candidates)
-            if(candidate.Score > bestGrade)
-                bestCandidate = candidate;
+        if (candidates.Count == 0) return false;
+
+        int bestGrade = candidates.Max(candidate => candidate.Score);
+        float fieldBusinessPercentage = (float) tempField.Cast<bool>().Count(cell => !cell) * 100 / (settings.rowsCount * settings.columnsCount);
+        float betterBlockGenerationProbability = fieldBusinessPercentage >= 60 ? 1f : .85f;
+        List<BlockCandidate> bestCandidates = candidates.Where(candidate => candidate.Score >= bestGrade * betterBlockGenerationProbability).ToList();
+        BlockCandidate bestCandidate = bestCandidates[Random.Range(0, bestCandidates.Count)];
         
         tempBlock = bestCandidate.Block;
         tempPosition = bestCandidate.Position;
@@ -123,29 +118,20 @@ public class BlockSpawner : MonoBehaviour
         int maxGrade = -1;
         var foundPosition = false;
         for (var row = 0; row <= settings.rowsCount - block.sizeY; row++)
-        {
             for (var col = 0; col <= settings.columnsCount - block.sizeX; col++)
-            {
                 if (FieldUtils.CheckIfBlockCanBePlacedAtCell(tempField, block, row, col))
                 {
                     foundPosition = true;
                     PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), out bool[] rowWasRemoved, out bool[] colWasRemoved);
                     int grade = FieldUtils.RateField(tempField);
+                    grade += block.cells.Length * 10;
                     RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), rowWasRemoved, colWasRemoved);
                     if (grade > maxGrade)
                     {
                         maxGrade = grade;
                         tempPos = new GridPos(row, col);
-                        if (grade == block.sizeX + block.sizeY)
-                        {
-                            position = tempPos;
-                            bestGrade = grade;
-                            return true;
-                        }
                     }
                 }
-            }
-        }
         position = tempPos;
         bestGrade = maxGrade;
         return foundPosition;
@@ -167,33 +153,33 @@ public class BlockSpawner : MonoBehaviour
         var colsToRemove = new bool[settings.columnsCount];
 
         // Rows
-        for (int y = 0; y < rowsToRemove.Length; y++)
+        for (int y = 0; y < settings.rowsCount; y++)
         {
             bool rowIsFull = true;
-            for (int x = 0; x < colsToRemove.Length; x++)
+            for (int x = 0; x < settings.columnsCount; x++)
                 if (tempField[y, x]) { rowIsFull = false; break; }
             if (rowIsFull) rowsToRemove[y] = true;
         }
 
         // Cols
-        for (int x = 0; x < colsToRemove.Length; x++)
+        for (int x = 0; x < settings.columnsCount; x++)
         {
             bool colIsFull = true;
-            for (int y = 0; y < rowsToRemove.Length; y++)
+            for (int y = 0; y < settings.rowsCount; y++)
                 if (tempField[y, x]) { colIsFull = false; break; }
             if (colIsFull) colsToRemove[x] = true;
         }
 
         // Remove rows
-        for (int y = 0; y < rowsToRemove.Length; y++)
+        for (int y = 0; y < settings.rowsCount; y++)
             if(rowsToRemove[y])
-                for (int x = 0; x < colsToRemove.Length; x++)
+                for (int x = 0; x < settings.columnsCount; x++)
                     tempField[y, x] = true;
 
         // Remove cols
-        for (int x = 0; x < colsToRemove.Length; x++)
+        for (int x = 0; x < settings.columnsCount; x++)
             if(colsToRemove[x])
-                for (int y = 0; y < rowsToRemove.Length; y++)
+                for (int y = 0; y < settings.rowsCount; y++)
                 {
                     if (rowsToRemove[y]) continue;
                     tempField[y, x] = true;
