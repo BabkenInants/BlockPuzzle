@@ -7,9 +7,17 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI bestScoreText;
     private bool _gameIsOver;
     private IEnumerator scoreUpdateCoroutine = null;
     private int lastScore = 0;
+    private int bestScore = 0;
+
+    private void Start()
+    {
+        bestScore = PlayerPrefs.GetInt("BestScore");
+        bestScoreText.text = bestScore.ToString();
+    }
     
     private void EndGame()
     {
@@ -31,15 +39,19 @@ public class UIManager : MonoBehaviour
     private IEnumerator UpdateScoreRoutine(int endScore, float duration)
     {
         float elapsedTime = 0;
+        if (endScore > bestScore)
+            PlayerPrefs.SetInt("BestScore", endScore);
         if (endScore - lastScore < 10)
             duration = .5f;
         while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
             lastScore = Mathf.FloorToInt(Mathf.Lerp(lastScore, endScore, elapsedTime / duration));
+            if(endScore > bestScore) bestScoreText.text = lastScore.ToString();
             scoreText.text = lastScore.ToString();
             yield return null;
         }
+        if(endScore > bestScore) bestScore = endScore;
         lastScore = endScore;
         scoreUpdateCoroutine = null;
     }

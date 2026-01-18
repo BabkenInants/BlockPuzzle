@@ -112,13 +112,13 @@ public class GameManager : MonoBehaviour
             if (changes.FullRows[i])
             {
                 rowsAndColsRemoved++;
-                StartCoroutine(fieldGraphics.RemoveRow(i));
+                StartCoroutine(fieldGraphics.RemoveRow(i, changes.BlockColor));
             }
         for(var i = 0; i < changes.FullCols.Length; i++)
             if (changes.FullCols[i])
             {
                 rowsAndColsRemoved++;
-                StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows));
+                StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows, changes.BlockColor));
             }
 
         if (rowsAndColsRemoved == 0) HapticManager.Light();
