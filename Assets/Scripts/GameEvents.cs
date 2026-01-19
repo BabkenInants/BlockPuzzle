@@ -3,8 +3,6 @@ using UnityEngine;
 
 public static class GameEvents
 {
-    public static event Action<Transform[]> PreviewCells;
-    public static event Action HideCellsPreview;
     public static event Action<Block> OnBlockPicked;
     public static event Action OnBlockMoved;
     public static event Action<Block> OnBlockUnpicked;
@@ -12,12 +10,6 @@ public static class GameEvents
     public static event Action CheckGameOver;
     public static event Action<int> UpdateScore;
     public static event Action<ChangesAfterMove> CalculateNewScore;
-
-    public static void RaiseHideCellsPreview() =>
-        HideCellsPreview?.Invoke();
-    
-    public static void RaisePreviewCells(Transform[] transforms) =>
-        PreviewCells?.Invoke(transforms);
 
     public static void RaiseOnBlockPicked(Block block) =>
         OnBlockPicked?.Invoke(block);

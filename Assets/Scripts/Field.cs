@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Field : MonoBehaviour
@@ -19,6 +20,52 @@ public class Field : MonoBehaviour
 
     public void InitFirstCell(Transform firstCell) =>
         _firstCell = firstCell;
+
+    public List<GridPos> ReturnCellsOfPotentiallyRemovedLines(Block block)
+    {
+        var result = new List<GridPos>();
+        var cellPositions = new GridPos[block.cells.Length];
+        int minRow = settings.rowsCount, minColumn = settings.columnsCount, maxRow = -1, maxColumn = -1;
+        var tempField = (bool[,])cellIsFree.Clone();
+        for (var i = 0; i < block.cells.Length; i++)
+        {
+            cellPositions[i] =
+                FieldUtils.GetCellCoordinatesOnField(block.cells[i].position, _firstCell.position, settings.cellSize);
+            if(cellPositions[i].Row < minRow)
+                minRow = cellPositions[i].Row;
+            if(cellPositions[i].Column < minColumn)
+                minColumn = cellPositions[i].Column;
+            if(cellPositions[i].Row > maxRow)
+                maxRow = cellPositions[i].Row;
+            if(cellPositions[i].Column > maxColumn)
+                maxColumn = cellPositions[i].Column;
+            tempField[cellPositions[i].Row, cellPositions[i].Column] = false;
+        }
+
+        for (int row = minRow; row <= maxRow; row++)
+        {
+            var previewRow = true;
+            for (var col = 0; col < settings.columnsCount; col++)
+                if(tempField[row, col]) {previewRow = false; break;}
+            if(previewRow)
+                for(var col = 0; col < settings.columnsCount; col++)
+                    if(!cellIsFree[row, col])
+                        result.Add(new GridPos(row, col));
+        }
+
+        for (int col = minColumn; col <= maxColumn; col++)
+        {
+            var previewCol = true;
+            for(var row = 0; row < settings.rowsCount; row++)
+                if (tempField[row, col]) {previewCol = false; break;}
+            if(previewCol)
+                for (var row = 0; row < settings.rowsCount; row++)
+                    if (!cellIsFree[row, col])
+                        result.Add(new GridPos(row, col));
+        }
+
+        return result;
+    }
 
     #region Placement
 

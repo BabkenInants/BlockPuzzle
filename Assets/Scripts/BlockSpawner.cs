@@ -48,11 +48,7 @@ public class BlockSpawner : MonoBehaviour
             GameEvents.RaiseGameOver();
             return;
         }
-        foreach (var block in blocksToSpawn)
-            Debug.Log(block.name);
         ShuffleArray(ref blocksToSpawn);
-        foreach (var block in blocksToSpawn)
-            Debug.Log(block.name);
         for (var i = 0; i < spawnPoints.Length; i++)
         {
             blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);

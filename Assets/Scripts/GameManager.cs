@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private Field field;
     [SerializeField] private FieldGraphics fieldGraphics;
     [SerializeField] private BlockSpawner blockSpawner;
@@ -33,17 +32,21 @@ public class GameManager : MonoBehaviour
     
     private void OnBlockMoved()
     {
-        if(_pickedBlock == null || _gameIsOver) return;
-        GameEvents.RaiseHideCellsPreview();
+        if(!_pickedBlock || _gameIsOver) return;
+        fieldGraphics.HideCellsPreview();
+        fieldGraphics.HidePotentiallyRemovedLinesPreview();
         if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells)) return;
-        GameEvents.RaisePreviewCells(_pickedBlock.cells);
+        fieldGraphics.PreviewCells(_pickedBlock.cells);
+        fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines(_pickedBlock),
+            _pickedBlock.cells[0].GetComponent<SpriteRenderer>().color);
     }
 
     private void OnBlockUnpicked(Block block)
     {
+        fieldGraphics.HideCellsPreview();
+        fieldGraphics.HidePotentiallyRemovedLinesPreview();
         if (block == null || _gameIsOver || _pickedBlock != block)
         {
-            GameEvents.RaiseHideCellsPreview();
             _pickedBlock = null;
             return;
         }
@@ -59,10 +62,7 @@ public class GameManager : MonoBehaviour
             GameEvents.RaiseCalculateNewScore(changes);
         }
         else
-        {
-            GameEvents.RaiseHideCellsPreview();
             block.PutBlockBack();
-        }
         _pickedBlock = null;
     }
 

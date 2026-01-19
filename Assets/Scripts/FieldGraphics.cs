@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FieldGraphics : MonoBehaviour
@@ -12,6 +13,8 @@ public class FieldGraphics : MonoBehaviour
     private Transform[,] _fieldCells;
     private SpriteRenderer[,] _spriteRenderers;
     private List<GridPos> _lastPreviewedCells;
+    private List<GridPos> _lastPreviewedPotentiallyRemovedLines;
+    private List<Color> _lastPreviewedPotentiallyRemovedLinesColors;
 
     private void Awake()
     {
@@ -20,23 +23,7 @@ public class FieldGraphics : MonoBehaviour
     }
 
     private void Start() => GenerateField();
-
-    private void OnEnable() => Subscribe();
     
-    private void OnDisable() => Unsubscribe();
-    
-    private void Subscribe()
-    {
-        GameEvents.HideCellsPreview += HideCellsPreview;
-        GameEvents.PreviewCells += PreviewCells;
-    }
-
-    private void Unsubscribe()
-    {
-        GameEvents.HideCellsPreview -= HideCellsPreview;
-        GameEvents.PreviewCells -= PreviewCells;
-    }
-
     #region Blocks Placement
 
     public void PlaceBlock(GridPos[] cells, Color color)
@@ -85,7 +72,7 @@ public class FieldGraphics : MonoBehaviour
     #region Previewing
     
     //Implement only after checking if the cells are free
-    private void PreviewCells(Transform[] cells)
+    public void PreviewCells(Transform[] cells)
     {
         if (_lastPreviewedCells != null)
             HideCellsPreview();
@@ -99,13 +86,41 @@ public class FieldGraphics : MonoBehaviour
         }
     }
 
-    private void HideCellsPreview()
+    public void HideCellsPreview()
     {
         List<GridPos> cells = _lastPreviewedCells;
         if (cells == null) return;
         foreach (GridPos cell in cells)
             _spriteRenderers[cell.Row, cell.Column].color = settings.defaultCellColor;
         _lastPreviewedCells = null;
+    }
+
+    public void PreviewPotentiallyRemovedLines(List<GridPos> cells, Color color)
+    {
+        if(_lastPreviewedPotentiallyRemovedLines != null)
+            HidePotentiallyRemovedLinesPreview();
+        _lastPreviewedPotentiallyRemovedLines = new List<GridPos>();
+        _lastPreviewedPotentiallyRemovedLinesColors = new List<Color>();
+        for (int i = 0; i < cells.Count; i++)
+        {
+            _lastPreviewedPotentiallyRemovedLines.Add(cells[i]);
+            _lastPreviewedPotentiallyRemovedLinesColors.Add(_spriteRenderers[cells[i].Row, cells[i].Column].color);
+            _spriteRenderers[cells[i].Row, cells[i].Column].color = color;
+        }
+    }
+
+    public void HidePotentiallyRemovedLinesPreview()
+    {
+        if(_lastPreviewedPotentiallyRemovedLines == null ||
+           _lastPreviewedPotentiallyRemovedLinesColors == null) return;
+        for (var i = 0; i < _lastPreviewedPotentiallyRemovedLines.Count; i++)
+        {
+            _spriteRenderers[_lastPreviewedPotentiallyRemovedLines[i].Row, 
+                    _lastPreviewedPotentiallyRemovedLines[i].Column].color = 
+                _lastPreviewedPotentiallyRemovedLinesColors[i];
+        }
+        _lastPreviewedPotentiallyRemovedLines = null;
+        _lastPreviewedPotentiallyRemovedLinesColors = null;
     }
 
     #endregion
