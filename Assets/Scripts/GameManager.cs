@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -35,34 +36,28 @@ public class GameManager : MonoBehaviour
         if(!_pickedBlock || _gameIsOver) return;
         fieldGraphics.HideCellsPreview();
         fieldGraphics.HidePotentiallyRemovedLinesPreview();
-        if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells)) return;
-        fieldGraphics.PreviewCells(_pickedBlock.cells);
-        fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines(_pickedBlock),
-            _pickedBlock.cells[0].GetComponent<SpriteRenderer>().color);
+        if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells, out GridPos[] cellsPositions)) return;
+        fieldGraphics.PreviewCells(cellsPositions);
+        fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines(_pickedBlock, cellsPositions), _pickedBlock.color);
     }
 
     private void OnBlockUnpicked(Block block)
     {
         fieldGraphics.HideCellsPreview();
         fieldGraphics.HidePotentiallyRemovedLinesPreview();
-        if (block == null || _gameIsOver || _pickedBlock != block)
+        if (!block || _gameIsOver || _pickedBlock != block)
         {
             _pickedBlock = null;
             return;
         }
-        if (field.CheckIfBlockCanBePlaced(block.cells))
+        if (field.CheckIfBlockCanBePlaced(block.cells, out GridPos[] cellsPositions))
         {
-            var cellsPositions = new GridPos[block.cells.Length];
-            for(int i = 0; i < cellsPositions.Length; i++)
-                cellsPositions[i] = FieldUtils.GetCellCoordinatesOnField(block.cells[i].position, 
-                    fieldGraphics.firstCell.position, settings.cellSize);
-            ChangesAfterMove changes = field.PlaceBlock(cellsPositions, block.cells[0].GetComponent<SpriteRenderer>().color);
+            ChangesAfterMove changes = field.PlaceBlock(cellsPositions, block.color);
             blockSpawner.RemoveBlock(block.gameObject);
-            StartCoroutine(HandleChangesAfterMove(changes));
+            HandleChangesAfterMove(changes);
             GameEvents.RaiseCalculateNewScore(changes);
         }
-        else
-            block.PutBlockBack();
+        else block.PutBlockBack();
         _pickedBlock = null;
     }
 
@@ -72,20 +67,15 @@ public class GameManager : MonoBehaviour
     
     private void CheckGameOver()
     {
-        var currentBlocks = new List<Block>();
-        foreach(var block in blockSpawner.blocks)
-        {
-            if (block == null) continue;
-            var currentBlock = block.GetComponent<Block>();
-            currentBlocks.Add(currentBlock);
-        }
+        List<Block> currentBlocks = (from block in blockSpawner.blocks where block != null 
+            select block.GetComponent<Block>()).ToList();
         if(currentBlocks.Count == 0) return;
         var atLeastOneBlockCanBePlaced = false;
-        foreach(var block in  currentBlocks)
+        foreach(Block block in currentBlocks)
         {
-            for (int row = 0; row <= settings.rowsCount - block.sizeY; row++)
+            for (var row = 0; row <= settings.rowsCount - block.sizeY; row++)
             {
-                for (int col = 0; col <= settings.columnsCount - block.sizeX; col++)
+                for (var col = 0; col <= settings.columnsCount - block.sizeX; col++)
                 {
                     if (FieldUtils.CheckIfBlockCanBePlacedAtCell(field.cellIsFree, block, row, col))
                     {
@@ -104,10 +94,11 @@ public class GameManager : MonoBehaviour
     
     #endregion
 
-    private IEnumerator HandleChangesAfterMove(ChangesAfterMove changes)
+    private void HandleChangesAfterMove(ChangesAfterMove changes)
     {
         fieldGraphics.PlaceBlock(changes.BlockCellsPositions, changes.BlockColor);
-        int rowsAndColsRemoved = 0;
+        
+        var rowsAndColsRemoved = 0;
         
         for (var i = 0; i < changes.FullRows.Length; i++)
             if (changes.FullRows[i])
@@ -115,13 +106,13 @@ public class GameManager : MonoBehaviour
                 rowsAndColsRemoved++;
                 fieldGraphics.RemoveRow(i, changes.BlockColor);
             }
+        
         for(var i = 0; i < changes.FullCols.Length; i++)
             if (changes.FullCols[i])
             {
                 rowsAndColsRemoved++;
                 fieldGraphics.RemoveColumn(i, changes.FullRows, changes.BlockColor);
             }
-
         
         if (rowsAndColsRemoved == 0) HapticManager.Light();
         else StartCoroutine(HapticManager.PlayHapticsInARowRoutine(HapticManager.HapticType.Heavy, 
@@ -132,9 +123,7 @@ public class GameManager : MonoBehaviour
         else if (rowsAndColsRemoved >= 3)
             cameraShake.ShakeForSeconds(.04f, true);
         
-        yield return new WaitForSeconds(1f);
-        
-        GameEvents.RaiseCheckGameOver();
+        CheckGameOver();
     }
     
     private void Subscribe()
@@ -142,7 +131,6 @@ public class GameManager : MonoBehaviour
         GameEvents.OnBlockPicked += OnBlockPicked;
         GameEvents.OnBlockMoved += OnBlockMoved;
         GameEvents.OnBlockUnpicked += OnBlockUnpicked;
-        GameEvents.CheckGameOver += CheckGameOver;
     }
 
     private void Unsubscribe()
@@ -150,6 +138,5 @@ public class GameManager : MonoBehaviour
         GameEvents.OnBlockPicked -= OnBlockPicked;
         GameEvents.OnBlockMoved -= OnBlockMoved;
         GameEvents.OnBlockUnpicked -= OnBlockUnpicked;
-        GameEvents.CheckGameOver -= CheckGameOver;
     }
 }

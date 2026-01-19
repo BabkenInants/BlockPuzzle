@@ -1,9 +1,10 @@
+using System.Linq;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
     [SerializeField] private Settings settings;
-    private int _score = 0;
+    private int _score;
 
     private void UpdateScore(ChangesAfterMove changes)
     {
@@ -11,10 +12,8 @@ public class ScoreManager : MonoBehaviour
         
         var rowsScore = 0;
         var colScore = 0;
-        foreach(bool row in changes.FullRows)
-            if(row) rowsScore++;
-        foreach(bool col in changes.FullCols)
-            if(col) colScore++;
+        rowsScore += changes.FullRows.Count(row => row);
+        colScore += changes.FullCols.Count(col => col);
         _score += rowsScore * 10 * settings.columnsCount;
         _score += colScore * 10 * settings.rowsCount;
         

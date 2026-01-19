@@ -39,15 +39,15 @@ public static class FieldUtils
     ///Don't use if the block is out of the field(use this function in loops, it's more efficient)
     public static bool CheckIfBlockCanBePlacedAtCell(bool[,] field, Block block, int row, int col)
     {
-        for (int y = 0; y < block.sizeY; y++)
-        for (int x = 0; x < block.sizeX; x++)
-        {
-            if (!block.blockShape[y * block.sizeX + x]) 
-                continue;
-            //checking if the cell is not free
-            if (field[row + y, col + x] == false)
-                return false;
-        }
+        for (var y = 0; y < block.sizeY; y++)
+            for (var x = 0; x < block.sizeX; x++)
+            {
+                if (!block.blockShape[y * block.sizeX + x]) 
+                    continue;
+                //checking if the cell is not free
+                if (field[row + y, col + x] == false)
+                    return false;
+            }
         return true;
     }
 }

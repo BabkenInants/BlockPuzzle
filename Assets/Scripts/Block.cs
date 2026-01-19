@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.EventSystems;
@@ -7,6 +6,7 @@ using UnityEngine.InputSystem;
 public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     public Transform[] cells;
+    public Color color { get; private set; }
     [field: SerializeField] public float notPickedSize { get; private set; } = .7f;
     [HideInInspector] public int sizeX = 3;
     [HideInInspector] public int sizeY = 3;
@@ -30,15 +30,9 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if(_isPicked) PutBlockBack(true);
     }
 
-    private void OnEnable()
-    {
-        GameEvents.OnGameOver += EndGame;
-    }
+    private void OnEnable() => GameEvents.OnGameOver += EndGame;
 
-    private void OnDisable()
-    {
-        GameEvents.OnGameOver -= EndGame;
-    }
+    private void OnDisable() => GameEvents.OnGameOver -= EndGame;
 
     public void InitSettings(Settings settings) => _settings = settings;
     
@@ -53,19 +47,20 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 #if UNITY_EDITOR
         Vector3 mp = Mouse.current.position.ReadValue();
 #else
+        if(Touchscreen.current == null) return;
         Vector3 mp = Touchscreen.current.primaryTouch.position.ReadValue();
 #endif
         mp.z = -_mainCam.transform.position.z;
         Vector3 world = _mainCam.ScreenToWorldPoint(mp);
         _mouseOffset = transform.position - world;
         SetSize(_settings.cellSize * 2);
-        foreach (var cell in cells)
+        foreach (Transform cell in cells)
             cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsPickedSpriteLayer;
     }
 
     private void Update()
     {
-        //New input system is not updating OnPointerDrag every frame
+        //New input system is not updating OnPointerMove every frame
         //like OnMouseDrag, so I have to use Update instead
         if (!_isPicked || !_mainCam || !_settings) return;
         //moving the block to the mouse position + offset
@@ -94,7 +89,7 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if(!_isPicked) return;
         GameEvents.RaiseOnBlockUnpicked(this);
         _isPicked = false;
-        foreach (var cell in cells)
+        foreach (Transform cell in cells)
             cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsDefaultSpriteLayer;
     }
     
@@ -110,10 +105,11 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     #region Visuals
     
-    public void SetColor(Color color)
+    public void SetColor(Color newColor)
     {
+        color = newColor;
         foreach (var cell in cells)
-            cell.GetComponent<SpriteRenderer>().color = color;
+            cell.GetComponent<SpriteRenderer>().color = newColor;
     }
 
     private void SetSize(float size)
@@ -129,7 +125,7 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     
     private IEnumerator PositionTranslateRoutine(Vector3 startPos, Vector3 endPos, float duration, bool disableCanPick)
     {
-        float estimatedTime = 0f;
+        var estimatedTime = 0f;
         while (estimatedTime < duration)
         {
             estimatedTime += Time.deltaTime;
@@ -142,7 +138,7 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     
     private IEnumerator SizeChangeRoutine(Vector3 startSize, Vector3 endSize, float duration)
     {
-        float estimatedTime = 0f;
+        var estimatedTime = 0f;
         while (estimatedTime < duration)
         {
             estimatedTime += Time.deltaTime;

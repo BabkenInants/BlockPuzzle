@@ -6,13 +6,10 @@ using Random = UnityEngine.Random;
 public class BlockSpawner : MonoBehaviour
 {
     public bool isReady{get; private set;}
+    public GameObject[] blocks { get; private set; }
     [SerializeField] private Settings settings;
     [SerializeField] private Field field;
-    public GameObject[] blocks;
     [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] private GameObject[] blockPrefabs;
-    [SerializeField] private GameObject[] smallBlockPrefabs;
-    [SerializeField] private Color[] colors;
     private bool _gameIsOver;
     
     private void Start()
@@ -22,21 +19,14 @@ public class BlockSpawner : MonoBehaviour
         SpawnBlocks();
     }
 
-    private void OnEnable() =>
-        GameEvents.OnGameOver += OnGameOver;
+    private void OnEnable() => GameEvents.OnGameOver += OnGameOver;
 
-    private void OnDisable() =>
-        GameEvents.OnGameOver -= OnGameOver;
+    private void OnDisable() => GameEvents.OnGameOver -= OnGameOver;
 
-    private void OnGameOver() => _gameIsOver = true;
-
-    private void ShuffleArray<T>(ref T[] array)
+    private void OnGameOver()
     {
-        for (int i = 0; i < array.Length; i++)
-        {
-            int r = Random.Range(0, array.Length);
-            (array[i], array[r]) = (array[r], array[i]);
-        }
+        foreach (GameObject block in blocks) Destroy(block);
+        _gameIsOver = true;
     }
     
     private void SpawnBlocks()
@@ -52,7 +42,7 @@ public class BlockSpawner : MonoBehaviour
         for (var i = 0; i < spawnPoints.Length; i++)
         {
             blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
-            blocks[i].GetComponent<Block>().SetColor(colors[Random.Range(0, colors.Length)]);
+            blocks[i].GetComponent<Block>().SetColor(settings.colors[Random.Range(0, settings.colors.Length)]);
             blocks[i].GetComponent<Block>().InitSettings(settings);
         }
     }
@@ -61,7 +51,7 @@ public class BlockSpawner : MonoBehaviour
     {
         if(_gameIsOver) return;
         var spawnNewBlocks = true;
-        for (int i = 0; i < spawnPoints.Length; i++)
+        for (var i = 0; i < spawnPoints.Length; i++)
         {
             if (blocks[i] == block)
                 blocks[i] = null;
@@ -69,6 +59,15 @@ public class BlockSpawner : MonoBehaviour
         }
         Destroy(block);
         if(spawnNewBlocks) SpawnBlocks();
+    }
+
+    private void ShuffleArray<T>(ref T[] array)
+    {
+        for (var i = 0; i < array.Length; i++)
+        {
+            int r = Random.Range(0, array.Length);
+            (array[i], array[r]) = (array[r], array[i]);
+        }
     }
 
     #region Field simulation and new blocks generation
@@ -80,10 +79,10 @@ public class BlockSpawner : MonoBehaviour
         
         for (var i = 0; i < spawnPoints.Length; i++)
         {
-            if (!FindBlockForField(tempField, blockPrefabs.ToList(), out GameObject tempBlock, out GridPos tempPosition))
-                if (!FindBlockForField(tempField, smallBlockPrefabs.ToList(), out tempBlock, out tempPosition))
+            if (!FindBlockForField(tempField, settings.blockPrefabs.ToList(), out GameObject tempBlock, out GridPos tempPosition))
+                if (!FindBlockForField(tempField, settings.smallBlockPrefabs.ToList(), out tempBlock, out tempPosition))
                 {
-                    Debug.Log("No enough block prefabs");
+                    Debug.LogError("No enough block prefabs");
                     return null;
                 }
             nextBlocks[i] = tempBlock;
@@ -93,8 +92,7 @@ public class BlockSpawner : MonoBehaviour
     }
 
     ///true - found, false - no blocks for this field
-    private bool FindBlockForField(bool[,] tempField, List<GameObject> blocksArr, out GameObject tempBlock, 
-        out GridPos tempPosition)
+    private bool FindBlockForField(bool[,] tempField, List<GameObject> blocksArr, out GameObject tempBlock, out GridPos tempPosition)
     { 
         tempBlock = null;
         tempPosition = new GridPos();
@@ -110,8 +108,9 @@ public class BlockSpawner : MonoBehaviour
         if (candidates.Count == 0) return false;
 
         int bestGrade = candidates.Max(candidate => candidate.Score);
-        float fieldBusinessPercentage = (float) tempField.Cast<bool>().Count(cell => !cell) * 100 / (settings.rowsCount * settings.columnsCount);
-        float betterBlockGenerationProbability = fieldBusinessPercentage >= 60 ? 1f : .85f;
+        //counting busy cells then calculating field busyness percentage
+        float fieldBusynessPercentage = (float) tempField.Cast<bool>().Count(cell => !cell) * 100 / (settings.rowsCount * settings.columnsCount);
+        float betterBlockGenerationProbability = fieldBusynessPercentage >= 60 ? 1f : .85f;
         List<BlockCandidate> bestCandidates = candidates.Where(candidate => candidate.Score >= bestGrade * betterBlockGenerationProbability).ToList();
         BlockCandidate bestCandidate = bestCandidates[Random.Range(0, bestCandidates.Count)];
         
@@ -134,7 +133,8 @@ public class BlockSpawner : MonoBehaviour
                     foundPosition = true;
                     PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), out bool[] rowWasRemoved, out bool[] colWasRemoved);
                     int grade = FieldUtils.RateField(tempField);
-                    grade += block.cells.Length * 10;
+                    // bigger block => better field score so it will give you bigger blocks all the time
+                    grade += block.cells.Length * 10; 
                     RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), rowWasRemoved, colWasRemoved);
                     if (grade > maxGrade)
                     {
@@ -149,11 +149,9 @@ public class BlockSpawner : MonoBehaviour
 
     private void PlaceBlockAndUpdateField(ref bool[,] tempField, Block block, GridPos position, out bool[] rowWasRemoved, out bool[] colWasRemoved)
     {
-        //true - free, false - busy
-        
         // Placing block
-        for (int y = 0; y < block.sizeY; y++)
-            for (int x = 0; x < block.sizeX; x++)
+        for (var y = 0; y < block.sizeY; y++)
+            for (var x = 0; x < block.sizeX; x++)
             {
                 if (!block.blockShape[y * block.sizeX + x]) continue;
                 tempField[y + position.Row, x + position.Column] = false;
@@ -163,54 +161,56 @@ public class BlockSpawner : MonoBehaviour
         var colsToRemove = new bool[settings.columnsCount];
 
         // Rows
-        for (int y = 0; y < settings.rowsCount; y++)
+        for (var y = 0; y < settings.rowsCount; y++)
         {
-            bool rowIsFull = true;
-            for (int x = 0; x < settings.columnsCount; x++)
+            var rowIsFull = true;
+            for (var x = 0; x < settings.columnsCount; x++)
                 if (tempField[y, x]) { rowIsFull = false; break; }
             if (rowIsFull) rowsToRemove[y] = true;
         }
 
         // Cols
-        for (int x = 0; x < settings.columnsCount; x++)
+        for (var x = 0; x < settings.columnsCount; x++)
         {
-            bool colIsFull = true;
-            for (int y = 0; y < settings.rowsCount; y++)
+            var colIsFull = true;
+            for (var y = 0; y < settings.rowsCount; y++)
                 if (tempField[y, x]) { colIsFull = false; break; }
             if (colIsFull) colsToRemove[x] = true;
         }
 
         // Remove rows
-        for (int y = 0; y < settings.rowsCount; y++)
+        for (var y = 0; y < settings.rowsCount; y++)
             if(rowsToRemove[y])
-                for (int x = 0; x < settings.columnsCount; x++)
+                for (var x = 0; x < settings.columnsCount; x++)
                     tempField[y, x] = true;
 
         // Remove cols
-        for (int x = 0; x < settings.columnsCount; x++)
+        for (var x = 0; x < settings.columnsCount; x++)
             if(colsToRemove[x])
-                for (int y = 0; y < settings.rowsCount; y++)
+                for (var y = 0; y < settings.rowsCount; y++)
                 {
                     if (rowsToRemove[y]) continue;
                     tempField[y, x] = true;
                 }
+        
         rowWasRemoved = rowsToRemove;
         colWasRemoved = colsToRemove;
     }
 
-    private void RemoveBlockAndRevertField(ref bool[,] tempField, Block block, GridPos position, bool[] rowWasRemoved,
-        bool[] colWasRemoved)
+    private void RemoveBlockAndRevertField(ref bool[,] tempField, Block block, GridPos position, bool[] rowWasRemoved, bool[] colWasRemoved)
     {
         //restoring removed rows
         for(var row = 0; row < rowWasRemoved.Length; row++)
             if (rowWasRemoved[row])
                 for(var col = 0; col < colWasRemoved.Length; col++)
                     tempField[row, col] = false;
+        
         //restoring removed cols
         for (var col = 0; col < colWasRemoved.Length; col++)
             if(colWasRemoved[col])
                 for (var row = 0; row < rowWasRemoved.Length; row++)
                     tempField[row, col] = false;
+        
         //removing block
         for (var y = 0; y < block.sizeY; y++)
             for (var x = 0; x < block.sizeX; x++)

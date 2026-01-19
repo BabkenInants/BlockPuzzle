@@ -1,13 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class FieldGraphics : MonoBehaviour
 {
-    public bool isReady{get; private set;}
-    public int activeAnimationCoroutines { get; private set; } = 0;
-    [field:SerializeField] public Transform firstCell{get; private set;}
+    public bool isReady {get; private set;}
+    [field:SerializeField] public Transform firstCell {get; private set;}
     [SerializeField] private Settings settings;
     [SerializeField] private ParticleSystem lineRemovalParticles;
     private Transform[,] _fieldCells;
@@ -28,7 +26,6 @@ public class FieldGraphics : MonoBehaviour
 
     public void PlaceBlock(GridPos[] cells, Color color)
     {
-        _lastPreviewedCells = null;
         foreach (GridPos cell in cells)
         {
             _spriteRenderers[cell.Row, cell.Column].sprite = settings.notEmptyCell;
@@ -38,74 +35,72 @@ public class FieldGraphics : MonoBehaviour
 
     public void RemoveRow(int row, Color vfxColor)
     {
-        activeAnimationCoroutines++;
-        for (int j = 0; j < settings.columnsCount; j++)
+        for (var j = 0; j < settings.columnsCount; j++)
         {
             _spriteRenderers[row, j].sprite = settings.emptyCell;
             _spriteRenderers[row, j].color = settings.defaultCellColor;
         }
         Vector3 particlesPosition = firstCell.position + new Vector3(settings.cellSize * (settings.columnsCount / 2f), -row * settings.cellSize, 0);
-        ParticleSystem particles = Instantiate(lineRemovalParticles, particlesPosition, Quaternion.identity);
-        particles.startColor = vfxColor;
-        particles.Play();
-        activeAnimationCoroutines--;
+        SpawnParticles(vfxColor, particlesPosition, Quaternion.identity);
     }
     
     public void RemoveColumn(int col, bool[] fullRows, Color vfxColor)
     {
-        activeAnimationCoroutines++;
-        for (int i = 0; i < settings.rowsCount; i++)
+        for (var i = 0; i < settings.rowsCount; i++)
         {
             if(fullRows[i]) continue;
             _spriteRenderers[i, col].sprite = settings.emptyCell;
             _spriteRenderers[i, col].color = settings.defaultCellColor;
         }
         Vector3 particlesPosition = firstCell.position + new Vector3(col * settings.cellSize, -settings.cellSize * (settings.rowsCount / 2f),  0);
-        ParticleSystem particles = Instantiate(lineRemovalParticles, particlesPosition, Quaternion.Euler(0, 0, 90));
-        particles.startColor = vfxColor;
+        SpawnParticles(vfxColor, particlesPosition, Quaternion.Euler(0, 0, 90));
+    }
+
+    #region VFX
+
+    private void SpawnParticles(Color color, Vector3 particlesPosition, Quaternion particlesRotation)
+    {
+        ParticleSystem particles = Instantiate(lineRemovalParticles, particlesPosition, particlesRotation);
+        ParticleSystem.MainModule mainModule = particles.main;
+        mainModule.startColor = color;
         particles.Play();
-        activeAnimationCoroutines--;
-    } 
+    }
+
+    #endregion
 
     #endregion
     
     #region Previewing
     
-    //Implement only after checking if the cells are free
-    public void PreviewCells(Transform[] cells)
+    ///Implement only after checking if the cells are free
+    public void PreviewCells(GridPos[] cells)
     {
         if (_lastPreviewedCells != null)
             HideCellsPreview();
-        _lastPreviewedCells = new List<GridPos>();
-        for (int i = 0; i < cells.Length; i++)
-        {
-            GridPos position = FieldUtils.GetCellCoordinatesOnField(cells[i].position, firstCell.position, 
-                settings.cellSize, true, settings.columnsCount, settings.rowsCount);
-            _lastPreviewedCells.Add(position);
-            _spriteRenderers[position.Row, position.Column].color = settings.cellPreviewColor;
-        }
+        _lastPreviewedCells = cells.ToList();
+        foreach (GridPos cell in cells)
+            _spriteRenderers[cell.Row, cell.Column].color = settings.cellPreviewColor;
     }
 
     public void HideCellsPreview()
     {
-        List<GridPos> cells = _lastPreviewedCells;
-        if (cells == null) return;
-        foreach (GridPos cell in cells)
+        if (_lastPreviewedCells == null) return;
+        foreach (GridPos cell in _lastPreviewedCells)
             _spriteRenderers[cell.Row, cell.Column].color = settings.defaultCellColor;
         _lastPreviewedCells = null;
     }
 
-    public void PreviewPotentiallyRemovedLines(List<GridPos> cells, Color color)
+    public void PreviewPotentiallyRemovedLines(List<GridPos> cells, Color previewColor)
     {
         if(_lastPreviewedPotentiallyRemovedLines != null)
             HidePotentiallyRemovedLinesPreview();
         _lastPreviewedPotentiallyRemovedLines = new List<GridPos>();
         _lastPreviewedPotentiallyRemovedLinesColors = new List<Color>();
-        for (int i = 0; i < cells.Count; i++)
+        foreach (GridPos cell in cells)
         {
-            _lastPreviewedPotentiallyRemovedLines.Add(cells[i]);
-            _lastPreviewedPotentiallyRemovedLinesColors.Add(_spriteRenderers[cells[i].Row, cells[i].Column].color);
-            _spriteRenderers[cells[i].Row, cells[i].Column].color = color;
+            _lastPreviewedPotentiallyRemovedLines.Add(cell);
+            _lastPreviewedPotentiallyRemovedLinesColors.Add(_spriteRenderers[cell.Row, cell.Column].color);
+            _spriteRenderers[cell.Row, cell.Column].color = previewColor;
         }
     }
 
@@ -129,15 +124,15 @@ public class FieldGraphics : MonoBehaviour
     {
         _fieldCells[0, 0] = firstCell;
         _spriteRenderers[0, 0] = firstCell.GetComponent<SpriteRenderer>();
-        for (int i = 0; i < settings.rowsCount; i++)
+        for (var row = 0; row < settings.rowsCount; row++)
         {
-            for (int j = 0; j < settings.columnsCount; j++)
+            for (var col = 0; col < settings.columnsCount; col++)
             {
-                if (i == 0 && j == 0) continue;
-                Vector3 position = firstCell.position + new Vector3(j * settings.cellSize, -i * settings.cellSize, 0f);
-                _fieldCells[i, j] = Instantiate(settings.cellPrefab, position, 
+                if (row == 0 && col == 0) continue;
+                Vector3 position = firstCell.position + new Vector3(col * settings.cellSize, -row * settings.cellSize, 0f);
+                _fieldCells[row, col] = Instantiate(settings.cellPrefab, position, 
                     Quaternion.identity, transform).transform;
-                _spriteRenderers[i, j] = _fieldCells[i, j].GetComponent<SpriteRenderer>();
+                _spriteRenderers[row, col] = _fieldCells[row, col].GetComponent<SpriteRenderer>();
             }
         }
         isReady = true;

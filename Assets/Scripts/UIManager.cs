@@ -22,6 +22,12 @@ public class UIManager : MonoBehaviour
     private void EndGame()
     {
         if (_gameIsOver) return;
+        StartCoroutine(EndGameRoutine());
+    }
+
+    private IEnumerator EndGameRoutine()
+    {
+        yield return new WaitForSeconds(1.5f);
         gameOverMenu.SetActive(true);
         _gameIsOver = true;
     }

@@ -3,6 +3,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Settings", menuName = "Settings")]
 public class Settings : ScriptableObject
 {
+    [field: Header("Blocks")]
+    [field: SerializeField] public GameObject[] blockPrefabs { get; private set; }
+    [field: SerializeField] public GameObject[] smallBlockPrefabs { get; private set; }
+    [field: SerializeField] public Color[] colors { get; private set; }
+    
+    [field: Space(10f)]
     [field: Header("Field")]
     [field: SerializeField] public float cellSize { get; private set; } = .5f;
     [field: SerializeField] public int columnsCount { get; private set; } = 8;
