@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private FieldGraphics fieldGraphics;
     [SerializeField] private BlockSpawner blockSpawner;
     [SerializeField] private Settings settings;
+    [SerializeField] private CameraShake cameraShake;
     private Block _pickedBlock;
     private bool _gameIsOver;
 
@@ -112,22 +113,26 @@ public class GameManager : MonoBehaviour
             if (changes.FullRows[i])
             {
                 rowsAndColsRemoved++;
-                StartCoroutine(fieldGraphics.RemoveRow(i, changes.BlockColor));
+                fieldGraphics.RemoveRow(i, changes.BlockColor);
             }
         for(var i = 0; i < changes.FullCols.Length; i++)
             if (changes.FullCols[i])
             {
                 rowsAndColsRemoved++;
-                StartCoroutine(fieldGraphics.RemoveColumn(i, changes.FullRows, changes.BlockColor));
+                fieldGraphics.RemoveColumn(i, changes.FullRows, changes.BlockColor);
             }
 
+        
         if (rowsAndColsRemoved == 0) HapticManager.Light();
         else StartCoroutine(HapticManager.PlayHapticsInARowRoutine(HapticManager.HapticType.Heavy, 
                 rowsAndColsRemoved));
         
-        while (fieldGraphics.activeAnimationCoroutines > 0)
-            yield return null;
-        yield return new WaitForSeconds(.5f);
+        if (rowsAndColsRemoved == 2)
+            cameraShake.ShakeForSeconds(.03f, false);
+        else if (rowsAndColsRemoved >= 3)
+            cameraShake.ShakeForSeconds(.04f, true);
+        
+        yield return new WaitForSeconds(1f);
         
         GameEvents.RaiseCheckGameOver();
     }

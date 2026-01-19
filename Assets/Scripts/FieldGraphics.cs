@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -50,24 +49,22 @@ public class FieldGraphics : MonoBehaviour
         }
     }
 
-    public IEnumerator RemoveRow(int row, Color vfxColor)
+    public void RemoveRow(int row, Color vfxColor)
     {
         activeAnimationCoroutines++;
         for (int j = 0; j < settings.columnsCount; j++)
         {
             _spriteRenderers[row, j].sprite = settings.emptyCell;
             _spriteRenderers[row, j].color = settings.defaultCellColor;
-            //yield return new WaitForSeconds(0.02f);
         }
         Vector3 particlesPosition = firstCell.position + new Vector3(settings.cellSize * (settings.columnsCount / 2f), -row * settings.cellSize, 0);
         ParticleSystem particles = Instantiate(lineRemovalParticles, particlesPosition, Quaternion.identity);
         particles.startColor = vfxColor;
         particles.Play();
         activeAnimationCoroutines--;
-        yield break;
     }
     
-    public IEnumerator RemoveColumn(int col, bool[] fullRows, Color vfxColor)
+    public void RemoveColumn(int col, bool[] fullRows, Color vfxColor)
     {
         activeAnimationCoroutines++;
         for (int i = 0; i < settings.rowsCount; i++)
@@ -75,14 +72,12 @@ public class FieldGraphics : MonoBehaviour
             if(fullRows[i]) continue;
             _spriteRenderers[i, col].sprite = settings.emptyCell;
             _spriteRenderers[i, col].color = settings.defaultCellColor;
-            //yield return new WaitForSeconds(0.02f);
         }
         Vector3 particlesPosition = firstCell.position + new Vector3(col * settings.cellSize, -settings.cellSize * (settings.rowsCount / 2f),  0);
         ParticleSystem particles = Instantiate(lineRemovalParticles, particlesPosition, Quaternion.Euler(0, 0, 90));
         particles.startColor = vfxColor;
         particles.Play();
         activeAnimationCoroutines--;
-        yield break;
     } 
 
     #endregion

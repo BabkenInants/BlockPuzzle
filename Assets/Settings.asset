@@ -24,6 +24,10 @@ MonoBehaviour:
   <maxBlockDistanceFromCursorY>k__BackingField: 5
   <minBlockDistanceFromCursorX>k__BackingField: -0.5
   <maxBlockDistanceFromCursorX>k__BackingField: 1
+  <blockCellsDefaultSpriteLayer>k__BackingField: 1
+  <blockCellsPickedSpriteLayer>k__BackingField: 3
   <width>k__BackingField: 6
   <height>k__BackingField: 12
   <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
+  <minDist>k__BackingField: 0.04
+  <maxDist>k__BackingField: 0.05

@@ -27,4 +27,7 @@ public class Settings : ScriptableObject
     [field: SerializeField] public float width {get; private set; } = 6.5f;
     [field: SerializeField] public float height {get; private set; } = 12f;
     [field: SerializeField] public Vector3 camCenter {get; private set; } = new Vector3(0, -1, -10);
+    [field: Header("Camera Shake")]
+    [field: SerializeField] public float minDist {get; private set; } = 0.1f;
+    [field: SerializeField] public float maxDist {get; private set; } = 0.5f;
 }
