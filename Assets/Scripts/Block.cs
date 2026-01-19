@@ -50,7 +50,11 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         GameEvents.RaiseOnBlockPicked(this);
         _isPicked = true;
         _startPos = transform.position;
-        Vector3 mp = eventData.position;
+#if UNITY_EDITOR
+        Vector3 mp = Mouse.current.position.ReadValue();
+#else
+        Vector3 mp = Touchscreen.current.primaryTouch.position.ReadValue();
+#endif
         mp.z = -_mainCam.transform.position.z;
         Vector3 world = _mainCam.ScreenToWorldPoint(mp);
         _mouseOffset = transform.position - world;
@@ -69,7 +73,11 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         float maxY = _settings.maxBlockDistanceFromCursorY;
         float minX = _settings.minBlockDistanceFromCursorX;
         float maxX = _settings.maxBlockDistanceFromCursorX;
+#if UNITY_EDITOR
         Vector3 mousePos = Mouse.current.position.ReadValue();
+#else
+        Vector3 mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
+#endif
         float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);
         float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxX, minX, maxX);
         Vector3 offset = _mouseOffset + new Vector3(xOffset, yOffset);
