@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public class Block : MonoBehaviour
+public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     public Transform[] cells;
     [field: SerializeField] public float notPickedSize { get; private set; } = .7f;
@@ -41,13 +44,13 @@ public class Block : MonoBehaviour
     
     #region Drag and drop
     
-    private void OnMouseDown()
+    public void OnPointerDown(PointerEventData eventData)
     {
         if (_settings == null || !_canPick || !_mainCam) return;
         GameEvents.RaiseOnBlockPicked(this);
         _isPicked = true;
         _startPos = transform.position;
-        Vector3 mp = Input.mousePosition;
+        Vector3 mp = eventData.position;
         mp.z = -_mainCam.transform.position.z;
         Vector3 world = _mainCam.ScreenToWorldPoint(mp);
         _mouseOffset = transform.position - world;
@@ -56,29 +59,29 @@ public class Block : MonoBehaviour
             cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsPickedSpriteLayer;
     }
 
-    private void OnMouseDrag()
+    private void Update()
     {
-        if (!_isPicked || !_mainCam) return;
+        //New input system is not updating OnPointerDrag every frame
+        //like OnMouseDrag, so I have to use Update instead
+        if (!_isPicked || !_mainCam || !_settings) return;
         //moving the block to the mouse position + offset
-        if (_settings == null) return;
         float minY = _settings.minBlockDistanceFromCursorY;
         float maxY = _settings.maxBlockDistanceFromCursorY;
         float minX = _settings.minBlockDistanceFromCursorX;
         float maxX = _settings.maxBlockDistanceFromCursorX;
-        Vector3 mousePos = Input.mousePosition;
+        Vector3 mousePos = Mouse.current.position.ReadValue();
         float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);
         float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxX, minX, maxX);
         Vector3 offset = _mouseOffset + new Vector3(xOffset, yOffset);
-        Vector3 mp = Input.mousePosition;
-        mp.z = -_mainCam.transform.position.z;
-        Vector3 world = _mainCam.ScreenToWorldPoint(mp);
+        mousePos.z = -_mainCam.transform.position.z;
+        Vector3 world = _mainCam.ScreenToWorldPoint(mousePos);
         Vector3 position = world + offset;
         position.z = 0;
         transform.position = position;
         GameEvents.RaiseOnBlockMoved();
     }
 
-    private void OnMouseUp()
+    public void OnPointerUp(PointerEventData eventData)
     {
         if(!_isPicked) return;
         GameEvents.RaiseOnBlockUnpicked(this);
