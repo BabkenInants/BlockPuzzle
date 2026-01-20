@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
         fieldGraphics.HideCellsPreview();
         fieldGraphics.HidePotentiallyRemovedLinesPreview();
         if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells, out GridPos[] cellsPositions)) return;
-        fieldGraphics.PreviewCells(cellsPositions);
+        fieldGraphics.PreviewCells(cellsPositions, _pickedBlock.color);
         fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines(_pickedBlock, cellsPositions), _pickedBlock.color);
     }
 

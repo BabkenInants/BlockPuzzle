@@ -12,6 +12,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6825e2eb0d8340ba933b18134eb36dbb, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: Assembly-CSharp::BlockPlacementSettings
+  <blockPrefabs>k__BackingField:
+  - {fileID: 7349863508935145743, guid: b0186c378fa5f4f74ad64e6c370dc490, type: 3}
+  - {fileID: 3086999690743695201, guid: eea33de01f67f4d8bb7c1dcd9a0f40e5, type: 3}
+  - {fileID: 5330173533742885778, guid: fd9d1989cb5524a80b4c48bb1a1cfc05, type: 3}
+  - {fileID: 1942885836256921628, guid: 33e600350bb574636bd364425a76f1da, type: 3}
+  - {fileID: 243459711408522989, guid: 3ea797ed5df034c45bd4d785383c8577, type: 3}
+  - {fileID: 3496397291212101135, guid: e8da4879c3dff47fbb5581dd923cd3ef, type: 3}
+  - {fileID: 725933863621624915, guid: 2d3c0cb33643049ec8e5183163353184, type: 3}
+  - {fileID: 150464811540760199, guid: b578dfce3ebd44f7f939a2bebea5c866, type: 3}
+  - {fileID: 3996263992614180520, guid: 77d22de0c6fa844c784c5f6c16f676b4, type: 3}
+  - {fileID: 9104129707496263017, guid: 2d68afe2dc4094028aec59fa459f62e4, type: 3}
+  - {fileID: 8152695757331921148, guid: b1c2bae578b584590a539f0038762919, type: 3}
+  - {fileID: 1132446031991426899, guid: 96fdd07d103c147f3a2385fa93150c4d, type: 3}
+  - {fileID: 8942338370192281963, guid: d02d7b3b0ea1248b7a3df057d7829a4a, type: 3}
+  - {fileID: 3858363023783005692, guid: f9fd3fbf7e7e84900a43633f22f01139, type: 3}
+  - {fileID: 4765134149318035895, guid: 37e98f24dd2e34bf2abc4833fd9bce50, type: 3}
+  - {fileID: 6774549406731015692, guid: d4104a70ba1fe4039ad0c36eb99be2b7, type: 3}
+  - {fileID: 4242733190991733019, guid: ac624ec9ef5994949ae3da3999e6a992, type: 3}
+  - {fileID: 8783796715181622902, guid: 94339f2b126c047e8b79b834a7dde0c1, type: 3}
+  - {fileID: 4650082056902410432, guid: aa4ee544751ac4cd7aeccff1cea53d9b, type: 3}
+  - {fileID: 1235142167745447979, guid: c54ed3cf75afd41bab95ecb93840f6aa, type: 3}
+  - {fileID: 4090498252016826565, guid: d1720e55bd9e74576ad8b830a1ae717c, type: 3}
+  - {fileID: 859629234375848677, guid: cbaf91c95a8e340648afb7f2ea8bd12b, type: 3}
+  - {fileID: 9013612883416361367, guid: b397ccaf039b74e0a8168c0710478b42, type: 3}
+  - {fileID: 5456571150733414868, guid: 92846664ad42747f6991025cdcb83279, type: 3}
+  - {fileID: 4218647058775937973, guid: ca81e70f798804a4eb89968c4c8ec4d8, type: 3}
+  - {fileID: 4396987542601405729, guid: 2dc9dc82da43d489d94db4af4b5205d0, type: 3}
+  - {fileID: 8613790211220170828, guid: ef2a4a97fcbf8441e959094e80a5bef0, type: 3}
+  - {fileID: 4364295601992306526, guid: 4e62802b5e2dc438b8362edf971b03d7, type: 3}
+  - {fileID: 6967560060208433201, guid: 817d1a7dc75cb4926b8473a947b4f36b, type: 3}
+  - {fileID: 1369699636396564647, guid: 0e460d4e4e6be472181125c8fcf452ea, type: 3}
+  <smallBlockPrefabs>k__BackingField:
+  - {fileID: 4396987542601405729, guid: 991e04aaef9cd4706a9f76231bb7f3a1, type: 3}
+  - {fileID: 6990745283675571670, guid: 6b5ac881ce6c24f7cab3d884bd01d0fb, type: 3}
+  - {fileID: 6183902098893057101, guid: 05591306a2f4f4d6a8850af5eb83d983, type: 3}
+  - {fileID: 3083192805538972200, guid: 5c2145c0cd32143d291415800d9aeddd, type: 3}
+  - {fileID: 2774996786515161511, guid: a955d1c18981e49eba9132694084bc19, type: 3}
+  - {fileID: 5312309622096247570, guid: 4478830ea4bcd4227bc43274ee2ccac8, type: 3}
+  - {fileID: 4920408409697412232, guid: f5264c5c2961b4737b923632e7adf2ae, type: 3}
+  - {fileID: 7055817461446177434, guid: 486fd79c2e6e942b687f2d476d6cd2d7, type: 3}
+  - {fileID: 6096826533973895730, guid: 3aab28830967141899fc4c8378236fa5, type: 3}
+  <colors>k__BackingField:
+  - {r: 0, g: 0.8584906, b: 0.081883915, a: 1}
+  - {r: 0, g: 0.32193473, b: 0.85882354, a: 1}
+  - {r: 0.85882354, g: 0.12947923, b: 0, a: 1}
+  - {r: 1, g: 0.5185516, b: 0, a: 1}
+  - {r: 1, g: 0.80241597, b: 0, a: 1}
+  - {r: 0.83477104, g: 0.3237362, b: 0.9150943, a: 1}
+  - {r: 0.519485, g: 0.15730685, b: 0.9528302, a: 1}
+  - {r: 0.125534, g: 0.6705688, b: 0.8584906, a: 1}
   <cellSize>k__BackingField: 0.65
   <columnsCount>k__BackingField: 8
   <rowsCount>k__BackingField: 8

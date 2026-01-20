@@ -17,7 +17,6 @@ public class Settings : ScriptableObject
     [field: SerializeField] public Sprite notEmptyCell { get; private set; }
     [SerializeField] public GameObject cellPrefab;
     [SerializeField] public Color defaultCellColor;
-    [SerializeField] public Color cellPreviewColor;
     
     [field: Space(10f)]
     [field: Header("Block Placement")]

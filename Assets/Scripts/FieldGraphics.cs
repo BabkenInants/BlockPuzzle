@@ -73,20 +73,28 @@ public class FieldGraphics : MonoBehaviour
     #region Previewing
     
     ///Implement only after checking if the cells are free
-    public void PreviewCells(GridPos[] cells)
+    public void PreviewCells(GridPos[] cells, Color color)
     {
         if (_lastPreviewedCells != null)
             HideCellsPreview();
         _lastPreviewedCells = cells.ToList();
-        foreach (GridPos cell in cells)
-            _spriteRenderers[cell.Row, cell.Column].color = settings.cellPreviewColor;
+        Color tempColor = color;
+        tempColor.a = .25f;
+        for (var i = 0; i < cells.Length; i++)
+        {
+            _spriteRenderers[cells[i].Row, cells[i].Column].color = tempColor;
+            _spriteRenderers[cells[i].Row, cells[i].Column].sprite = settings.notEmptyCell;
+        }
     }
 
     public void HideCellsPreview()
     {
         if (_lastPreviewedCells == null) return;
         foreach (GridPos cell in _lastPreviewedCells)
+        {
             _spriteRenderers[cell.Row, cell.Column].color = settings.defaultCellColor;
+            _spriteRenderers[cell.Row, cell.Column].sprite = settings.emptyCell;
+        }
         _lastPreviewedCells = null;
     }
 
