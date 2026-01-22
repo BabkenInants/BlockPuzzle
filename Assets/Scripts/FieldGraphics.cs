@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,7 @@ public class FieldGraphics : MonoBehaviour
     private List<GridPos> _lastPreviewedCells;
     private List<GridPos> _lastPreviewedPotentiallyRemovedLines;
     private List<Color> _lastPreviewedPotentiallyRemovedLinesColors;
+    private Queue<ParticleSystem> _lineRemovalParticlesPool = new Queue<ParticleSystem>();
 
     private void Awake()
     {
@@ -21,6 +23,44 @@ public class FieldGraphics : MonoBehaviour
     }
 
     private void Start() => GenerateField();
+
+    #region Particle System Pool
+
+    private void AddParticle()
+    {
+        ParticleSystem particles = Instantiate(lineRemovalParticles, transform);
+        ParticleSystem.MainModule main = particles.main;
+        main.playOnAwake = false;
+        main.loop = false;
+        particles.Stop();
+        particles.gameObject.SetActive(false);
+        _lineRemovalParticlesPool.Enqueue(particles);
+    }
+
+    private void PlayParticles(Vector3 position, Quaternion rotation, Color color)
+    {
+        if(_lineRemovalParticlesPool.Count == 0)
+            AddParticle();
+        ParticleSystem particles = _lineRemovalParticlesPool.Dequeue();
+        particles.transform.position = position;
+        particles.transform.rotation = rotation;
+        ParticleSystem.MainModule main = particles.main;
+        main.startColor = color;
+        particles.gameObject.SetActive(true);
+        StartCoroutine(PlayAndEnqueueAtTheEnd(particles));
+    }
+
+    private IEnumerator PlayAndEnqueueAtTheEnd(ParticleSystem particles)
+    {
+        particles.Play();
+        yield return new WaitForSeconds(particles.main.duration + .1f);
+        particles.Stop();
+        particles.Clear();
+        particles.gameObject.SetActive(false);
+        _lineRemovalParticlesPool.Enqueue(particles);
+    }
+
+    #endregion
     
     #region Blocks Placement
 
@@ -41,7 +81,7 @@ public class FieldGraphics : MonoBehaviour
             _spriteRenderers[row, j].color = settings.defaultCellColor;
         }
         Vector3 particlesPosition = firstCell.position + new Vector3(settings.cellSize * (settings.columnsCount / 2f), -row * settings.cellSize, 0);
-        SpawnParticles(vfxColor, particlesPosition, Quaternion.identity);
+        PlayParticles(particlesPosition, Quaternion.identity, vfxColor);
     }
     
     public void RemoveColumn(int col, bool[] fullRows, Color vfxColor)
@@ -53,20 +93,8 @@ public class FieldGraphics : MonoBehaviour
             _spriteRenderers[i, col].color = settings.defaultCellColor;
         }
         Vector3 particlesPosition = firstCell.position + new Vector3(col * settings.cellSize, -settings.cellSize * (settings.rowsCount / 2f),  0);
-        SpawnParticles(vfxColor, particlesPosition, Quaternion.Euler(0, 0, 90));
+        PlayParticles(particlesPosition, Quaternion.Euler(0, 0, 90), vfxColor);
     }
-
-    #region VFX
-
-    private void SpawnParticles(Color color, Vector3 particlesPosition, Quaternion particlesRotation)
-    {
-        ParticleSystem particles = Instantiate(lineRemovalParticles, particlesPosition, particlesRotation);
-        ParticleSystem.MainModule mainModule = particles.main;
-        mainModule.startColor = color;
-        particles.Play();
-    }
-
-    #endregion
 
     #endregion
     
