@@ -19,6 +19,7 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private Settings _settings;
     private bool _canPick = true;
     private IEnumerator _sizeChangeCoroutine;
+    private bool _otherBlockIsPicked;
 
     private void Awake() => SetSize(notPickedSize);
 
@@ -30,9 +31,29 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if(_isPicked) PutBlockBack(true);
     }
 
-    private void OnEnable() => GameEvents.OnGameOver += EndGame;
+    private void HandleOnBlockPicked(Block block)
+    {
+        if(block != this) _otherBlockIsPicked = true;
+    }
 
-    private void OnDisable() => GameEvents.OnGameOver -= EndGame;
+    private void HandeOnBlockUnpicked(Block block)
+    {
+        if (block != this) _otherBlockIsPicked = false;
+    }
+
+    private void OnEnable()
+    {
+        GameEvents.OnGameOver += EndGame;
+        GameEvents.OnBlockPicked += HandleOnBlockPicked;
+        GameEvents.OnBlockUnpicked +=  HandeOnBlockUnpicked;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnGameOver -= EndGame;
+        GameEvents.OnBlockPicked -= HandleOnBlockPicked;
+        GameEvents.OnBlockUnpicked -= HandeOnBlockUnpicked;
+    }
 
     public void InitSettings(Settings settings) => _settings = settings;
     
@@ -40,7 +61,7 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (_settings == null || !_canPick || !_mainCam) return;
+        if (_settings == null || !_canPick || !_mainCam || _otherBlockIsPicked) return;
         GameEvents.RaiseOnBlockPicked(this);
         _isPicked = true;
         _startPos = transform.position;
@@ -69,8 +90,10 @@ public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         float minX = _settings.minBlockDistanceFromCursorX;
         float maxX = _settings.maxBlockDistanceFromCursorX;
 #if UNITY_EDITOR
+        if (Mouse.current == null) return;
         Vector3 mousePos = Mouse.current.position.ReadValue();
 #else
+        if(Touchscreen.current == null) return;
         Vector3 mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
 #endif
         float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);

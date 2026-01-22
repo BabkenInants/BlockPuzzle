@@ -13,26 +13,25 @@ public class ScoreManager : MonoBehaviour
         //score += blockCellsCount
         _score += changes.BlockCellsPositions.Length;
         
-        //for each removed line: score += (10 * lineLength)
+        //for each removed line: score += (multiplier * lineLength)
         int rowsScore = changes.FullRows.Count(row => row);
         int colScore = changes.FullCols.Count(col => col);
-        _score += rowsScore * 10 * settings.columnsCount;
-        _score += colScore * 10 * settings.rowsCount;
+        _score += rowsScore * settings.lineRemovalScoreMultiplier * settings.columnsCount;
+        _score += colScore * settings.lineRemovalScoreMultiplier * settings.rowsCount;
         
-        //if multiple lines removed: score += linesRemoved * linesRemoved * 50
+        //if multiple lines removed: score += linesRemoved * linesRemoved * multiplier
         int totalLines = rowsScore + colScore;
-        if (totalLines > 1) _score += totalLines * totalLines * 50;
+        if (totalLines > 1) _score += totalLines * totalLines * settings.multipleLinesRemovalScoreMultiplier;
         
         //if removed at least one line within next 3 moves: combo++ && score += totalLines * totalLines * 100 * combo
         //else combo = 0
         if (totalLines > 0)
         {
             _combo += totalLines;
-            print(_combo);
             _comboReset = 0;
         }
-        else if (_combo > -1 && ++_comboReset >= 2) { _combo = -1; _comboReset = 0; }
-        if (_combo > 0) _score += totalLines * totalLines * 50 * _combo;
+        else if (_combo > -1 && ++_comboReset >= settings.resetComboAfterMoves) { _combo = -1; _comboReset = 0; }
+        if (_combo > 0) _score += totalLines * totalLines * settings.comboScoreMultiplier * _combo;
         
         //Updating UI
         

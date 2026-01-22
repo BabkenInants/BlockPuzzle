@@ -32,7 +32,7 @@ public class UIManager : MonoBehaviour
     private IEnumerator EndGameRoutine()
     {
         GameEvents.RaisePlaySfx(settings.gameOverSfx);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(settings.waitBeforeGameOverMenuAppears);
         gameOverMenu.SetActive(true);
         _gameIsOver = true;
     }
@@ -43,7 +43,7 @@ public class UIManager : MonoBehaviour
     {
         if(_scoreUpdateCoroutine != null)
             StopCoroutine(_scoreUpdateCoroutine);
-        _scoreUpdateCoroutine = UpdateScoreRoutine(score, 2.5f);
+        _scoreUpdateCoroutine = UpdateScoreRoutine(score, settings.scoreUpdateAnimationDuration);
         StartCoroutine(_scoreUpdateCoroutine);
     }
 
@@ -72,27 +72,17 @@ public class UIManager : MonoBehaviour
         if(_comboCoroutine != null)
             StopCoroutine(_comboCoroutine);
         _lastCombo = lastCombo;
-        _comboCoroutine = ShowComboRoutine(combo, .6f);
+        _comboCoroutine = ShowComboRoutine(combo, settings.comboAnimationDuration);
         StartCoroutine(_comboCoroutine);
     }
 
     private IEnumerator ShowComboRoutine(int combo, float duration)
     {
         //showing text
-        float elapsedTime = 0;
         comboText.gameObject.SetActive(true);
         comboText.text = _lastCombo <= 1? "Combo" : $"Combo {_lastCombo}";
-        Color endColor = comboText.color;
-        Color startColor = comboText.color;
-        endColor.a = 1;
-        StartCoroutine(SizeChangeRoutine(comboText.rectTransform, Vector3.zero, Vector3.one, duration / 3f));
-        while (elapsedTime < duration / 3f)
-        {
-            elapsedTime += Time.deltaTime;
-            comboText.color = Color.Lerp(startColor, endColor, elapsedTime / (duration/3));
-            yield return null;
-        }
-        comboText.color = endColor;
+        yield return SizeChangeRoutine(comboText.rectTransform, Vector3.zero, new Vector3(1.2f, 1.2f, 1.2f), duration / 3f * .8f);
+        yield return SizeChangeRoutine(comboText.rectTransform, new Vector3(1.2f, 1.2f, 1.2f), Vector3.one, duration / 3f * .2f);
         
         //combo++ animation
         int diff = combo - _lastCombo;
@@ -105,17 +95,7 @@ public class UIManager : MonoBehaviour
         }
         
         //hiding text
-        elapsedTime = 0;
-        endColor.a = 0;
-        startColor = comboText.color;
-        StartCoroutine(SizeChangeRoutine(comboText.rectTransform, Vector3.one, Vector3.zero, duration / 3f));
-        while (elapsedTime < duration / 3f)
-        {
-            elapsedTime += Time.deltaTime;
-            comboText.color = Color.Lerp(startColor, endColor, elapsedTime / (duration/3));
-            yield return null;
-        }
-        comboText.color = endColor;
+        yield return SizeChangeRoutine(comboText.rectTransform, Vector3.one, Vector3.zero, duration / 3f);
         comboText.gameObject.SetActive(false);
         _comboCoroutine = null;
     } 

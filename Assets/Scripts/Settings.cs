@@ -32,6 +32,7 @@ public class Settings : ScriptableObject
     [field: SerializeField] public float width {get; private set; } = 6.5f;
     [field: SerializeField] public float height {get; private set; } = 12f;
     [field: SerializeField] public Vector3 camCenter {get; private set; } = new Vector3(0, -1, -10);
+    
     [field: Header("Camera Shake")]
     [field: SerializeField] public float minDist {get; private set; } = 0.1f;
     [field: SerializeField] public float maxDist {get; private set; } = 0.5f;
@@ -42,4 +43,17 @@ public class Settings : ScriptableObject
     [field: SerializeField] public AudioClip blockPlacementSfx { get; private set; }
     [field: SerializeField] public AudioClip lineRemovalSfx { get; private set; }
     [field: SerializeField] public AudioClip gameOverSfx { get; private set; }
+    
+    [field: Space(10f)]
+    [field: Header("Score")]
+    [field: SerializeField] public int lineRemovalScoreMultiplier {get; private set;} = 10;
+    [field: SerializeField] public int multipleLinesRemovalScoreMultiplier {get; private set;} = 50;
+    [field: SerializeField] public int comboScoreMultiplier {get; private set;} = 50;
+    [field: SerializeField] public int resetComboAfterMoves {get; private set;} = 3;
+    
+    [field: Space(10f)]
+    [field: Header("UI Animations")]
+    [field: SerializeField] public float comboAnimationDuration {get; private set;} = .6f;
+    [field: SerializeField] public float scoreUpdateAnimationDuration {get; private set;} = 2.5f;
+    [field: SerializeField] public float waitBeforeGameOverMenuAppears {get; private set;} = 1f;
 }

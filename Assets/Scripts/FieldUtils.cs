@@ -45,7 +45,7 @@ public static class FieldUtils
                 if (!block.blockShape[y * block.sizeX + x]) 
                     continue;
                 //checking if the cell is not free
-                if (field[row + y, col + x] == false)
+                if (!field[row + y, col + x])
                     return false;
             }
         return true;
