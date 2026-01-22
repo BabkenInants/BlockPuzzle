@@ -4,5 +4,5 @@ public class AutoDestroyer : MonoBehaviour
 {
     public float lifeTime;
 
-    private void Awake() => Destroy(gameObject, lifeTime);
+    private void Start() => Destroy(gameObject, lifeTime);
 }

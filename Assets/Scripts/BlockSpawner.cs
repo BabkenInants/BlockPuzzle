@@ -116,7 +116,7 @@ public class BlockSpawner : MonoBehaviour
         
         tempBlock = bestCandidate.Block;
         tempPosition = bestCandidate.Position;
-        Debug.Log(tempBlock.name + ": " + tempPosition);
+        //Debug.Log(tempBlock.name + ": " + tempPosition);
         return true;
     }
     

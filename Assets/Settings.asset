@@ -69,7 +69,6 @@ MonoBehaviour:
   <notEmptyCell>k__BackingField: {fileID: 21300000, guid: 4aa9628a1e552404598693c8562d5055, type: 3}
   cellPrefab: {fileID: 40837118694815055, guid: a14003c64ddae4ba9b906ac4d09fb07d, type: 3}
   defaultCellColor: {r: 0.14117648, g: 0.1764706, b: 0.32941177, a: 1}
-  cellPreviewColor: {r: 0, g: 0, b: 0, a: 1}
   <minBlockDistanceFromCursorY>k__BackingField: 1
   <maxBlockDistanceFromCursorY>k__BackingField: 5
   <minBlockDistanceFromCursorX>k__BackingField: -0.5
@@ -81,3 +80,7 @@ MonoBehaviour:
   <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
   <minDist>k__BackingField: 0.04
   <maxDist>k__BackingField: 0.05
+  <blockPickupSfx>k__BackingField: {fileID: 8300000, guid: d528dc997788a47c48cb190d70a8c58b, type: 3}
+  <blockPlacementSfx>k__BackingField: {fileID: 8300000, guid: 4e4b7a5fe60bc4c18b548c88088d9811, type: 3}
+  <lineRemovalSfx>k__BackingField: {fileID: 8300000, guid: 4a7460c84aee64d0d94dc6478ddbeca1, type: 3}
+  <gameOverSfx>k__BackingField: {fileID: 8300000, guid: 7a9521ccd6bfc4784a547e433eeb36aa, type: 3}

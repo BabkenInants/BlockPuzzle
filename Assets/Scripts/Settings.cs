@@ -35,4 +35,11 @@ public class Settings : ScriptableObject
     [field: Header("Camera Shake")]
     [field: SerializeField] public float minDist {get; private set; } = 0.1f;
     [field: SerializeField] public float maxDist {get; private set; } = 0.5f;
+
+    [field: Space(10f)]
+    [field: Header("SFX")]
+    [field: SerializeField] public AudioClip blockPickupSfx { get; private set; }
+    [field: SerializeField] public AudioClip blockPlacementSfx { get; private set; }
+    [field: SerializeField] public AudioClip lineRemovalSfx { get; private set; }
+    [field: SerializeField] public AudioClip gameOverSfx { get; private set; }
 }

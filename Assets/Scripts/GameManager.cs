@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     {
         if (_gameIsOver) return;
         _pickedBlock = block;
+        GameEvents.RaisePlaySfx(settings.blockPickupSfx);
     }
     
     private void OnBlockMoved()
@@ -52,6 +53,7 @@ public class GameManager : MonoBehaviour
         }
         if (field.CheckIfBlockCanBePlaced(block.cells, out GridPos[] cellsPositions))
         {
+            GameEvents.RaisePlaySfx(settings.blockPlacementSfx);
             ChangesAfterMove changes = field.PlaceBlock(cellsPositions, block.color);
             blockSpawner.RemoveBlock(block.gameObject);
             HandleChangesAfterMove(changes);
@@ -115,8 +117,11 @@ public class GameManager : MonoBehaviour
             }
         
         if (rowsAndColsRemoved == 0) HapticManager.Light();
-        else StartCoroutine(HapticManager.PlayHapticsInARowRoutine(HapticManager.HapticType.Heavy, 
-                rowsAndColsRemoved));
+        else 
+        {
+            StartCoroutine(HapticManager.PlayHapticsInARowRoutine(HapticManager.HapticType.Heavy, rowsAndColsRemoved));
+            GameEvents.RaisePlaySfx(settings.lineRemovalSfx);
+        }
         
         if (rowsAndColsRemoved == 2)
             cameraShake.ShakeForSeconds(.03f, false);
