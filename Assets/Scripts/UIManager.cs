@@ -19,17 +19,10 @@ public class UIManager : MonoBehaviour
     private int _bestScore;
     private int _lastCombo;
 
-    private IEnumerator Start()
+    private void Start()
     {
         _bestScore = PlayerPrefs.GetInt("BestScore");
         bestScoreText.text = _bestScore.ToString();
-        yield return new WaitForSeconds(3);
-        ShowAllClear();
-        yield return new WaitForSeconds(.3f);
-        ShowAllClear();
-        yield return new WaitForSeconds(3f);
-        ShowAllClear();
-        ShowCombo(1, 0);
     }
 
     #region Game Over Menu
