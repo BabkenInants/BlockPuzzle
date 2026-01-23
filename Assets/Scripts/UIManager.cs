@@ -15,9 +15,11 @@ public class UIManager : MonoBehaviour
     private IEnumerator _scoreUpdateCoroutine;
     private IEnumerator _comboCoroutine;
     private IEnumerator _allClearCoroutine;
+    private IEnumerator _comboAnimationCoroutine;
     private int _lastScore;
     private int _bestScore;
     private int _lastCombo;
+    private bool _isCombo;
 
     private void Start()
     {
@@ -81,12 +83,21 @@ public class UIManager : MonoBehaviour
     
     private void ShowCombo(int combo, int lastCombo)
     {
+        _isCombo = true;
+        if (_comboAnimationCoroutine == null)
+        {
+            _comboAnimationCoroutine = ComboScoreAnimationRoutine();
+            StartCoroutine(_comboAnimationCoroutine);
+        }
+
         if(_comboCoroutine != null)
             StopCoroutine(_comboCoroutine);
         _lastCombo = lastCombo;
         _comboCoroutine = ShowComboRoutine(combo, settings.comboAnimationDuration);
         StartCoroutine(_comboCoroutine);
     }
+
+    private void EndCombo() => _isCombo = false;
 
     private IEnumerator ShowComboRoutine(int combo, float duration)
     {
@@ -136,6 +147,16 @@ public class UIManager : MonoBehaviour
     }
 
     #endregion
+
+    private IEnumerator ComboScoreAnimationRoutine()
+    {
+        while (_isCombo)
+        {
+            yield return SizeChangeRoutine(scoreText.rectTransform, Vector3.one, new Vector3(0.9f, 0.9f, 0.9f), settings.scoreHeartBeatFrequency);
+            yield return SizeChangeRoutine(scoreText.rectTransform, new Vector3(0.9f, 0.9f, 0.9f), Vector3.one, settings.scoreHeartBeatFrequency);
+        }
+        _comboAnimationCoroutine = null;
+    }
     
     private static IEnumerator SizeChangeRoutine(RectTransform rectTransform, Vector3 startSize, Vector3 endSize, float duration)
     {
@@ -159,6 +180,7 @@ public class UIManager : MonoBehaviour
         GameEvents.UpdateScore += UpdateScore;
         GameEvents.ShowCombo += ShowCombo;
         GameEvents.ShowAllClearBonus += ShowAllClear;
+        GameEvents.OnComboEnded += EndCombo;
     }
 
     private void Unsubscribe()
@@ -167,5 +189,6 @@ public class UIManager : MonoBehaviour
         GameEvents.UpdateScore -= UpdateScore;
         GameEvents.ShowCombo -= ShowCombo;
         GameEvents.ShowAllClearBonus -= ShowAllClear;
+        GameEvents.OnComboEnded -= EndCombo;
     }
 }

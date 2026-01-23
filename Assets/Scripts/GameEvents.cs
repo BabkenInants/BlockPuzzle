@@ -26,6 +26,9 @@ public static class GameEvents
     
     public static event Action ShowAllClearBonus;
     public static void RaiseShowAllClearBonus() => ShowAllClearBonus?.Invoke();
+
+    public static event Action OnComboEnded;
+    public static void RaiseOnComboEnded() => OnComboEnded?.Invoke();
     
     #endregion
 

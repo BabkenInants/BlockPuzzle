@@ -30,7 +30,7 @@ public class ScoreManager : MonoBehaviour
             _combo += totalLines;
             _comboReset = 0;
         }
-        else if (_combo > -1 && ++_comboReset >= settings.resetComboAfterMoves) { _combo = -1; _comboReset = 0; }
+        else if (_combo > -1 && ++_comboReset >= settings.resetComboAfterMoves) { _combo = -1; _comboReset = 0; GameEvents.RaiseOnComboEnded();}
         if (_combo > 0) _score += totalLines * totalLines * settings.comboScoreMultiplier * _combo;
         
         //All clear bonus
