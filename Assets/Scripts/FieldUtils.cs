@@ -21,10 +21,15 @@ public static class FieldUtils
     public static int RateField(bool[,] field)
     {
         var score = 0;
+        var fieldIsAllClear = true;
         for(var row = 0; row < field.GetLength(0); row++)
             for (var col = 0; col < field.GetLength(1); col++)
             {
-                if (!field[row, col]) continue; //if cell is not free
+                if (!field[row, col])
+                {
+                    fieldIsAllClear = false;
+                    continue; //if cell is not free
+                }
                 var temp = 1;
                 if(row > 0 && field[row - 1, col]) temp++;
                 if(row + 1 < field.GetLength(0) && field[row + 1, col]) temp++;
@@ -33,6 +38,7 @@ public static class FieldUtils
                 if (temp == 1) {score -= 5; continue;}
                 score += temp * temp;
             }
+        if (fieldIsAllClear) score *= 2;
         return score;
     }
     
@@ -60,6 +66,8 @@ public struct ChangesAfterMove
     //RowsAndColumnsRemoved
     public bool[] FullRows;
     public bool[] FullCols;
+    //All clear bonus
+    public bool FieldIsAllClear;
 }
 
 public struct GridPos

@@ -33,6 +33,13 @@ public class ScoreManager : MonoBehaviour
         else if (_combo > -1 && ++_comboReset >= settings.resetComboAfterMoves) { _combo = -1; _comboReset = 0; }
         if (_combo > 0) _score += totalLines * totalLines * settings.comboScoreMultiplier * _combo;
         
+        //All clear bonus
+        if (changes.FieldIsAllClear)
+        {
+            _score += settings.allClearBonus;
+            GameEvents.RaiseShowAllClearBonus();
+        }
+        
         //Updating UI
         
         //score

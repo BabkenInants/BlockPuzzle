@@ -50,10 +50,12 @@ public class Settings : ScriptableObject
     [field: SerializeField] public int multipleLinesRemovalScoreMultiplier {get; private set;} = 50;
     [field: SerializeField] public int comboScoreMultiplier {get; private set;} = 50;
     [field: SerializeField] public int resetComboAfterMoves {get; private set;} = 3;
+    [field: SerializeField] public int allClearBonus {get; private set;} = 1000;
     
     [field: Space(10f)]
     [field: Header("UI Animations")]
     [field: SerializeField] public float comboAnimationDuration {get; private set;} = .6f;
+    [field: SerializeField] public float allClearTextAnimationDuration {get; private set;} = .6f;
     [field: SerializeField] public float scoreUpdateAnimationDuration {get; private set;} = 2.5f;
     [field: SerializeField] public float waitBeforeGameOverMenuAppears {get; private set;} = 1f;
 }

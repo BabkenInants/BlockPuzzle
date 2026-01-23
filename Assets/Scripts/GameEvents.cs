@@ -3,48 +3,50 @@ using UnityEngine;
 
 public static class GameEvents
 {
-    //Block Placement
+    #region Block Placement
+    
     public static event Action<Block> OnBlockPicked;
+    public static void RaiseOnBlockPicked(Block block) => OnBlockPicked?.Invoke(block);
+    
     public static event Action OnBlockMoved;
+    public static void RaiseOnBlockMoved() => OnBlockMoved?.Invoke();
+    
     public static event Action<Block> OnBlockUnpicked;
+    public static void RaiseOnBlockUnpicked(Block block) => OnBlockUnpicked?.Invoke(block);
     
-    //UI
+    #endregion
+
+    #region UI
+    
     public static event Action<int> UpdateScore;
+    public static void RaiseUpdateScore(int score) => UpdateScore?.Invoke(score);
+    
     public static event Action<int, int> ShowCombo;
+    public static void RaiseShowCombo(int combo, int lastCombo) => ShowCombo?.Invoke(combo, lastCombo);
     
-    //Game Flow
+    public static event Action ShowAllClearBonus;
+    public static void RaiseShowAllClearBonus() => ShowAllClearBonus?.Invoke();
+    
+    #endregion
+
+    #region Game Flow
+    
     public static event Action OnGameOver;
+    public static void RaiseGameOver() => OnGameOver?.Invoke();
+    
     public static event Action<ChangesAfterMove> CalculateNewScore;
+    public static void RaiseCalculateNewScore(ChangesAfterMove changes) => CalculateNewScore?.Invoke(changes);
     
-    //SFX
+    #endregion
+
+    #region SFX
+    
     public static event Action<bool> SetSfxState;
-    public static event Action<AudioClip> PlaySfx;
-
-    public static void RaiseOnBlockPicked(Block block) =>
-        OnBlockPicked?.Invoke(block);
-
-    public static void RaiseOnBlockMoved() =>
-        OnBlockMoved?.Invoke();
-
-    public static void RaiseOnBlockUnpicked(Block block) =>
-        OnBlockUnpicked?.Invoke(block);
-    
-    public static void RaiseGameOver() =>
-        OnGameOver?.Invoke();
-
-    public static void RaiseUpdateScore(int score) =>
-        UpdateScore?.Invoke(score);
-
-    public static void RaiseCalculateNewScore(ChangesAfterMove changes) =>
-        CalculateNewScore?.Invoke(changes);
-    
     /// <param name="state">true - on, false - off</param>
-    public static void RaiseSetSfxState(bool state) =>
-        SetSfxState?.Invoke(state);
+    public static void RaiseSetSfxState(bool state) => SetSfxState?.Invoke(state);
     
-    public static void RaisePlaySfx(AudioClip clip) =>
-        PlaySfx?.Invoke(clip);
-
-    public static void RaiseShowCombo(int combo, int lastCombo) =>
-        ShowCombo?.Invoke(combo, lastCombo);
+    public static event Action<AudioClip> PlaySfx;
+    public static void RaisePlaySfx(AudioClip clip) => PlaySfx?.Invoke(clip);
+    
+    #endregion
 }

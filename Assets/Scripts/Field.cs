@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Field : MonoBehaviour
@@ -32,7 +33,8 @@ public class Field : MonoBehaviour
         };
         foreach (GridPos cell in cells)
             cellIsFree[cell.Row, cell.Column] = false;
-        CheckForRowOrColumnRemoval(ref changesAfterMove);
+        RemoveFullRowsAndColumns(ref changesAfterMove);
+        changesAfterMove.FieldIsAllClear = cellIsFree.Cast<bool>().All(x => x);
         return changesAfterMove;
     }
     
@@ -56,7 +58,7 @@ public class Field : MonoBehaviour
     
     #region Removing full rows and columns
 
-    private void CheckForRowOrColumnRemoval(ref ChangesAfterMove changesAfterMove)
+    private void RemoveFullRowsAndColumns(ref ChangesAfterMove changesAfterMove)
     {
         var fullRows = new bool[settings.rowsCount];
         var fullCols = new bool[settings.columnsCount];

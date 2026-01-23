@@ -84,3 +84,12 @@ MonoBehaviour:
   <blockPlacementSfx>k__BackingField: {fileID: 8300000, guid: 4e4b7a5fe60bc4c18b548c88088d9811, type: 3}
   <lineRemovalSfx>k__BackingField: {fileID: 8300000, guid: 4a7460c84aee64d0d94dc6478ddbeca1, type: 3}
   <gameOverSfx>k__BackingField: {fileID: 8300000, guid: 7a9521ccd6bfc4784a547e433eeb36aa, type: 3}
+  <lineRemovalScoreMultiplier>k__BackingField: 10
+  <multipleLinesRemovalScoreMultiplier>k__BackingField: 50
+  <comboScoreMultiplier>k__BackingField: 50
+  <resetComboAfterMoves>k__BackingField: 3
+  <allClearBonus>k__BackingField: 1000
+  <comboAnimationDuration>k__BackingField: 0.9
+  <allClearTextAnimationDuration>k__BackingField: 1.2
+  <scoreUpdateAnimationDuration>k__BackingField: 2.5
+  <waitBeforeGameOverMenuAppears>k__BackingField: 1

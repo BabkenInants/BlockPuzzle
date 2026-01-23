@@ -10,19 +10,30 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI bestScoreText;
     [SerializeField] private TextMeshProUGUI comboText;
+    [SerializeField] private TextMeshProUGUI allClearText;
     private bool _gameIsOver;
     private IEnumerator _scoreUpdateCoroutine;
     private IEnumerator _comboCoroutine;
+    private IEnumerator _allClearCoroutine;
     private int _lastScore;
     private int _bestScore;
     private int _lastCombo;
 
-    private void Start()
+    private IEnumerator Start()
     {
         _bestScore = PlayerPrefs.GetInt("BestScore");
         bestScoreText.text = _bestScore.ToString();
+        yield return new WaitForSeconds(3);
+        ShowAllClear();
+        yield return new WaitForSeconds(.3f);
+        ShowAllClear();
+        yield return new WaitForSeconds(3f);
+        ShowAllClear();
+        ShowCombo(1, 0);
     }
-    
+
+    #region Game Over Menu
+
     private void EndGame()
     {
         if (_gameIsOver) return;
@@ -38,6 +49,10 @@ public class UIManager : MonoBehaviour
     }
     
     public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+    #endregion
+
+    #region Score
 
     private void UpdateScore(int score)
     {
@@ -67,6 +82,10 @@ public class UIManager : MonoBehaviour
         _scoreUpdateCoroutine = null;
     }
 
+    #endregion
+    
+    #region Combo
+    
     private void ShowCombo(int combo, int lastCombo)
     {
         if(_comboCoroutine != null)
@@ -100,7 +119,32 @@ public class UIManager : MonoBehaviour
         _comboCoroutine = null;
     } 
     
-    private IEnumerator SizeChangeRoutine(RectTransform rectTransform, Vector3 startSize, Vector3 endSize, float duration)
+    #endregion
+
+    #region All Clear
+
+    private void ShowAllClear()
+    {
+        if(_allClearCoroutine != null) StopCoroutine(_allClearCoroutine);
+        _allClearCoroutine = AllClearRoutine(settings.allClearTextAnimationDuration);
+        StartCoroutine(_allClearCoroutine);
+    }
+
+    private IEnumerator AllClearRoutine(float duration)
+    {
+        allClearText.rectTransform.localScale = Vector3.zero;
+        allClearText.gameObject.SetActive(true);
+        yield return SizeChangeRoutine(allClearText.rectTransform, Vector3.zero, new Vector3(1.2f, 1.2f, 1.2f), duration/3f * .8f);
+        yield return SizeChangeRoutine(allClearText.rectTransform,  new Vector3(1.2f, 1.2f, 1.2f), Vector3.one, duration / 3f * .2f);
+        yield return new WaitForSeconds(duration / 3f);
+        yield return SizeChangeRoutine(allClearText.rectTransform, Vector3.one, Vector3.zero, duration / 3f);
+        allClearText.gameObject.SetActive(false);
+        _allClearCoroutine = null;
+    }
+
+    #endregion
+    
+    private static IEnumerator SizeChangeRoutine(RectTransform rectTransform, Vector3 startSize, Vector3 endSize, float duration)
     {
         var estimatedTime = 0f;
         while (estimatedTime < duration)
@@ -121,6 +165,7 @@ public class UIManager : MonoBehaviour
         GameEvents.OnGameOver += EndGame;
         GameEvents.UpdateScore += UpdateScore;
         GameEvents.ShowCombo += ShowCombo;
+        GameEvents.ShowAllClearBonus += ShowAllClear;
     }
 
     private void Unsubscribe()
@@ -128,5 +173,6 @@ public class UIManager : MonoBehaviour
         GameEvents.OnGameOver -= EndGame;
         GameEvents.UpdateScore -= UpdateScore;
         GameEvents.ShowCombo -= ShowCombo;
+        GameEvents.ShowAllClearBonus -= ShowAllClear;
     }
 }
