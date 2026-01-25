@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour, ISavable
 {
@@ -11,6 +12,7 @@ public class UIManager : MonoBehaviour, ISavable
     [SerializeField] private GameObject settingsMenu;
     [SerializeField] private TextMeshProUGUI gameOverScoreText;
     [SerializeField] private TextMeshProUGUI gameOverBestScoreText;
+    [SerializeField] private TextMeshProUGUI gameOverNewBestText;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI bestScoreText;
     [SerializeField] private TextMeshProUGUI comboText;
@@ -47,6 +49,13 @@ public class UIManager : MonoBehaviour, ISavable
         _gameIsOver = true;
         var elapsedTime = 0f;
         float duration = settings.gameOverMenuScoreAnimationDuration;
+        if (_endScore == _bestScore)
+        {
+            Debug.Log("ayo");
+            gameOverNewBestText.gameObject.SetActive(true);
+            StartCoroutine(ColorAlphaBlinkRoutine(gameOverNewBestText, .3f, 1f));
+        }
+
         while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
@@ -75,11 +84,12 @@ public class UIManager : MonoBehaviour, ISavable
         if(_scoreUpdateCoroutine != null)
             StopCoroutine(_scoreUpdateCoroutine);
         _endScore = score;
-        _scoreUpdateCoroutine = UpdateScoreRoutine(settings.scoreUpdateAnimationDuration, updateBestScore);
+        _scoreUpdateCoroutine = UpdateScoreRoutine(settings.scoreUpdateAnimationDuration, updateBestScore, _bestScore);
+        if (updateBestScore) _bestScore = _endScore;
         StartCoroutine(_scoreUpdateCoroutine);
     }
 
-    private IEnumerator UpdateScoreRoutine(float duration, bool updateBestScore)
+    private IEnumerator UpdateScoreRoutine(float duration, bool updateBestScore, int prevBestScore)
     {
         float elapsedTime = 0;
         if (_endScore - _lastScore < 10)
@@ -88,12 +98,11 @@ public class UIManager : MonoBehaviour, ISavable
         {
             elapsedTime += Time.deltaTime;
             _lastScore = Mathf.FloorToInt(Mathf.Lerp(_lastScore, _endScore, elapsedTime / duration));
-            if (updateBestScore && _bestScore <= _lastScore) bestScoreText.text = _lastScore.ToString();
+            if (updateBestScore && prevBestScore <= _lastScore) bestScoreText.text = _lastScore.ToString();
             scoreText.text = _lastScore.ToString();
             yield return null;
         }
         _lastScore = _endScore;
-        if (updateBestScore) _bestScore = _lastScore;
         _scoreUpdateCoroutine = null;
     }
 
@@ -193,6 +202,34 @@ public class UIManager : MonoBehaviour, ISavable
     }
 
     #endregion
+
+    private IEnumerator ColorAlphaBlinkRoutine(TextMeshProUGUI img, float minAlpha, float maxAlpha)
+    {
+        var asc = true;
+        var elapsedTime = 0f;
+        Color colorMinAlpha = img.color;
+        colorMinAlpha.a = minAlpha;
+        Color colorMaxAlpha = img.color;
+        colorMaxAlpha.a = maxAlpha;
+        while (true)
+        {
+            yield return ColorLerpRoutine(img, asc? colorMinAlpha : colorMaxAlpha, 
+                asc? colorMaxAlpha : colorMinAlpha, settings.newBestAnimationDuration);
+            asc = !asc;
+        }
+    }
+
+    private static IEnumerator ColorLerpRoutine(TextMeshProUGUI img, Color startColor, Color endColor, float duration)
+    {
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            img.color = Color.Lerp(startColor, endColor, elapsedTime / duration);
+            yield return null;
+        }
+        img.color = endColor;
+    }
     
     private static IEnumerator SizeChangeRoutine(RectTransform rectTransform, Vector3 startSize, Vector3 endSize, float duration)
     {

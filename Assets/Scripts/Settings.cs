@@ -62,6 +62,7 @@ public class Settings : ScriptableObject
     [field: SerializeField] public float scoreHeartBeatFrequency {get; private set;} = .2f;
     [field: SerializeField] public float waitBeforeGameOverMenuAppears {get; private set;} = 1f;
     [field: SerializeField] public float gameOverMenuScoreAnimationDuration {get; private set;} = 1f;
+    [field: SerializeField] public float newBestAnimationDuration {get; private set;} = .3f;
     
     [field: Space(10f)]
     [field: Header("Saves")]
