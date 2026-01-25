@@ -56,8 +56,8 @@ public class GameManager : MonoBehaviour
             GameEvents.RaisePlaySfx(settings.blockPlacementSfx);
             ChangesAfterMove changes = field.PlaceBlock(cellsPositions, block.color);
             blockSpawner.RemoveBlock(block.gameObject);
-            HandleChangesAfterMove(changes);
             GameEvents.RaiseCalculateNewScore(changes);
+            HandleChangesAfterMove(changes);
         }
         else block.PutBlockBack();
         _pickedBlock = null;
