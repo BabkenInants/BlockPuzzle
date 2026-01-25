@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class UIManager : MonoBehaviour
+public class UIManager : MonoBehaviour, ISavable
 {
     [SerializeField] private Settings settings;
     [SerializeField] private GameObject gameOverMenu;
@@ -17,15 +17,10 @@ public class UIManager : MonoBehaviour
     private IEnumerator _allClearCoroutine;
     private IEnumerator _comboAnimationCoroutine;
     private int _lastScore;
+    private int _endScore;
     private int _bestScore;
     private int _lastCombo;
     private bool _isCombo;
-
-    private void Start()
-    {
-        _bestScore = PlayerPrefs.GetInt("BestScore");
-        bestScoreText.text = _bestScore.ToString();
-    }
 
     #region Game Over Menu
 
@@ -49,31 +44,30 @@ public class UIManager : MonoBehaviour
 
     #region Score
 
-    private void UpdateScore(int score)
+    private void UpdateScore(int score, bool updateBestScore)
     {
         if(_scoreUpdateCoroutine != null)
             StopCoroutine(_scoreUpdateCoroutine);
-        _scoreUpdateCoroutine = UpdateScoreRoutine(score, settings.scoreUpdateAnimationDuration);
+        _endScore = score;
+        _scoreUpdateCoroutine = UpdateScoreRoutine(settings.scoreUpdateAnimationDuration, updateBestScore);
         StartCoroutine(_scoreUpdateCoroutine);
     }
 
-    private IEnumerator UpdateScoreRoutine(int endScore, float duration)
+    private IEnumerator UpdateScoreRoutine(float duration, bool updateBestScore)
     {
         float elapsedTime = 0;
-        if (endScore > _bestScore)
-            PlayerPrefs.SetInt("BestScore", endScore);
-        if (endScore - _lastScore < 10)
+        if (_endScore - _lastScore < 10)
             duration = .5f;
         while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
-            _lastScore = Mathf.FloorToInt(Mathf.Lerp(_lastScore, endScore, elapsedTime / duration));
-            if(endScore > _bestScore) bestScoreText.text = _lastScore.ToString();
+            _lastScore = Mathf.FloorToInt(Mathf.Lerp(_lastScore, _endScore, elapsedTime / duration));
+            if (updateBestScore && _bestScore <= _lastScore) bestScoreText.text = _lastScore.ToString();
             scoreText.text = _lastScore.ToString();
             yield return null;
         }
-        if(endScore > _bestScore) _bestScore = endScore;
-        _lastScore = endScore;
+        _lastScore = _endScore;
+        if (updateBestScore) _bestScore = _lastScore;
         _scoreUpdateCoroutine = null;
     }
 
@@ -123,6 +117,16 @@ public class UIManager : MonoBehaviour
         _comboCoroutine = null;
     } 
     
+    private IEnumerator ComboScoreAnimationRoutine()
+    {
+        while (_isCombo)
+        {
+            yield return SizeChangeRoutine(scoreText.rectTransform, Vector3.one, new Vector3(0.9f, 0.9f, 0.9f), settings.scoreHeartBeatFrequency);
+            yield return SizeChangeRoutine(scoreText.rectTransform, new Vector3(0.9f, 0.9f, 0.9f), Vector3.one, settings.scoreHeartBeatFrequency);
+        }
+        _comboAnimationCoroutine = null;
+    }
+    
     #endregion
 
     #region All Clear
@@ -147,16 +151,6 @@ public class UIManager : MonoBehaviour
     }
 
     #endregion
-
-    private IEnumerator ComboScoreAnimationRoutine()
-    {
-        while (_isCombo)
-        {
-            yield return SizeChangeRoutine(scoreText.rectTransform, Vector3.one, new Vector3(0.9f, 0.9f, 0.9f), settings.scoreHeartBeatFrequency);
-            yield return SizeChangeRoutine(scoreText.rectTransform, new Vector3(0.9f, 0.9f, 0.9f), Vector3.one, settings.scoreHeartBeatFrequency);
-        }
-        _comboAnimationCoroutine = null;
-    }
     
     private static IEnumerator SizeChangeRoutine(RectTransform rectTransform, Vector3 startSize, Vector3 endSize, float duration)
     {
@@ -191,4 +185,32 @@ public class UIManager : MonoBehaviour
         GameEvents.ShowAllClearBonus -= ShowAllClear;
         GameEvents.OnComboEnded -= EndCombo;
     }
+    
+    #region Saves
+
+    public void Save(SaveData saveData)
+    {
+        if(_gameIsOver) return;
+        saveData.LastCombo = _lastCombo;
+        saveData.IsCombo = _isCombo;
+    }
+
+    public void Load(SaveData saveData)
+    {
+        _bestScore = saveData.BestScore;
+        bestScoreText.text = _bestScore.ToString();
+        if(saveData.GameIsOver) return;
+        _lastScore = saveData.Score;
+        _endScore = saveData.Score;
+        _lastCombo = saveData.LastCombo;
+        _isCombo = saveData.IsCombo;
+        scoreText.text = _endScore.ToString();
+        if (_isCombo)
+        {
+            _comboAnimationCoroutine = ComboScoreAnimationRoutine();
+            StartCoroutine(_comboAnimationCoroutine);
+        }
+    }
+    
+    #endregion
 }

@@ -5,18 +5,15 @@ using Random = UnityEngine.Random;
 
 public class BlockSpawner : MonoBehaviour
 {
-    public bool isReady{get; private set;}
     public GameObject[] blocks { get; private set; }
     [SerializeField] private Settings settings;
     [SerializeField] private Field field;
     [SerializeField] private Transform[] spawnPoints;
     private bool _gameIsOver;
     
-    private void Start()
+    private void Awake()
     {
         blocks = new GameObject[spawnPoints.Length];
-        isReady = true;
-        SpawnBlocks();
     }
 
     private void OnEnable() => GameEvents.OnGameOver += OnGameOver;
@@ -29,7 +26,7 @@ public class BlockSpawner : MonoBehaviour
         _gameIsOver = true;
     }
     
-    private void SpawnBlocks()
+    public void SpawnBlocks()
     {
         if(_gameIsOver) return;
         GameObject[] blocksToSpawn = GenerateNextBlocks();

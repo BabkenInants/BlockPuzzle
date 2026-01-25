@@ -18,8 +18,8 @@ public static class GameEvents
 
     #region UI
     
-    public static event Action<int> UpdateScore;
-    public static void RaiseUpdateScore(int score) => UpdateScore?.Invoke(score);
+    public static event Action<int, bool> UpdateScore;
+    public static void RaiseUpdateScore(int score, bool updateBestScore) => UpdateScore?.Invoke(score, updateBestScore);
     
     public static event Action<int, int> ShowCombo;
     public static void RaiseShowCombo(int combo, int lastCombo) => ShowCombo?.Invoke(combo, lastCombo);
@@ -51,5 +51,15 @@ public static class GameEvents
     public static event Action<AudioClip> PlaySfx;
     public static void RaisePlaySfx(AudioClip clip) => PlaySfx?.Invoke(clip);
     
+    #endregion
+
+    #region Saves
+
+    public static event Action SaveGame;
+    public static void RaiseSaveGame() => SaveGame?.Invoke();
+    
+    public static event Action LoadGame;
+    public static void RaiseLoadGame() => LoadGame?.Invoke();
+
     #endregion
 }

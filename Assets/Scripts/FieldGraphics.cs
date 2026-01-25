@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class FieldGraphics : MonoBehaviour
+public class FieldGraphics : MonoBehaviour, ISavable
 {
     public bool isReady {get; private set;}
     [field:SerializeField] public Transform firstCell {get; private set;}
@@ -20,9 +20,8 @@ public class FieldGraphics : MonoBehaviour
     {
         _fieldCells = new Transform[settings.rowsCount, settings.columnsCount];
         _spriteRenderers = new SpriteRenderer[settings.rowsCount, settings.columnsCount];
+        GenerateField();
     }
-
-    private void Start() => GenerateField();
 
     #region Particle System Pool
 
@@ -68,7 +67,7 @@ public class FieldGraphics : MonoBehaviour
     {
         foreach (GridPos cell in cells)
         {
-            _spriteRenderers[cell.Row, cell.Column].sprite = settings.notEmptyCell;
+            _spriteRenderers[cell.Row, cell.Column].sprite = settings.busyCell;
             _spriteRenderers[cell.Row, cell.Column].color = color;
         }
     }
@@ -111,7 +110,7 @@ public class FieldGraphics : MonoBehaviour
         for (var i = 0; i < cells.Length; i++)
         {
             _spriteRenderers[cells[i].Row, cells[i].Column].color = tempColor;
-            _spriteRenderers[cells[i].Row, cells[i].Column].sprite = settings.notEmptyCell;
+            _spriteRenderers[cells[i].Row, cells[i].Column].sprite = settings.busyCell;
         }
     }
 
@@ -173,4 +172,31 @@ public class FieldGraphics : MonoBehaviour
         }
         isReady = true;
     }
+    
+    #region Saves
+
+    public void Save(SaveData saveData)
+    {
+        if (saveData.GameIsOver) return;
+        saveData.SpriteRenderersColors = new SerializableColor[settings.rowsCount * settings.columnsCount];
+        for (var row = 0; row < settings.rowsCount; row++)
+            for (var col = 0; col < settings.columnsCount; col++)
+                saveData.SpriteRenderersColors[row * settings.columnsCount + col] =
+                    new SerializableColor(_spriteRenderers[row, col].color);
+    }
+
+    public void Load(SaveData saveData)
+    {
+        if (saveData.GameIsOver) return;
+        for (var row = 0; row < settings.rowsCount; row++)
+            for (var col = 0; col < settings.columnsCount; col++)
+                if (!saveData.CellIsFree[row * settings.columnsCount + col])
+                {
+                    _spriteRenderers[row, col].color = saveData.SpriteRenderersColors
+                        [row * settings.columnsCount + col].ToColor();
+                    _spriteRenderers[row, col].sprite = settings.busyCell;
+                }
+    }
+    
+    #endregion
 }

@@ -1159,6 +1159,52 @@ MonoBehaviour:
   <firstCell>k__BackingField: {fileID: 2064070104}
   settings: {fileID: 11400000, guid: 332df0a2d081a48689871761b43841df, type: 2}
   lineRemovalParticles: {fileID: 9025937068826806019, guid: 097ecdb986dab4426bc92d91474ffbf1, type: 3}
+--- !u!1 &993434797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 993434799}
+  - component: {fileID: 993434798}
+  m_Layer: 0
+  m_Name: Saves Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &993434798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993434797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d1699333bb84a2c9efaeadfe7e41481, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SavesManager
+  settings: {fileID: 11400000, guid: 332df0a2d081a48689871761b43841df, type: 2}
+  blockSpawner: {fileID: 45406433}
+--- !u!4 &993434799
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993434797}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1027462203
 GameObject:
   m_ObjectHideFlags: 0
@@ -2028,6 +2074,7 @@ SceneRoots:
   - {fileID: 371218695}
   - {fileID: 1092235370}
   - {fileID: 462297479}
+  - {fileID: 993434799}
   - {fileID: 736265128}
   - {fileID: 45406434}
   - {fileID: 1592929364}

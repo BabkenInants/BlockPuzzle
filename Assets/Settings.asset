@@ -95,3 +95,4 @@ MonoBehaviour:
   <allClearTextAnimationDuration>k__BackingField: 0.75
   <scoreUpdateAnimationDuration>k__BackingField: 2.5
   <waitBeforeGameOverMenuAppears>k__BackingField: 1
+  <scoreHeartBeatFrequency>k__BackingField: 0.15

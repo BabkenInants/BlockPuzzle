@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Start()
     {
-        while(!field.isReady || !fieldGraphics.isReady || !blockSpawner.isReady) yield return null;
+        while(!field.isReady || !fieldGraphics.isReady) yield return null;
         field.InitFirstCell(fieldGraphics.firstCell);
     }
 
@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviour
 
         if (!atLeastOneBlockCanBePlaced)
             GameEvents.RaiseGameOver();
+        GameEvents.RaiseSaveGame();
     }
     
     #endregion

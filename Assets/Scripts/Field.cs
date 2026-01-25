@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Field : MonoBehaviour
+public class Field : MonoBehaviour, ISavable
 {
     public bool isReady{get; private set;}
     /// true - free, false - busy
@@ -165,5 +166,26 @@ public class Field : MonoBehaviour
         return result;
     }
 
+    #endregion
+
+    #region Saves
+
+    public void Save(SaveData saveData)
+    {
+        if (saveData.GameIsOver) return;
+        saveData.CellIsFree = new bool[settings.rowsCount * settings.columnsCount];
+        for (var row = 0; row < settings.rowsCount; row++)
+            for (var col = 0; col < settings.columnsCount; col++)
+                saveData.CellIsFree[row * settings.columnsCount + col] = cellIsFree[row, col];
+    }
+
+    public void Load(SaveData saveData)
+    {
+        if (saveData.GameIsOver) return;
+        for (var row = 0; row < settings.rowsCount; row++)
+            for (var col = 0; col < settings.columnsCount; col++) 
+                cellIsFree[row, col] = saveData.CellIsFree[row * settings.columnsCount + col];
+    }
+    
     #endregion
 }

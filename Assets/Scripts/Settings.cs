@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "Settings", menuName = "Settings")]
 public class Settings : ScriptableObject
@@ -14,7 +15,8 @@ public class Settings : ScriptableObject
     [field: SerializeField] public int columnsCount { get; private set; } = 8;
     [field: SerializeField] public int rowsCount { get; private set; } = 8;
     [field: SerializeField] public Sprite emptyCell { get; private set; }
-    [field: SerializeField] public Sprite notEmptyCell { get; private set; }
+    [field: FormerlySerializedAs("<notEmptyCell>k__BackingField")] 
+    [field: SerializeField] public Sprite busyCell { get; private set; }
     [SerializeField] public GameObject cellPrefab;
     [SerializeField] public Color defaultCellColor;
     
@@ -59,4 +61,9 @@ public class Settings : ScriptableObject
     [field: SerializeField] public float scoreUpdateAnimationDuration {get; private set;} = 2.5f;
     [field: SerializeField] public float waitBeforeGameOverMenuAppears {get; private set;} = 1f;
     [field: SerializeField] public float scoreHeartBeatFrequency {get; private set;} = .2f;
+    
+    [field: Space(10f)]
+    [field: Header("Saves")]
+    [field: SerializeField] public string savesFolder {get; private set;} = "Saves";
+    [field: SerializeField] public string saveFileName {get; private set;} = "save.json";
 }

@@ -1,12 +1,13 @@
 using System.Linq;
 using UnityEngine;
 
-public class ScoreManager : MonoBehaviour
+public class ScoreManager : MonoBehaviour, ISavable
 {
     [SerializeField] private Settings settings;
     private int _score;
     private int _combo = -1;
     private int _comboReset;
+    private int _bestScore;
 
     private void UpdateScore(ChangesAfterMove changes)
     {
@@ -40,19 +41,43 @@ public class ScoreManager : MonoBehaviour
             GameEvents.RaiseShowAllClearBonus();
         }
         
+        //Updating best score if needed
+        bool updateBestScore = _score > _bestScore;
+        if(updateBestScore) _bestScore = _score;
+        
         //Updating UI
         
-        //score
-        GameEvents.RaiseUpdateScore(_score);
+        //Score
+        GameEvents.RaiseUpdateScore(_score, updateBestScore);
         
-        //combo
+        //Combo
         if (_combo > 0 && totalLines > 0) 
             GameEvents.RaiseShowCombo(_combo, _combo - totalLines); //UI
     }
-    
-    private void OnEnable() =>
-        GameEvents.CalculateNewScore += UpdateScore;
 
-    private void OnDisable() =>
-        GameEvents.CalculateNewScore -= UpdateScore;
+    private void OnEnable() => GameEvents.CalculateNewScore += UpdateScore;
+
+    private void OnDisable() => GameEvents.CalculateNewScore -= UpdateScore;
+    
+    #region Saves
+
+    public void Save(SaveData saveData)
+    {
+        saveData.BestScore = _bestScore;
+        if(saveData.GameIsOver) return;
+        saveData.Score = _score;
+        saveData.Combo = _combo;
+        saveData.ComboReset = _comboReset;
+    }
+
+    public void Load(SaveData saveData)
+    {
+        _bestScore = saveData.BestScore;
+        if(saveData.GameIsOver) return;
+        _score = saveData.Score;
+        _combo = saveData.Combo;
+        _comboReset = saveData.ComboReset;
+    }
+    
+    #endregion
 }
