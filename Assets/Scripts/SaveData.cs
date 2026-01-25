@@ -24,6 +24,10 @@ public class SaveData
     public int LastCombo;
     /// UIManager
     public bool IsCombo;
+    
+    ///SettingsMenu
+    public bool SfxIsOn = true;
+    public bool HapticsIsOn = true;
 }
 
 [Serializable]

@@ -2,8 +2,10 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public static class HapticManager
+public class HapticManager : MonoBehaviour, ISavable
 {
+    private bool _hapticsIsOn;
+    
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void _TriggerLightHaptic();
@@ -15,29 +17,43 @@ public static class HapticManager
     private static extern void _TriggerHeavyHaptic();
 #endif
 
-    public static void Light()
+    private void SetHapticsState(bool isOn) => _hapticsIsOn = isOn;
+
+    public void OnEnable() => GameEvents.SetHapticsState += SetHapticsState;
+    
+    public void OnDisable() => GameEvents.SetHapticsState -= SetHapticsState;
+
+    public void Save(SaveData data){}
+
+    public void Load(SaveData data) => SetHapticsState(data.HapticsIsOn);
+
+    public void Light()
     {
+        if(!_hapticsIsOn) return;
 #if UNITY_IOS && !UNITY_EDITOR
         _TriggerLightHaptic();
 #endif
     }
     
-    public static void Medium()
+    public void Medium()
     {
+        if(!_hapticsIsOn) return;
 #if UNITY_IOS && !UNITY_EDITOR
         _TriggerMediumHaptic();
 #endif
     }
     
-    public static void Heavy()
+    public void Heavy()
     {
+        if(!_hapticsIsOn) return;
 #if UNITY_IOS && !UNITY_EDITOR
         _TriggerHeavyHaptic();
 #endif
     }
 
-    public static IEnumerator PlayHapticsInARowRoutine(HapticType type, int count)
+    public IEnumerator PlayHapticsInARowRoutine(HapticType type, int count)
     {
+        if(!_hapticsIsOn) yield break;
 #if UNITY_IOS && !UNITY_EDITOR
         for (var i = 0; i < count; i++)
         {

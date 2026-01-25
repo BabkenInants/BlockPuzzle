@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 using System.IO;
 
@@ -88,13 +87,13 @@ public class SavesManager : MonoBehaviour
         if (!File.Exists(_filePath))
         {
             Debug.LogError("No saves found");
-            blockSpawner.SpawnBlocks();
+            if(blockSpawner) blockSpawner.SpawnBlocks();
             return;
         }
         if (_savables == null)
         {
             Debug.LogError("No savables found");
-            blockSpawner.SpawnBlocks();
+            if(blockSpawner) blockSpawner.SpawnBlocks();
             return;
         }
 
@@ -106,7 +105,7 @@ public class SavesManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError("Failed to read from file" + e);
-            blockSpawner.SpawnBlocks();
+            if(blockSpawner) blockSpawner.SpawnBlocks();
             return;
         }
         
@@ -117,19 +116,19 @@ public class SavesManager : MonoBehaviour
             if (saveData == null)
             {
                 Debug.LogError("Failed to read data");
-                blockSpawner.SpawnBlocks();
+                if(blockSpawner) blockSpawner.SpawnBlocks();
                 return;
             }
         }
         catch (Exception e)
         {
             Debug.LogError("Failed to load save: " + e);
-            blockSpawner.SpawnBlocks();
+            if(blockSpawner) blockSpawner.SpawnBlocks();
             return;
         }
         foreach (ISavable savable in _savables)
             savable.Load(saveData);
-        blockSpawner.SpawnBlocks();
+        if(blockSpawner) blockSpawner.SpawnBlocks();
         Debug.Log("Loaded save");
     }
 }

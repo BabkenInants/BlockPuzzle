@@ -5,8 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour, ISavable
 {
+    [SerializeField] private HapticManager hapticManager;
     [SerializeField] private Settings settings;
     [SerializeField] private GameObject gameOverMenu;
+    [SerializeField] private GameObject settingsMenu;
+    [SerializeField] private TextMeshProUGUI gameOverScoreText;
+    [SerializeField] private TextMeshProUGUI gameOverBestScoreText;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI bestScoreText;
     [SerializeField] private TextMeshProUGUI comboText;
@@ -22,6 +26,11 @@ public class UIManager : MonoBehaviour, ISavable
     private int _lastCombo;
     private bool _isCombo;
 
+    private void ButtonFeedback()
+    {
+        hapticManager.Light();
+    }
+    
     #region Game Over Menu
 
     private void EndGame()
@@ -36,9 +45,26 @@ public class UIManager : MonoBehaviour, ISavable
         yield return new WaitForSeconds(settings.waitBeforeGameOverMenuAppears);
         gameOverMenu.SetActive(true);
         _gameIsOver = true;
+        var elapsedTime = 0f;
+        float duration = settings.gameOverMenuScoreAnimationDuration;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            int tempScore = Mathf.FloorToInt(Mathf.Lerp(0, _endScore, elapsedTime / duration));
+            int tempBestScore = Mathf.FloorToInt(Mathf.Lerp(0, _bestScore, elapsedTime / duration));
+            gameOverScoreText.text = tempScore.ToString();
+            gameOverBestScoreText.text = tempBestScore.ToString();
+            yield return null;
+        }
+        gameOverScoreText.text = _endScore.ToString();
+        gameOverBestScoreText.text = _bestScore.ToString();
     }
-    
-    public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+    public void Restart()
+    {
+        ButtonFeedback();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
 
     #endregion
 
@@ -148,6 +174,22 @@ public class UIManager : MonoBehaviour, ISavable
         yield return SizeChangeRoutine(allClearText.rectTransform, Vector3.one, Vector3.zero, duration / 3f);
         allClearText.gameObject.SetActive(false);
         _allClearCoroutine = null;
+    }
+
+    #endregion
+
+    #region Settings
+
+    public void OpenSettings()
+    {
+        ButtonFeedback();
+        settingsMenu.SetActive(true);
+    }
+
+    public void CloseSettings()
+    {
+        ButtonFeedback();
+        settingsMenu.SetActive(false);
     }
 
     #endregion

@@ -62,4 +62,12 @@ public static class GameEvents
     public static void RaiseLoadGame() => LoadGame?.Invoke();
 
     #endregion
+
+    #region Haptics
+    
+    /// true - on, false - off
+    public static event Action<bool> SetHapticsState;
+    public static void RaiseSetHapticsState(bool state) => SetHapticsState?.Invoke(state);
+
+    #endregion
 }

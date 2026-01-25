@@ -2,11 +2,15 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : MonoBehaviour, ISavable
 {
     private bool _sfxOn = true;
     private Queue<AudioSource> _audioSourcesPool = new Queue<AudioSource>();
 
+    public void Save(SaveData data){}
+
+    public void Load(SaveData data) => _sfxOn = data.SfxIsOn;
+    
     private void AddSource()
     {
         var sourceObj = new GameObject("SFX" + _audioSourcesPool.Count);
