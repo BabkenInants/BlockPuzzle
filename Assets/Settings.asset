@@ -80,6 +80,8 @@ MonoBehaviour:
   <width>k__BackingField: 6
   <height>k__BackingField: 12
   <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
+  <shakeDuration>k__BackingField: 0.1
+  <heavyShakeDuration>k__BackingField: 0.25
   <minDist>k__BackingField: 0.04
   <maxDist>k__BackingField: 0.05
   <blockPickupSfx>k__BackingField: {fileID: 8300000, guid: d528dc997788a47c48cb190d70a8c58b, type: 3}
@@ -98,6 +100,8 @@ MonoBehaviour:
   <scoreHeartBeatFrequency>k__BackingField: 0.15
   <waitBeforeGameOverMenuAppears>k__BackingField: 1
   <gameOverMenuScoreAnimationDuration>k__BackingField: 1
-  <newBestAnimationDuration>k__BackingField: 0.6
+  <newBestAnimationDuration>k__BackingField: 0.5
+  <newBestAnimationMinAlpha>k__BackingField: 0.2
+  <newBestAnimationMaxAlpha>k__BackingField: 1
   <savesFolder>k__BackingField: Saves
   <saveFileName>k__BackingField: save.json

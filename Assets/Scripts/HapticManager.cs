@@ -23,12 +23,14 @@ public class HapticManager : MonoBehaviour, ISavable
     {
         GameEvents.SetHapticsState += SetHapticsState;
         GameEvents.PlayHaptics += PlayHaptics;
+        GameEvents.PlayHapticsInARow += PlayHapticsInARow;
     }
 
     public void OnDisable()
     {
         GameEvents.SetHapticsState -= SetHapticsState;
         GameEvents.PlayHaptics -= PlayHaptics;
+        GameEvents.PlayHapticsInARow -= PlayHapticsInARow;
     }
 
     private void PlayHaptics(HapticType type)
@@ -49,6 +51,9 @@ public class HapticManager : MonoBehaviour, ISavable
                 break;
         }
     }
+
+    private void PlayHapticsInARow(HapticType type, int count) => 
+        StartCoroutine(PlayHapticsInARowRoutine(type, count));
 
     public void Save(SaveData data){}
 
