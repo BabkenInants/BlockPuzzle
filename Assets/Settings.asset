@@ -76,7 +76,7 @@ MonoBehaviour:
   <minBlockDistanceFromCursorX>k__BackingField: -0.5
   <maxBlockDistanceFromCursorX>k__BackingField: 1
   <blockCellsDefaultSpriteLayer>k__BackingField: 1
-  <blockCellsPickedSpriteLayer>k__BackingField: 4
+  <blockCellsPickedSpriteLayer>k__BackingField: 2
   <width>k__BackingField: 6
   <height>k__BackingField: 12
   <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
@@ -98,7 +98,7 @@ MonoBehaviour:
   <allClearTextAnimationDuration>k__BackingField: 0.75
   <scoreUpdateAnimationDuration>k__BackingField: 2.5
   <scoreHeartBeatFrequency>k__BackingField: 0.15
-  <waitBeforeGameOverMenuAppears>k__BackingField: 5
+  <waitBeforeGameOverMenuAppears>k__BackingField: 4
   <gameOverMenuScoreAnimationDuration>k__BackingField: 1
   <newBestAnimationDuration>k__BackingField: 0.5
   <newBestAnimationMinAlpha>k__BackingField: 0.2
