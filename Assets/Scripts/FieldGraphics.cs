@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -194,7 +193,6 @@ public class FieldGraphics : MonoBehaviour, ISavable
 
     private IEnumerator FillFieldWithRandomBlocksRoutine()
     {
-        const float waitTimeBetweenRows = .2f;
         for (int row = settings.rowsCount - 1; row >= 0; row--)
         {
             for (var col = 0; col < settings.columnsCount; col++)
@@ -205,9 +203,9 @@ public class FieldGraphics : MonoBehaviour, ISavable
                     temp.a = 0;
                     _spriteRenderers[row, col].color = temp;
                     StartCoroutine(ColorAlphaTransition(_spriteRenderers[row, col], 0, 1,
-                        (settings.waitBeforeGameOverMenuAppears - settings.rowsCount * waitTimeBetweenRows) / 8));
+                        (settings.waitBeforeGameOverMenuAppears - settings.rowsCount * settings.waitTimeBetweenRows) / 8));
                 }
-            yield return new WaitForSeconds(waitTimeBetweenRows);
+            yield return new WaitForSeconds(settings.waitTimeBetweenRows);
         }
     }
 

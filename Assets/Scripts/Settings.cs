@@ -19,6 +19,7 @@ public class Settings : ScriptableObject
     [field: SerializeField] public Sprite busyCell { get; private set; }
     [SerializeField] public GameObject cellPrefab;
     [SerializeField] public Color defaultCellColor;
+    [field: SerializeField] public float waitTimeBetweenRows {get; private set;} = .1f;
     
     
     [field: Space(10f)]
