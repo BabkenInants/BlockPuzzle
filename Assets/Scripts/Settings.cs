@@ -20,6 +20,7 @@ public class Settings : ScriptableObject
     [SerializeField] public GameObject cellPrefab;
     [SerializeField] public Color defaultCellColor;
     
+    
     [field: Space(10f)]
     [field: Header("Block Placement")]
     [field: SerializeField] public float minBlockDistanceFromCursorY {get; private set; } = 1f;

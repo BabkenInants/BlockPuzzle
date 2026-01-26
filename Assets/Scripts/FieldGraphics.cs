@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class FieldGraphics : MonoBehaviour, ISavable
 {
@@ -25,6 +27,10 @@ public class FieldGraphics : MonoBehaviour, ISavable
         _spriteRenderers = new SpriteRenderer[settings.rowsCount, settings.columnsCount];
         GenerateField();
     }
+
+    private void OnEnable() => GameEvents.OnGameOver += FillFieldWithRandomBlocks;
+    
+    private void OnDisable() => GameEvents.OnGameOver -= FillFieldWithRandomBlocks;
 
     #region Particle System Pool
 
@@ -177,6 +183,48 @@ public class FieldGraphics : MonoBehaviour, ISavable
         }
         _lastPreviewedPotentiallyRemovedLines = null;
         _lastPreviewedPotentiallyRemovedLinesColors = null;
+    }
+
+    #endregion
+
+    #region Random Field Fill
+    
+    private void FillFieldWithRandomBlocks() =>
+        StartCoroutine(FillFieldWithRandomBlocksRoutine());
+
+    private IEnumerator FillFieldWithRandomBlocksRoutine()
+    {
+        const float waitTimeBetweenRows = .2f;
+        for (int row = settings.rowsCount - 1; row >= 0; row--)
+        {
+            for (var col = 0; col < settings.columnsCount; col++)
+                if (_spriteRenderers[row, col].sprite == settings.emptyCell)
+                {
+                    _spriteRenderers[row, col].sprite = settings.busyCell;
+                    Color temp = settings.colors[Random.Range(0, settings.colors.Length)];
+                    temp.a = 0;
+                    _spriteRenderers[row, col].color = temp;
+                    StartCoroutine(ColorAlphaTransition(_spriteRenderers[row, col], 0, 1,
+                        (settings.waitBeforeGameOverMenuAppears - settings.rowsCount * waitTimeBetweenRows) / 8));
+                }
+            yield return new WaitForSeconds(waitTimeBetweenRows);
+        }
+    }
+
+    private IEnumerator ColorAlphaTransition(SpriteRenderer spriteRenderer, float startAlpha, float endAlpha, float duration)
+    {
+        var elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            Color temp = spriteRenderer.color;
+            temp.a = Mathf.Lerp(startAlpha, endAlpha, elapsedTime / duration);
+            spriteRenderer.color = temp;
+            yield return null;
+        }
+        Color endColor = spriteRenderer.color;
+        endColor.a = endAlpha;
+        spriteRenderer.color = endColor;
     }
 
     #endregion
