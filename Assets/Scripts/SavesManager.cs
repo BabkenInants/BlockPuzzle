@@ -87,13 +87,13 @@ public class SavesManager : MonoBehaviour
         if (!File.Exists(_filePath))
         {
             Debug.LogError("No saves found");
-            if(blockSpawner) blockSpawner.SpawnBlocks();
+            blockSpawner?.SpawnBlocks();
             return;
         }
         if (_savables == null)
         {
             Debug.LogError("No savables found");
-            if(blockSpawner) blockSpawner.SpawnBlocks();
+            blockSpawner?.SpawnBlocks();
             return;
         }
 
@@ -105,7 +105,7 @@ public class SavesManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError("Failed to read from file" + e);
-            if(blockSpawner) blockSpawner.SpawnBlocks();
+            blockSpawner?.SpawnBlocks();
             return;
         }
         
@@ -116,19 +116,19 @@ public class SavesManager : MonoBehaviour
             if (saveData == null)
             {
                 Debug.LogError("Failed to read data");
-                if(blockSpawner) blockSpawner.SpawnBlocks();
+                blockSpawner?.SpawnBlocks();
                 return;
             }
         }
         catch (Exception e)
         {
             Debug.LogError("Failed to load save: " + e);
-            if(blockSpawner) blockSpawner.SpawnBlocks();
+            blockSpawner?.SpawnBlocks();
             return;
         }
         foreach (ISavable savable in _savables)
             savable.Load(saveData);
-        if(blockSpawner) blockSpawner.SpawnBlocks();
+        blockSpawner?.SpawnBlocks();
         Debug.Log("Loaded save");
     }
 }

@@ -45,6 +45,7 @@ public class Settings : ScriptableObject
     [field: SerializeField] public AudioClip blockPlacementSfx { get; private set; }
     [field: SerializeField] public AudioClip lineRemovalSfx { get; private set; }
     [field: SerializeField] public AudioClip gameOverSfx { get; private set; }
+    [field: SerializeField] public AudioClip buttonSfx { get; private set; }
     
     [field: Space(10f)]
     [field: Header("Score")]

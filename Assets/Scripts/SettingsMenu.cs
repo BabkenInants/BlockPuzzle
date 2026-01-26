@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -6,13 +7,15 @@ public class SettingsMenu: MonoBehaviour, ISavable
 {
     private bool _sfxIsOn = true;
     private bool _hapticsIsOn = true;
-    [SerializeField] private HapticManager hapticManager;
+    [SerializeField] private Settings settings;
     [SerializeField] private int mainMenuBuildIndex = 0;
     [SerializeField] private Sprite toggleEnabled;
     [SerializeField] private Sprite toggleDisabled;
     [SerializeField] private Image sfxToggle;
     [SerializeField] private Image hapticsToggle;
     [SerializeField] private Button hapticsButton;
+    private IEnumerator _mainMenuButtonCoroutine;
+    private IEnumerator _replayButtonCoroutine;
 
     public void Start()
     {
@@ -26,19 +29,18 @@ public class SettingsMenu: MonoBehaviour, ISavable
 
     private void ButtonFeedback()
     {
-        hapticManager.Light();
+        GameEvents.RaisePlayHaptics(HapticManager.HapticType.Light);
+        GameEvents.RaisePlaySfx(settings.buttonSfx);
     }
     
     public void Save(SaveData saveData)
     {
-        ButtonFeedback();
         saveData.SfxIsOn = _sfxIsOn;
         saveData.HapticsIsOn = _hapticsIsOn;
     }
 
     public void Load(SaveData saveData)
     {
-        ButtonFeedback();
         _sfxIsOn = saveData.SfxIsOn;
         _hapticsIsOn = saveData.HapticsIsOn;
         sfxToggle.sprite = _sfxIsOn ? toggleEnabled : toggleDisabled;
@@ -51,6 +53,7 @@ public class SettingsMenu: MonoBehaviour, ISavable
         _sfxIsOn = !_sfxIsOn;
         sfxToggle.sprite = _sfxIsOn ? toggleEnabled : toggleDisabled;
         GameEvents.RaiseSetSfxState(_sfxIsOn);
+        GameEvents.RaiseSaveGame();
     }
 
     public void HapticsButton()
@@ -59,17 +62,35 @@ public class SettingsMenu: MonoBehaviour, ISavable
         _hapticsIsOn = !_hapticsIsOn;
         hapticsToggle.sprite = _hapticsIsOn ? toggleEnabled : toggleDisabled;
         GameEvents.RaiseSetHapticsState(_hapticsIsOn);
+        GameEvents.RaiseSaveGame();
     }
 
     public void MainMenuButton()
     {
-        ButtonFeedback();
-        SceneManager.LoadScene(mainMenuBuildIndex);
+        if (_mainMenuButtonCoroutine != null) return;
+        _mainMenuButtonCoroutine = MainMenuButtonRoutine();
+        StartCoroutine(_mainMenuButtonCoroutine);
     }
 
-    public void Replay()
+    private IEnumerator MainMenuButtonRoutine()
     {
         ButtonFeedback();
+        GameEvents.RaiseSaveGame();
+        yield return new WaitForSeconds(settings.buttonSfx.length);
+        SceneManager.LoadScene(mainMenuBuildIndex);
+    }
+    
+    public void Replay()
+    {
+        if(_replayButtonCoroutine != null) return;
+        _replayButtonCoroutine = ReplayButtonRoutine();
+        StartCoroutine(_replayButtonCoroutine);
+    }
+    
+    private IEnumerator ReplayButtonRoutine()
+    {
+        ButtonFeedback();
+        yield return new WaitForSeconds(settings.buttonSfx.length);
         GameEvents.RaiseGameOver();
         GameEvents.RaiseSaveGame();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

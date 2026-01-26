@@ -2,11 +2,9 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour, ISavable
 {
-    [SerializeField] private HapticManager hapticManager;
     [SerializeField] private Settings settings;
     [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private GameObject settingsMenu;
@@ -22,6 +20,7 @@ public class UIManager : MonoBehaviour, ISavable
     private IEnumerator _comboCoroutine;
     private IEnumerator _allClearCoroutine;
     private IEnumerator _comboAnimationCoroutine;
+    private IEnumerator _restartButtonCoroutine;
     private int _lastScore;
     private int _endScore;
     private int _bestScore;
@@ -30,7 +29,8 @@ public class UIManager : MonoBehaviour, ISavable
 
     private void ButtonFeedback()
     {
-        hapticManager.Light();
+        GameEvents.RaisePlayHaptics(HapticManager.HapticType.Light);
+        GameEvents.RaisePlaySfx(settings.buttonSfx);
     }
     
     #region Game Over Menu
@@ -71,7 +71,15 @@ public class UIManager : MonoBehaviour, ISavable
 
     public void Restart()
     {
+        if (_restartButtonCoroutine != null) return;
+        _restartButtonCoroutine = RestartButtonRoutine();
+        StartCoroutine(_restartButtonCoroutine);
+    }
+
+    private IEnumerator RestartButtonRoutine()
+    {
         ButtonFeedback();
+        yield return new WaitForSeconds(settings.buttonSfx.length);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -206,7 +214,6 @@ public class UIManager : MonoBehaviour, ISavable
     private IEnumerator ColorAlphaBlinkRoutine(TextMeshProUGUI img, float minAlpha, float maxAlpha)
     {
         var asc = true;
-        var elapsedTime = 0f;
         Color colorMinAlpha = img.color;
         colorMinAlpha.a = minAlpha;
         Color colorMaxAlpha = img.color;

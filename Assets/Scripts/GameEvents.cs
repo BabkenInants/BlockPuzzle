@@ -68,6 +68,10 @@ public static class GameEvents
     /// true - on, false - off
     public static event Action<bool> SetHapticsState;
     public static void RaiseSetHapticsState(bool state) => SetHapticsState?.Invoke(state);
+    public static event Action<HapticManager.HapticType> PlayHaptics;
+    public static void RaisePlayHaptics(HapticManager.HapticType type) => PlayHaptics?.Invoke(type);
+    public static event Action<HapticManager.HapticType, int> PlayHapticsInARow;
+    public static void RaisePlayHapticsInARow(HapticManager.HapticType type, int amount) => PlayHapticsInARow?.Invoke(type, amount);
 
     #endregion
 }

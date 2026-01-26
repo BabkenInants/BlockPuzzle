@@ -86,6 +86,7 @@ MonoBehaviour:
   <blockPlacementSfx>k__BackingField: {fileID: 8300000, guid: 4e4b7a5fe60bc4c18b548c88088d9811, type: 3}
   <lineRemovalSfx>k__BackingField: {fileID: 8300000, guid: 4a7460c84aee64d0d94dc6478ddbeca1, type: 3}
   <gameOverSfx>k__BackingField: {fileID: 8300000, guid: 7a9521ccd6bfc4784a547e433eeb36aa, type: 3}
+  <buttonSfx>k__BackingField: {fileID: 8300000, guid: 133a3e8cf1737451090b1a92c2aed732, type: 3}
   <lineRemovalScoreMultiplier>k__BackingField: 10
   <multipleLinesRemovalScoreMultiplier>k__BackingField: 50
   <comboScoreMultiplier>k__BackingField: 50

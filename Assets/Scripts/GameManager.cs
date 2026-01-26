@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private BlockSpawner blockSpawner;
     [SerializeField] private Settings settings;
     [SerializeField] private CameraShake cameraShake;
-    [SerializeField] private HapticManager hapticManager;
     private Block _pickedBlock;
     private bool _gameIsOver;
 
@@ -118,10 +117,10 @@ public class GameManager : MonoBehaviour
                 fieldGraphics.RemoveColumn(i, changes.FullRows, changes.BlockColor);
             }
         
-        if (rowsAndColsRemoved == 0) hapticManager.Light();
+        if (rowsAndColsRemoved == 0) GameEvents.RaisePlayHaptics(HapticManager.HapticType.Light);
         else 
         {
-            StartCoroutine(hapticManager.PlayHapticsInARowRoutine(HapticManager.HapticType.Heavy, rowsAndColsRemoved));
+            GameEvents.RaisePlayHapticsInARow(HapticManager.HapticType.Heavy, rowsAndColsRemoved);
             GameEvents.RaisePlaySfx(settings.lineRemovalSfx);
         }
         

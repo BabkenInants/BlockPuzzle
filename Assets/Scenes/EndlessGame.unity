@@ -2715,6 +2715,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsMenu
   hapticManager: {fileID: 27845180}
+  settings: {fileID: 11400000, guid: 332df0a2d081a48689871761b43841df, type: 2}
   mainMenuBuildIndex: 0
   toggleEnabled: {fileID: 21300000, guid: 52a619ceb5b2149e7aac9c7e27fc24d8, type: 3}
   toggleDisabled: {fileID: 21300000, guid: 5949747d724054651b38a2b1e3ffa68c, type: 3}

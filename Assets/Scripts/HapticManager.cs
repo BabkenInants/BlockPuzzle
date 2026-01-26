@@ -19,15 +19,42 @@ public class HapticManager : MonoBehaviour, ISavable
 
     private void SetHapticsState(bool isOn) => _hapticsIsOn = isOn;
 
-    public void OnEnable() => GameEvents.SetHapticsState += SetHapticsState;
-    
-    public void OnDisable() => GameEvents.SetHapticsState -= SetHapticsState;
+    public void OnEnable()
+    {
+        GameEvents.SetHapticsState += SetHapticsState;
+        GameEvents.PlayHaptics += PlayHaptics;
+    }
+
+    public void OnDisable()
+    {
+        GameEvents.SetHapticsState -= SetHapticsState;
+        GameEvents.PlayHaptics -= PlayHaptics;
+    }
+
+    private void PlayHaptics(HapticType type)
+    {
+        switch (type)
+        {
+            case HapticType.Light:
+                Light();
+                break;
+            case HapticType.Medium:
+                Medium();
+                break;
+            case HapticType.Heavy:
+                Heavy();
+                break;
+            default:
+                Debug.LogError("Undefined Haptic Type");
+                break;
+        }
+    }
 
     public void Save(SaveData data){}
 
     public void Load(SaveData data) => SetHapticsState(data.HapticsIsOn);
 
-    public void Light()
+    private void Light()
     {
         if(!_hapticsIsOn) return;
 #if UNITY_IOS && !UNITY_EDITOR
@@ -35,7 +62,7 @@ public class HapticManager : MonoBehaviour, ISavable
 #endif
     }
     
-    public void Medium()
+    private void Medium()
     {
         if(!_hapticsIsOn) return;
 #if UNITY_IOS && !UNITY_EDITOR
@@ -43,7 +70,7 @@ public class HapticManager : MonoBehaviour, ISavable
 #endif
     }
     
-    public void Heavy()
+    private void Heavy()
     {
         if(!_hapticsIsOn) return;
 #if UNITY_IOS && !UNITY_EDITOR
