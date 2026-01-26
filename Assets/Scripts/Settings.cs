@@ -11,7 +11,7 @@ public class Settings : ScriptableObject
     
     [field: Space(10f)]
     [field: Header("Field")]
-    [field: SerializeField] public float cellSize { get; private set; } = .5f;
+    [field: SerializeField] public float cellSize { get; private set; } = .65f;
     [field: SerializeField] public int columnsCount { get; private set; } = 8;
     [field: SerializeField] public int rowsCount { get; private set; } = 8;
     [field: SerializeField] public Sprite emptyCell { get; private set; }
@@ -27,17 +27,19 @@ public class Settings : ScriptableObject
     [field: SerializeField] public float minBlockDistanceFromCursorX {get; private set; } = -.5f;
     [field: SerializeField] public float maxBlockDistanceFromCursorX {get; private set; } = 1f;
     [field: SerializeField] public int blockCellsDefaultSpriteLayer {get; private set; } = 1;
-    [field: SerializeField] public int blockCellsPickedSpriteLayer {get; private set; } = 3;
+    [field: SerializeField] public int blockCellsPickedSpriteLayer {get; private set; } = 4;
     
     [field: Space(10f)]
     [field: Header("Camera")]
-    [field: SerializeField] public float width {get; private set; } = 6.5f;
+    [field: SerializeField] public float width {get; private set; } = 6f;
     [field: SerializeField] public float height {get; private set; } = 12f;
     [field: SerializeField] public Vector3 camCenter {get; private set; } = new Vector3(0, -1, -10);
+    [field: SerializeField] public float shakeDuration {get; private set; } = .3f;
+    [field: SerializeField] public float heavyShakeDuration {get; private set;} = .4f;
     
     [field: Header("Camera Shake")]
-    [field: SerializeField] public float minDist {get; private set; } = 0.1f;
-    [field: SerializeField] public float maxDist {get; private set; } = 0.5f;
+    [field: SerializeField] public float minDist {get; private set; } = 0.04f;
+    [field: SerializeField] public float maxDist {get; private set; } = 0.05f;
 
     [field: Space(10f)]
     [field: Header("SFX")]
@@ -57,13 +59,17 @@ public class Settings : ScriptableObject
     
     [field: Space(10f)]
     [field: Header("UI Animations")]
-    [field: SerializeField] public float comboAnimationDuration {get; private set;} = .6f;
-    [field: SerializeField] public float allClearTextAnimationDuration {get; private set;} = .6f;
+    [field: SerializeField] public float comboAnimationDuration {get; private set;} = .75f;
+    [field: SerializeField] public float allClearTextAnimationDuration {get; private set;} = .75f;
     [field: SerializeField] public float scoreUpdateAnimationDuration {get; private set;} = 2.5f;
-    [field: SerializeField] public float scoreHeartBeatFrequency {get; private set;} = .2f;
+    [field: SerializeField] public float scoreHeartBeatFrequency {get; private set;} = .15f;
     [field: SerializeField] public float waitBeforeGameOverMenuAppears {get; private set;} = 1f;
     [field: SerializeField] public float gameOverMenuScoreAnimationDuration {get; private set;} = 1f;
-    [field: SerializeField] public float newBestAnimationDuration {get; private set;} = .3f;
+    [field: SerializeField] public float newBestAnimationDuration {get; private set;} = .6f;
+    [Range(0, 1)]
+    [field: SerializeField] public float newBestAnimationMinAlpha {get; private set;} = 0f;
+    [Range(0, 1)]
+    [field: SerializeField] public float newBestAnimationMaxAlpha {get; private set;} = 1f;
     
     [field: Space(10f)]
     [field: Header("Saves")]

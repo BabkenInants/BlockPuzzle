@@ -76,14 +76,14 @@ MonoBehaviour:
   <minBlockDistanceFromCursorX>k__BackingField: -0.5
   <maxBlockDistanceFromCursorX>k__BackingField: 1
   <blockCellsDefaultSpriteLayer>k__BackingField: 1
-  <blockCellsPickedSpriteLayer>k__BackingField: 3
+  <blockCellsPickedSpriteLayer>k__BackingField: 4
   <width>k__BackingField: 6
   <height>k__BackingField: 12
   <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
   <minDist>k__BackingField: 0.04
   <maxDist>k__BackingField: 0.05
   <blockPickupSfx>k__BackingField: {fileID: 8300000, guid: d528dc997788a47c48cb190d70a8c58b, type: 3}
-  <blockPlacementSfx>k__BackingField: {fileID: 8300000, guid: 4e4b7a5fe60bc4c18b548c88088d9811, type: 3}
+  <blockPlacementSfx>k__BackingField: {fileID: 8300000, guid: 723b0584438474ae3b3663e37ea3c944, type: 3}
   <lineRemovalSfx>k__BackingField: {fileID: 8300000, guid: 4a7460c84aee64d0d94dc6478ddbeca1, type: 3}
   <gameOverSfx>k__BackingField: {fileID: 8300000, guid: 7a9521ccd6bfc4784a547e433eeb36aa, type: 3}
   <buttonSfx>k__BackingField: {fileID: 8300000, guid: 133a3e8cf1737451090b1a92c2aed732, type: 3}

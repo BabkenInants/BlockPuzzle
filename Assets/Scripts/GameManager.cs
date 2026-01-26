@@ -123,11 +123,10 @@ public class GameManager : MonoBehaviour
             GameEvents.RaisePlayHapticsInARow(HapticManager.HapticType.Heavy, rowsAndColsRemoved);
             GameEvents.RaisePlaySfx(settings.lineRemovalSfx);
         }
-        
-        if (rowsAndColsRemoved == 2)
-            cameraShake.ShakeForSeconds(.03f, false);
-        else if (rowsAndColsRemoved >= 3)
-            cameraShake.ShakeForSeconds(.04f, true);
+
+        bool heavyShake = rowsAndColsRemoved >= 3;
+        if(rowsAndColsRemoved > 0)
+            cameraShake.ShakeForSeconds(heavyShake? settings.heavyShakeDuration : settings.shakeDuration, heavyShake);
         
         CheckGameOver();
     }

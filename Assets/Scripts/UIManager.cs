@@ -51,9 +51,9 @@ public class UIManager : MonoBehaviour, ISavable
         float duration = settings.gameOverMenuScoreAnimationDuration;
         if (_endScore == _bestScore)
         {
-            Debug.Log("ayo");
             gameOverNewBestText.gameObject.SetActive(true);
-            StartCoroutine(ColorAlphaBlinkRoutine(gameOverNewBestText, .3f, 1f));
+            StartCoroutine(ColorAlphaBlinkRoutine(gameOverNewBestText, settings.newBestAnimationMinAlpha, 
+                settings.newBestAnimationMaxAlpha));
         }
 
         while (elapsedTime < duration)

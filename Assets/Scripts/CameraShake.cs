@@ -5,11 +5,15 @@ using Random = UnityEngine.Random;
 public class CameraShake : MonoBehaviour
 {
     [SerializeField] private Settings settings;
-    private IEnumerator _coroutine;
+    private IEnumerator _coroutine = null;
 
     public void ShakeForSeconds(float duration, bool heavy)
     {
-        if(_coroutine != null) StopCoroutine(_coroutine);
+        if (_coroutine != null)
+        {
+            StopCoroutine(_coroutine);
+            transform.position = settings.camCenter;
+        }
         _coroutine = ShakeForSecondsRoutine(duration, heavy);
         StartCoroutine(_coroutine);
     }
