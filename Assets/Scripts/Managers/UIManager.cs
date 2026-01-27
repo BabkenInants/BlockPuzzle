@@ -47,19 +47,14 @@ namespace Managers
 
         private IEnumerator EndGameRoutine()
         {
+            yield return new WaitForSeconds(settings.waitBeforeGameOverMenuAppears - settings.gameOverSfx.length);
             GameEvents.RaisePlaySfx(settings.gameOverSfx);
-            yield return new WaitForSeconds(settings.waitBeforeGameOverMenuAppears);
+            yield return new WaitForSeconds(settings.gameOverSfx.length);
             gameOverMenu.SetActive(true);
             _gameIsOver = true;
             var elapsedTime = 0f;
             float duration = settings.gameOverMenuScoreAnimationDuration;
-            if (_endScore == _bestScore)
-            {
-                gameOverNewBestText.gameObject.SetActive(true);
-                StartCoroutine(ColorAlphaBlinkRoutine(gameOverNewBestText, settings.newBestAnimationMinAlpha, 
-                    settings.newBestAnimationMaxAlpha));
-            }
-
+            GameEvents.RaisePlaySfx(settings.scoreCountingSfx);
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
@@ -68,6 +63,13 @@ namespace Managers
                 gameOverScoreText.text = tempScore.ToString();
                 gameOverBestScoreText.text = tempBestScore.ToString();
                 yield return null;
+            }
+            if (_endScore == _bestScore)
+            {
+                gameOverNewBestText.gameObject.SetActive(true);
+                GameEvents.RaisePlaySfx(settings.newBestSfx);
+                StartCoroutine(ColorAlphaBlinkRoutine(gameOverNewBestText, settings.newBestAnimationMinAlpha, 
+                    settings.newBestAnimationMaxAlpha));
             }
             gameOverScoreText.text = _endScore.ToString();
             gameOverBestScoreText.text = _bestScore.ToString();

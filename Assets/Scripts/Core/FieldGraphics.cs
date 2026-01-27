@@ -196,6 +196,7 @@ namespace Core
 
         private IEnumerator FillFieldWithRandomBlocksRoutine()
         {
+            GameEvents.RaisePlaySfx(settings.fieldFillingSfx);
             for (int row = settings.rowsCount - 1; row >= 0; row--)
             {
                 for (var col = 0; col < settings.columnsCount; col++)

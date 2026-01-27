@@ -60,6 +60,9 @@ namespace Core
 
         public static event Action SaveGame;
         public static void RaiseSaveGame() => SaveGame?.Invoke();
+
+        public static event Action SaveGameForRestart;
+        public static void RaiseSaveGameForRestart() => SaveGameForRestart?.Invoke();
     
         public static event Action LoadGame;
         public static void RaiseLoadGame() => LoadGame?.Invoke();

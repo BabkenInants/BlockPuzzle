@@ -22,15 +22,15 @@ namespace Menus
         private IEnumerator _mainMenuButtonCoroutine;
         private IEnumerator _replayButtonCoroutine;
 
+#if !UNITY_IOS || UNITY_EDITOR
         public void Start()
         {
-#if !UNITY_IOS || UNITY_EDITOR
             _hapticsIsOn = false;
             hapticsToggle.sprite = toggleDisabled;
             GameEvents.RaiseSetHapticsState(_hapticsIsOn);
             hapticsButton.interactable = false;
-#endif
         }
+#endif
 
         private void ButtonFeedback()
         {
@@ -96,8 +96,7 @@ namespace Menus
         {
             ButtonFeedback();
             yield return new WaitForSeconds(settings.buttonSfx.length);
-            GameEvents.RaiseGameOver();
-            GameEvents.RaiseSaveGame();
+            GameEvents.RaiseSaveGameForRestart();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }

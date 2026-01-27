@@ -52,6 +52,9 @@ namespace Core
         [field: SerializeField] public AudioClip lineRemovalSfx { get; private set; }
         [field: SerializeField] public AudioClip gameOverSfx { get; private set; }
         [field: SerializeField] public AudioClip buttonSfx { get; private set; }
+        [field: SerializeField] public AudioClip scoreCountingSfx { get; private set; }
+        [field: SerializeField] public AudioClip fieldFillingSfx { get; private set; }
+        [field: SerializeField] public AudioClip newBestSfx { get; private set; }
     
         [field: Space(10f)]
         [field: Header("Score")]

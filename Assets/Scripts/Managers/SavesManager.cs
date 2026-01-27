@@ -38,6 +38,7 @@ namespace Managers
             GameEvents.SaveGame += Save;
             GameEvents.LoadGame += Load;
             GameEvents.OnGameOver += HandleGameOver;
+            GameEvents.SaveGameForRestart += SaveForRestart;
         }
 
         private void OnDisable()
@@ -45,6 +46,13 @@ namespace Managers
             GameEvents.SaveGame -= Save;
             GameEvents.LoadGame -= Load;
             GameEvents.OnGameOver -= HandleGameOver;
+            GameEvents.SaveGameForRestart -= SaveForRestart;
+        }
+
+        private void SaveForRestart()
+        {
+            _gameIsOver = true;
+            Save();
         }
 
         private void HandleGameOver() => _gameIsOver = true;
