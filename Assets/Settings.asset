@@ -71,6 +71,7 @@ MonoBehaviour:
   <busyCell>k__BackingField: {fileID: 21300000, guid: 4aa9628a1e552404598693c8562d5055, type: 3}
   cellPrefab: {fileID: 40837118694815055, guid: a14003c64ddae4ba9b906ac4d09fb07d, type: 3}
   defaultCellColor: {r: 0, g: 0.4117647, b: 0.6666667, a: 1}
+  <waitTimeBetweenRows>k__BackingField: 0.1
   <minBlockDistanceFromCursorY>k__BackingField: 1
   <maxBlockDistanceFromCursorY>k__BackingField: 5
   <minBlockDistanceFromCursorX>k__BackingField: -0.5
@@ -98,7 +99,7 @@ MonoBehaviour:
   <allClearTextAnimationDuration>k__BackingField: 0.75
   <scoreUpdateAnimationDuration>k__BackingField: 2.5
   <scoreHeartBeatFrequency>k__BackingField: 0.15
-  <waitBeforeGameOverMenuAppears>k__BackingField: 2
+  <waitBeforeGameOverMenuAppears>k__BackingField: 2.5
   <gameOverMenuScoreAnimationDuration>k__BackingField: 1
   <newBestAnimationDuration>k__BackingField: 0.5
   <newBestAnimationMinAlpha>k__BackingField: 0.2
