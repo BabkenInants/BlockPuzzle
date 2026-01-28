@@ -49,15 +49,41 @@ namespace Managers
                 int lastValidMinCol = _lastValidPos.Min(pos => pos.Column);
                 int currMinRow = cellsPositions.Min(pos => pos.Row);
                 int currMinCol = cellsPositions.Min(pos => pos.Column);
-                int deltaRow = lastValidMinRow - currMinRow;
-                int deltaCol = lastValidMinCol - currMinCol;
-                if (Math.Abs(deltaCol) <= 1 && Math.Abs(deltaRow) <= 1)
+                int deltaRow = currMinRow - lastValidMinRow;
+                int deltaCol = currMinCol - lastValidMinCol;
+                if (Math.Abs(deltaRow) > 1 || Math.Abs(deltaCol) > 1)
                 {
-                    fieldGraphics.PreviewCells(_lastValidPos, _pickedBlock.color);
-                    fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines
-                        (_pickedBlock, _lastValidPos), _pickedBlock.color);
+                    _lastValidPos = null;
+                    return;
                 }
-                else _lastValidPos = null;
+                int minRowAfterShift = lastValidMinRow + deltaRow;
+                int maxRowAfterShift = _lastValidPos.Max(pos => pos.Row) + deltaRow;
+                int minColAfterShift = lastValidMinCol + deltaCol;
+                int maxColAfterShift = _lastValidPos.Max(pos => pos.Column) + deltaCol;
+
+                var foundPos = false;
+                if (minRowAfterShift >= 0 && maxRowAfterShift < settings.rowsCount)
+                {
+                    if (FieldUtils.CheckIfBlockCanBePlacedAtCell(field.cellIsFree, _pickedBlock,
+                            minRowAfterShift, lastValidMinCol))
+                    {
+                        foundPos = true;
+                        for (var i = 0; i < _lastValidPos.Length; i++)
+                            _lastValidPos[i].Row += deltaRow;
+                    }
+                }
+                if (!foundPos && minColAfterShift >= 0 && maxColAfterShift < settings.columnsCount)
+                {
+                    if (FieldUtils.CheckIfBlockCanBePlacedAtCell(field.cellIsFree, _pickedBlock,
+                            lastValidMinRow, minColAfterShift))
+                    {
+                        for (var i = 0; i < _lastValidPos.Length; i++)
+                            _lastValidPos[i].Column += deltaCol;
+                    }
+                }
+                fieldGraphics.PreviewCells(_lastValidPos, _pickedBlock.color);
+                fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines
+                        (_pickedBlock, _lastValidPos), _pickedBlock.color);
                 return;
             }
             _lastValidPos = cellsPositions.ToArray();
