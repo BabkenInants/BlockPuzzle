@@ -45,16 +45,20 @@ namespace Core
         public bool CheckIfBlockCanBePlaced(Transform[] cells, out GridPos[] cellPositions)
         {
             cellPositions = new GridPos[cells.Length];
-            //Trying to preview and also checking if the block can be placed in its current position
+            var result = true;
+            //Checking if the block can be placed in its current position
             for (var i = 0; i < cells.Length; i++)
             {
                 GridPos position = FieldUtils.GetCellCoordinatesOnField(cells[i].position, _firstCell.position, settings.cellSize);
                 cellPositions[i] = position;
                 if (!position.IsValid(settings.rowsCount, settings.columnsCount))
-                    return false;
-                if (!cellIsFree[position.Row, position.Column]) return false;
+                {
+                    result = false;
+                    continue;
+                }
+                if (!cellIsFree[position.Row, position.Column]) result = false;
             }
-            return true;
+            return result;
         }
 
         #endregion

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Managers
         [SerializeField] private CameraShakeManager cameraShakeManager;
         private Block _pickedBlock;
         private bool _gameIsOver;
+        private GridPos[] _lastValidPos;
 
         private void OnEnable() => Subscribe();
 
@@ -40,7 +42,25 @@ namespace Managers
             if(!_pickedBlock || _gameIsOver) return;
             fieldGraphics.HideCellsPreview();
             fieldGraphics.HidePotentiallyRemovedLinesPreview();
-            if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells, out GridPos[] cellsPositions)) return;
+            if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells, out GridPos[] cellsPositions))
+            {
+                if (_lastValidPos == null) return;
+                int lastValidMinRow = _lastValidPos.Min(pos => pos.Row);
+                int lastValidMinCol = _lastValidPos.Min(pos => pos.Column);
+                int currMinRow = cellsPositions.Min(pos => pos.Row);
+                int currMinCol = cellsPositions.Min(pos => pos.Column);
+                int deltaRow = lastValidMinRow - currMinRow;
+                int deltaCol = lastValidMinCol - currMinCol;
+                if (Math.Abs(deltaCol) <= 1 && Math.Abs(deltaRow) <= 1)
+                {
+                    fieldGraphics.PreviewCells(_lastValidPos, _pickedBlock.color);
+                    fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines
+                        (_pickedBlock, _lastValidPos), _pickedBlock.color);
+                }
+                else _lastValidPos = null;
+                return;
+            }
+            _lastValidPos = cellsPositions.ToArray();
             fieldGraphics.PreviewCells(cellsPositions, _pickedBlock.color);
             fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines(_pickedBlock, cellsPositions), _pickedBlock.color);
         }
@@ -54,13 +74,14 @@ namespace Managers
                 _pickedBlock = null;
                 return;
             }
-            if (field.CheckIfBlockCanBePlaced(block.cells, out GridPos[] cellsPositions))
+            if (_lastValidPos != null)
             {
                 GameEvents.RaisePlaySfx(settings.blockPlacementSfx);
-                ChangesAfterMove changes = field.PlaceBlock(cellsPositions, block.color);
+                ChangesAfterMove changes = field.PlaceBlock(_lastValidPos, block.color);
                 blockSpawner.RemoveBlock(block.gameObject);
                 GameEvents.RaiseCalculateNewScore(changes);
                 HandleChangesAfterMove(changes);
+                _lastValidPos = null;
             }
             else block.PutBlockBack();
             _pickedBlock = null;

@@ -6,7 +6,7 @@ namespace Core
     public static class FieldUtils
     {
         public static GridPos GetCellCoordinatesOnField(Vector3 position, Vector3 firstCell, float cellSize, 
-            bool clamp = false, int cellsCountX = 8, int cellsCountY = 8)
+            int cellsCountX = 8, int cellsCountY = 8, bool clamp = false)
         {
             float x = position.x - firstCell.x;
             float y = firstCell.y - position.y;
