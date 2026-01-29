@@ -30,6 +30,9 @@ namespace Saves
         ///SettingsMenu
         public bool SfxIsOn = true;
         public bool HapticsIsOn = true;
+        
+        //Themes
+        public int CurrentThemeIndex = -1;
     }
 
     [Serializable]

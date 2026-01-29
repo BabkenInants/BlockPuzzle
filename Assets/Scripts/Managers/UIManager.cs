@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Core;
 using Saves;
+using Themes;
 
 namespace Managers
 {
