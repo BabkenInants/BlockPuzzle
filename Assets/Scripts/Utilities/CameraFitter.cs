@@ -28,8 +28,8 @@ namespace Utilities
         private void Fit()
         {
             float aspectRatio = (float)Screen.width / Screen.height;
-            float verticalSize = settings.height / 2;
-            float horizontalSize = settings.width / aspectRatio / 2;
+            float verticalSize = settings.screenHeight / 2;
+            float horizontalSize = settings.screenWidth / aspectRatio / 2;
             _cam.orthographicSize = Mathf.Max(verticalSize, horizontalSize);
             _cam.transform.position = settings.camCenter;
         }

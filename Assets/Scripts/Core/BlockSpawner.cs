@@ -43,11 +43,23 @@ namespace Core
                 return;
             }
             ShuffleArray(ref blocksToSpawn);
+            float distanceForBlock = (settings.screenWidth -
+                                     settings.distanceBetweenSpawnedBlocks * (2 + spawnPoints.Length - 1)) 
+                                     / spawnPoints.Length;
+            // block horizontal length * cellSize * notPickedSize = distanceForBlock =>
+            // notPickedSize = distanceForBlock/(length * cellSize)
             for (var i = 0; i < spawnPoints.Length; i++)
             {
                 blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
-                blocks[i].GetComponent<Block>().SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
-                blocks[i].GetComponent<Block>().InitSettings(settings);
+                var block = blocks[i].GetComponent<Block>();
+                block.SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
+                block.InitSettings(settings);
+                //changing block size to look good on screen
+                float notPickedSizeX = distanceForBlock / (blocksToSpawn[i].GetComponent<Block>().sizeX * settings.cellSize);
+                float notPickedSizeY = distanceForBlock / (blocksToSpawn[i].GetComponent<Block>().sizeY * settings.cellSize);
+                float notPickedSize = Mathf.Min(notPickedSizeX, notPickedSizeY);
+                if(notPickedSize > settings.maxNotPickedBlockSize) notPickedSize = settings.maxNotPickedBlockSize;
+                block.InitNotPickedSize(notPickedSize);
             }
         }
 

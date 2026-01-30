@@ -10,7 +10,9 @@ namespace Core
     {
         public Transform[] cells;
         public Color color { get; private set; }
-        [field: SerializeField] public float notPickedSize { get; private set; } = .7f;
+        private float _notPickedSize  = .7f;
+        private Vector2 _notPickedColliderSize;
+        private Vector2 _colliderDefaultSize;
         [HideInInspector] public int sizeX = 3;
         [HideInInspector] public int sizeY = 3;
         ///true - busy, false - free
@@ -23,8 +25,7 @@ namespace Core
         private bool _canPick = true;
         private IEnumerator _sizeChangeCoroutine;
         private bool _otherBlockIsPicked;
-
-        private void Awake() => SetSize(notPickedSize);
+        private BoxCollider2D _collider;
 
         private void Start() => _mainCam = Camera.main;
 
@@ -77,6 +78,17 @@ namespace Core
         }
 
         public void InitSettings(Settings settings) => _settings = settings;
+
+        public void InitNotPickedSize(float size)
+        {
+            _notPickedSize = size;
+            SetSize(size);
+            float percentage = size * 100 / _settings.maxNotPickedBlockSize;
+            _collider = GetComponent<BoxCollider2D>();
+            _colliderDefaultSize = _collider.size;
+            _notPickedColliderSize = _colliderDefaultSize * 100 / percentage;
+            _collider.size = _notPickedColliderSize;
+        }
     
         #region Drag and drop
     
@@ -96,6 +108,7 @@ namespace Core
             Vector3 world = _mainCam.ScreenToWorldPoint(mp);
             _mouseOffset = transform.position - world;
             SetSize(_settings.cellSize * 2);
+            _collider.size = _colliderDefaultSize;
             foreach (Transform cell in cells)
                 cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsPickedSpriteLayer;
         }
@@ -141,7 +154,8 @@ namespace Core
         {
             _canPick = false;
             _isPicked = false;
-            SetSize(notPickedSize);
+            _collider.size = _notPickedColliderSize;
+            SetSize(_notPickedSize);
             StartCoroutine(PositionTranslateRoutine(transform.position, _startPos, .1f, disableCanPick));
         }
     

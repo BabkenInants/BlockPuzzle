@@ -9,6 +9,8 @@ namespace Core
         [field: Header("Blocks")]
         [field: SerializeField] public GameObject[] blockPrefabs { get; private set; }
         [field: SerializeField] public GameObject[] smallBlockPrefabs { get; private set; }
+        [field: SerializeField] public float distanceBetweenSpawnedBlocks { get; private set; } = .5f;
+        [field: SerializeField] public float maxNotPickedBlockSize { get; private set; } = .7f;
     
         [field: Space(10f)]
         [field: Header("Field")]
@@ -35,8 +37,8 @@ namespace Core
     
         [field: Space(10f)]
         [field: Header("Camera")]
-        [field: SerializeField] public float width {get; private set; } = 6f;
-        [field: SerializeField] public float height {get; private set; } = 12f;
+        [field: SerializeField] public float screenWidth {get; private set; } = 6f;
+        [field: SerializeField] public float screenHeight {get; private set; } = 12f;
         [field: SerializeField] public Vector3 camCenter {get; private set; } = new Vector3(0, -1, -10);
         [field: SerializeField] public float shakeDuration {get; private set; } = .3f;
         [field: SerializeField] public float heavyShakeDuration {get; private set;} = .4f;

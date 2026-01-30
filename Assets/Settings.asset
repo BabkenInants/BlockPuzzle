@@ -53,6 +53,8 @@ MonoBehaviour:
   - {fileID: 4920408409697412232, guid: f5264c5c2961b4737b923632e7adf2ae, type: 3}
   - {fileID: 7055817461446177434, guid: 486fd79c2e6e942b687f2d476d6cd2d7, type: 3}
   - {fileID: 6096826533973895730, guid: 3aab28830967141899fc4c8378236fa5, type: 3}
+  <distanceBetweenSpawnedBlocks>k__BackingField: 0.4
+  <maxNotPickedBlockSize>k__BackingField: 0.7
   <cellSize>k__BackingField: 0.65
   <columnsCount>k__BackingField: 8
   <rowsCount>k__BackingField: 8
@@ -67,8 +69,8 @@ MonoBehaviour:
   <blockCellsDefaultSpriteLayer>k__BackingField: 1
   <blockCellsPickedSpriteLayer>k__BackingField: 2
   <blockPreviewColorTransparency>k__BackingField: 0.6
-  <width>k__BackingField: 6
-  <height>k__BackingField: 12
+  <screenWidth>k__BackingField: 6
+  <screenHeight>k__BackingField: 12
   <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
   <shakeDuration>k__BackingField: 0.1
   <heavyShakeDuration>k__BackingField: 0.4
