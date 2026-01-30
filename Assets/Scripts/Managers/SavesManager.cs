@@ -85,7 +85,6 @@ namespace Managers
                 if (File.Exists(_filePath))
                     File.Delete(_filePath);
                 File.Move(tempPath, _filePath);
-                Debug.Log("Successfully saved");
             }
             catch (Exception e)
             {
@@ -141,7 +140,6 @@ namespace Managers
             foreach (ISavable savable in _savables)
                 savable.Load(saveData);
             blockSpawner?.SpawnBlocks();
-            Debug.Log("Loaded save");
         }
     }
 }

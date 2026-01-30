@@ -202,7 +202,7 @@ namespace Core
                 HideCellsPreview();
             _lastPreviewedCells = cells.ToList();
             Color tempColor = color;
-            tempColor.a = .25f;
+            tempColor.a = settings.blockPreviewColorTransparency;
             for (var i = 0; i < cells.Length; i++)
             {
                 _spriteRenderers[cells[i].Row, cells[i].Column].color = tempColor;

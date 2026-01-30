@@ -27,5 +27,5 @@ MonoBehaviour:
   <secondaryTextColor>k__BackingField: {r: 1, g: 0.63529414, b: 0.078431375, a: 1}
   <tertiaryTextColor>k__BackingField: {r: 0.5803922, g: 0.99215686, b: 1, a: 1}
   <fieldColor>k__BackingField: {r: 0, g: 0.22352941, b: 0.42745098, a: 1}
-  <backgroundColor>k__BackingField: {r: 0.011764706, g: 0.09803922, b: 0.24705882, a: 0}
+  <backgroundColor>k__BackingField: {r: 0.011764706, g: 0.09803922, b: 0.24705882, a: 1}
   <cellDefaultColor>k__BackingField: {r: 0, g: 0.4117647, b: 0.6666667, a: 1}

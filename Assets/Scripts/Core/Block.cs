@@ -10,7 +10,6 @@ namespace Core
     {
         public Transform[] cells;
         public Color color { get; private set; }
-        public Theme currentTheme;
         [field: SerializeField] public float notPickedSize { get; private set; } = .7f;
         [HideInInspector] public int sizeX = 3;
         [HideInInspector] public int sizeY = 3;
@@ -59,14 +58,21 @@ namespace Core
             GameEvents.OnBlockUnpicked -= HandeOnBlockUnpicked;
         }
 
-        public void ReceiveThemeOnGameStart(Theme theme){}
+        public void ReceiveThemeOnGameStart(Theme theme)
+        {
+            color = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
+            foreach (Transform cell in cells)
+                cell.GetComponent<SpriteRenderer>().color = color;
+        }
 
         public void ReceiveTheme(Theme theme)
         {
             Color newColor = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
             foreach (Transform cell in cells)
-                StartCoroutine(ThemeTools.SetSpriteRendererColor(cell.GetComponent<SpriteRenderer>(), 
-                    color, newColor, _settings.themeChangeDuration));
+            {
+                var sRenderer = cell.GetComponent<SpriteRenderer>();
+                StartCoroutine(ThemeTools.SetSpriteRendererColor(sRenderer, color, newColor, _settings.themeChangeDuration));
+            }
             color = newColor;
         }
 

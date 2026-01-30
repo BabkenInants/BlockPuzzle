@@ -5,7 +5,6 @@ namespace Themes
     [CreateAssetMenu(fileName = "NewTheme", menuName = "New Theme")]
     public class Theme : ScriptableObject
     {
-        [Tooltip("Strictly 10 Colors")]
         [field: SerializeField] public Color[] blockColors { get; private set; } = new Color[10];
         [field: Header("Text")]
         [field: SerializeField] public Color primaryTextColor { get; private set; }

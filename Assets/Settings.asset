@@ -66,11 +66,12 @@ MonoBehaviour:
   <maxBlockDistanceFromCursorX>k__BackingField: 1
   <blockCellsDefaultSpriteLayer>k__BackingField: 1
   <blockCellsPickedSpriteLayer>k__BackingField: 2
+  <blockPreviewColorTransparency>k__BackingField: 0.6
   <width>k__BackingField: 6
   <height>k__BackingField: 12
   <camCenter>k__BackingField: {x: 0, y: -0.5, z: -10}
   <shakeDuration>k__BackingField: 0.1
-  <heavyShakeDuration>k__BackingField: 0.25
+  <heavyShakeDuration>k__BackingField: 0.4
   <minDist>k__BackingField: 0.04
   <maxDist>k__BackingField: 0.05
   <blockPickupSfx>k__BackingField: {fileID: 8300000, guid: d528dc997788a47c48cb190d70a8c58b, type: 3}

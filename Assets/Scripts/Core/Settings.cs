@@ -30,6 +30,8 @@ namespace Core
         [field: SerializeField] public float maxBlockDistanceFromCursorX {get; private set; } = 1f;
         [field: SerializeField] public int blockCellsDefaultSpriteLayer {get; private set; } = 1;
         [field: SerializeField] public int blockCellsPickedSpriteLayer {get; private set; } = 4;
+        [Range(0, 1)]
+        [field: SerializeField] public float blockPreviewColorTransparency {get; private set; } = .25f;
     
         [field: Space(10f)]
         [field: Header("Camera")]

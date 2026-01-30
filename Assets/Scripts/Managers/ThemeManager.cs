@@ -15,7 +15,7 @@ namespace Managers
         [SerializeField] private Theme[] themes;
         private Theme _currentTheme;
         private int _currentThemeIndex;
-        private List<IThemeReceiver> _themeReceivers = new List<IThemeReceiver>();
+        private List<IThemeReceiver> _themeReceivers;
 
         private void OnEnable() => GameEvents.SetNextTheme += SetNextTheme;
         
@@ -23,6 +23,7 @@ namespace Managers
 
         private void GetAllReceivers()
         {
+            _themeReceivers = new List<IThemeReceiver>();
             foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 if (mb is IThemeReceiver receiver) 
                     _themeReceivers.Add(receiver);
@@ -39,6 +40,7 @@ namespace Managers
             }
             _currentThemeIndex = index;
             _currentTheme = themes[_currentThemeIndex];
+            GetAllReceivers();
             foreach (IThemeReceiver receiver in _themeReceivers)
                 receiver.ReceiveTheme(_currentTheme);
         }
