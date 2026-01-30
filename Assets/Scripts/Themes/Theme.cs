@@ -1,9 +1,8 @@
-using System;
 using UnityEngine;
 
 namespace Themes
-{
-    [Serializable]
+{    
+    [CreateAssetMenu(fileName = "NewTheme", menuName = "New Theme")]
     public class Theme : ScriptableObject
     {
         [Tooltip("Strictly 10 Colors")]

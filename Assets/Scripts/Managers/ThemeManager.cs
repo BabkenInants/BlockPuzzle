@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Themes;
 using System.Collections.Generic;
+using Core;
 using Saves;
 using UnityEngine.UI;
 
@@ -11,14 +13,12 @@ namespace Managers
     {
         [SerializeField] private Theme[] themes;
         private Theme _currentTheme;
-        private int _currentThemeIndex = -1;
-        private List<IThemeReceiver> _themeReceivers;
+        private int _currentThemeIndex;
+        private List<IThemeReceiver> _themeReceivers = new List<IThemeReceiver>();
 
-        private void Start()
-        {
-            GetAllReceivers();
-            SetNextTheme();
-        }
+        private void OnEnable() => GameEvents.SetNextTheme += SetNextTheme;
+        
+        private void OnDisable() => GameEvents.SetNextTheme -= SetNextTheme;
 
         private void GetAllReceivers()
         {
@@ -27,9 +27,16 @@ namespace Managers
                     _themeReceivers.Add(receiver);
         }
 
-        public void SetNextTheme()
+        private void SetNextTheme() => SetThemeWithIndex(_currentThemeIndex + 1 == themes.Length ? 0 : _currentThemeIndex + 1);
+
+        private void SetThemeWithIndex(int index)
         {
-            _currentThemeIndex += _currentThemeIndex + 1 == themes.Length - 1 ? -_currentThemeIndex : 1;
+            if (index < 0 || index >= themes.Length)
+            {
+                Debug.LogError($"Index {index} is out of range");
+                return;
+            }
+            _currentThemeIndex = index;
             _currentTheme = themes[_currentThemeIndex];
             foreach (IThemeReceiver receiver in _themeReceivers)
                 receiver.ReceiveTheme(_currentTheme);
@@ -43,8 +50,11 @@ namespace Managers
 
         public void Load(SaveData saveData)
         {
-            if(saveData.GameIsOver) return;
-            _currentThemeIndex = saveData.CurrentThemeIndex;
+            _currentThemeIndex = saveData.GameIsOver ? 0 : saveData.CurrentThemeIndex;
+            _currentTheme = themes[_currentThemeIndex];
+            GetAllReceivers();
+            foreach (var receiver in _themeReceivers)
+                receiver.ReceiveThemeOnGameStart(_currentTheme);
         }
     } 
 }

@@ -5,10 +5,11 @@ using UnityEngine.SceneManagement;
 using Core;
 using Saves;
 using Themes;
+using UnityEngine.UI;
 
 namespace Managers
 {
-    public class UIManager : MonoBehaviour, ISavable
+    public class UIManager : MonoBehaviour, ISavable, IThemeReceiver
     {
         [SerializeField] private Settings settings;
         [SerializeField] private GameObject gameOverMenu;
@@ -20,6 +21,10 @@ namespace Managers
         [SerializeField] private TextMeshProUGUI bestScoreText;
         [SerializeField] private TextMeshProUGUI comboText;
         [SerializeField] private TextMeshProUGUI allClearText;
+        [Header("Theme")] 
+        [SerializeField] private Image[] fieldColor;
+        [SerializeField] private Image[] backgroundColor;
+        [SerializeField] private Image[] emptyCellColor;
         private bool _gameIsOver;
         private IEnumerator _scoreUpdateCoroutine;
         private IEnumerator _comboCoroutine;
@@ -218,6 +223,31 @@ namespace Managers
 
         #endregion
 
+        #region Themes
+
+        public void ReceiveTheme(Theme theme)
+        {
+            var duration = settings.themeChangeDuration;
+            foreach (var img in fieldColor)
+                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.fieldColor, duration));
+            foreach (var img in backgroundColor)    
+                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.backgroundColor, duration));
+            foreach (var img in emptyCellColor)
+                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.cellDefaultColor, duration));
+        }
+
+        public void ReceiveThemeOnGameStart(Theme theme)
+        {
+            foreach (var img in fieldColor)
+                img.color = theme.fieldColor;
+            foreach (var img in backgroundColor)
+                img.color = theme.backgroundColor;
+            foreach (var img in emptyCellColor)
+                img.color = theme.cellDefaultColor;
+        }
+
+        #endregion
+
         private IEnumerator ColorAlphaBlinkRoutine(TextMeshProUGUI img, float minAlpha, float maxAlpha)
         {
             var asc = true;
@@ -227,13 +257,13 @@ namespace Managers
             colorMaxAlpha.a = maxAlpha;
             while (true)
             {
-                yield return ColorLerpRoutine(img, asc? colorMinAlpha : colorMaxAlpha, 
+                yield return TextColorLerpRoutine(img, asc? colorMinAlpha : colorMaxAlpha, 
                     asc? colorMaxAlpha : colorMinAlpha, settings.newBestAnimationDuration);
                 asc = !asc;
             }
         }
 
-        private static IEnumerator ColorLerpRoutine(TextMeshProUGUI img, Color startColor, Color endColor, float duration)
+        private static IEnumerator TextColorLerpRoutine(TextMeshProUGUI img, Color startColor, Color endColor, float duration)
         {
             float elapsedTime = 0;
             while (elapsedTime < duration)

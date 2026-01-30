@@ -172,6 +172,7 @@ namespace Managers
             {
                 GameEvents.RaisePlayHapticsInARow(HapticManager.HapticType.Heavy, rowsAndColsRemoved);
                 GameEvents.RaisePlaySfx(settings.lineRemovalSfx);
+                GameEvents.RaiseSetNextTheme();
             }
 
             bool heavyShake = rowsAndColsRemoved >= 3;

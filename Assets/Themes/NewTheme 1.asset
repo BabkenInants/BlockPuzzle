@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1c88151cdc44389a3b7d760839e37bc, type: 3}
+  m_Name: NewTheme 1
+  m_EditorClassIdentifier: Assembly-CSharp::Themes.Theme
+  <blockColors>k__BackingField:
+  - {r: 0, g: 1, b: 0.23762369, a: 1}
+  - {r: 1, g: 0, b: 0.07499981, a: 1}
+  - {r: 1, g: 0.57318926, b: 0.2216981, a: 1}
+  - {r: 1, g: 0.9538098, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0.9424448, a: 1}
+  - {r: 0.6246987, g: 0.03529413, b: 0.98039216, a: 1}
+  - {r: 0, g: 0.9764706, b: 0.97647035, a: 1}
+  - {r: 0.5283019, g: 0.11320756, b: 0, a: 1}
+  - {r: 0.6746032, g: 1, b: 0, a: 1}
+  - {r: 0.3207547, g: 0, b: 0.20140406, a: 1}
+  <fieldColor>k__BackingField: {r: 0, g: 0.41509432, b: 0.070566066, a: 1}
+  <backgroundColor>k__BackingField: {r: 0, g: 0.16037738, b: 0.0018434032, a: 1}
+  <cellDefaultColor>k__BackingField: {r: 0.14960839, g: 0.7735849, b: 0.39076796, a: 1}

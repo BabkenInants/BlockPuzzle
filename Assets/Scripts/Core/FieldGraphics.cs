@@ -4,13 +4,15 @@ using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using Saves;
+using Themes;
 
 namespace Core
 {
-    public class FieldGraphics : MonoBehaviour, ISavable
+    public class FieldGraphics : MonoBehaviour, ISavable, IThemeReceiver
     {
         public bool isReady {get; private set;}
         [field:SerializeField] public Transform firstCell {get; private set;}
+        [SerializeField] public SpriteRenderer fieldSpriteRenderer;
         [SerializeField] private Settings settings;
         [SerializeField] private ParticleSystem lineRemovalParticles;
         [SerializeField] private Animator lineRemovalAnimator;
@@ -22,6 +24,7 @@ namespace Core
         private List<Color> _lastPreviewedPotentiallyRemovedLinesColors;
         private Queue<ParticleSystem> _lineRemovalParticlesPool = new Queue<ParticleSystem>();
         private Queue<Animator> _lineRemovalAnimationPool = new Queue<Animator>();
+        private Theme _theme;
 
         private void Awake()
         {
@@ -34,6 +37,65 @@ namespace Core
     
         private void OnDisable() => GameEvents.OnGameOver -= FillFieldWithRandomBlocks;
 
+        #region Theme
+
+        private void SetEmptyCellsColors(Color color)
+        {
+            for(var row = 0; row < settings.rowsCount; row++)
+                for (var col = 0; col < settings.columnsCount; col++)
+                    if (_spriteRenderers[row, col].sprite == settings.emptyCell)
+                        _spriteRenderers[row, col].color = color;
+        }
+        
+        private void SetFieldBackgroundColor(Color color) => fieldSpriteRenderer.color = color;
+        
+        public void ReceiveThemeOnGameStart(Theme theme)
+        {
+            _theme = theme;
+            SetEmptyCellsColors(theme.cellDefaultColor);
+            SetFieldBackgroundColor(theme.fieldColor);
+        }
+
+        public void ReceiveTheme(Theme theme)
+        {
+            _theme = theme;
+            var duration = settings.themeChangeDuration;
+            
+            //setting colors of empty cells
+            for(var row = 0; row < settings.rowsCount; row++)
+                for (var col = 0; col < settings.columnsCount; col++)
+                    if (_spriteRenderers[row, col].sprite == settings.emptyCell)
+                    {
+                        Color oldColor = _spriteRenderers[row, col].color;
+                        Color newColor = theme.cellDefaultColor;
+                        StartCoroutine(ThemeTools.SetSpriteRendererColor(_spriteRenderers[row, col], 
+                            oldColor, newColor, duration));
+                    }
+
+            //setting color of field
+            StartCoroutine(ThemeTools.SetSpriteRendererColor(fieldSpriteRenderer, fieldSpriteRenderer.color, theme.fieldColor, duration));
+            
+            var oldNewColors = new Dictionary<Color, Color>();
+            
+            //changing not empty cells colors
+            for (var row = 0; row < settings.rowsCount; row++)
+                for (var col = 0; col < settings.columnsCount; col++)
+                    if (_spriteRenderers[row, col].sprite != settings.emptyCell)
+                    {
+                        if (!oldNewColors.ContainsKey(_spriteRenderers[row, col].color))
+                        {
+                            Color newColor = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
+                            oldNewColors.Add(_spriteRenderers[row, col].color, newColor);
+                            StartCoroutine(ThemeTools.SetSpriteRendererColor(_spriteRenderers[row, col],
+                                _spriteRenderers[row, col].color, newColor, duration));
+                        }
+                        else StartCoroutine(ThemeTools.SetSpriteRendererColor(_spriteRenderers[row, col],
+                            _spriteRenderers[row, col].color, oldNewColors[_spriteRenderers[row, col].color], duration));
+                    }
+        }
+
+        #endregion
+        
         #region Particle System Pool
 
         private void AddParticle()
@@ -109,7 +171,7 @@ namespace Core
             for (var j = 0; j < settings.columnsCount; j++)
             {
                 _spriteRenderers[row, j].sprite = settings.emptyCell;
-                _spriteRenderers[row, j].color = settings.defaultCellColor;
+                _spriteRenderers[row, j].color = _theme.cellDefaultColor;
             }
             Vector3 particlesPosition = firstCell.position + new Vector3(settings.cellSize * (settings.columnsCount / 2f), -row * settings.cellSize, 0);
             particlesPosition.x -= settings.cellSize / 2;
@@ -122,7 +184,7 @@ namespace Core
             {
                 if(fullRows[i]) continue;
                 _spriteRenderers[i, col].sprite = settings.emptyCell;
-                _spriteRenderers[i, col].color = settings.defaultCellColor;
+                _spriteRenderers[i, col].color = _theme.cellDefaultColor;
             }
             Vector3 particlesPosition = firstCell.position + new Vector3(col * settings.cellSize, -settings.cellSize * (settings.rowsCount / 2f),  0);
             particlesPosition.y += settings.cellSize / 2;
@@ -153,7 +215,7 @@ namespace Core
             if (_lastPreviewedCells == null) return;
             foreach (GridPos cell in _lastPreviewedCells)
             {
-                _spriteRenderers[cell.Row, cell.Column].color = settings.defaultCellColor;
+                _spriteRenderers[cell.Row, cell.Column].color = _theme.cellDefaultColor;
                 _spriteRenderers[cell.Row, cell.Column].sprite = settings.emptyCell;
             }
             _lastPreviewedCells = null;
@@ -203,7 +265,7 @@ namespace Core
                     if (_spriteRenderers[row, col].sprite == settings.emptyCell)
                     {
                         _spriteRenderers[row, col].sprite = settings.busyCell;
-                        Color temp = settings.colors[Random.Range(0, settings.colors.Length)];
+                        Color temp = _theme.blockColors[Random.Range(0, _theme.blockColors.Length)];
                         temp.a = 0;
                         _spriteRenderers[row, col].color = temp;
                         StartCoroutine(ColorAlphaTransition(_spriteRenderers[row, col], 0, 1,

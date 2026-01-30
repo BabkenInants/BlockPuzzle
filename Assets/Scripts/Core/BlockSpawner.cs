@@ -1,16 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
+using Themes;
 using UnityEngine;
 
 namespace Core
 {
-    public class BlockSpawner : MonoBehaviour
+    public class BlockSpawner : MonoBehaviour, IThemeReceiver
     {
         public GameObject[] blocks { get; private set; }
         [SerializeField] private Settings settings;
         [SerializeField] private Field field;
         [SerializeField] private Transform[] spawnPoints;
         private bool _gameIsOver;
+        private Theme _theme;
     
         private void Awake()
         {
@@ -26,7 +28,11 @@ namespace Core
             foreach (GameObject block in blocks) Destroy(block);
             _gameIsOver = true;
         }
-    
+
+        public void ReceiveTheme(Theme theme) => _theme = theme;
+
+        public void ReceiveThemeOnGameStart(Theme theme) => _theme = theme;
+
         public void SpawnBlocks()
         {
             if(_gameIsOver) return;
@@ -40,7 +46,7 @@ namespace Core
             for (var i = 0; i < spawnPoints.Length; i++)
             {
                 blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
-                blocks[i].GetComponent<Block>().SetColor(settings.colors[Random.Range(0, settings.colors.Length)]);
+                blocks[i].GetComponent<Block>().SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
                 blocks[i].GetComponent<Block>().InitSettings(settings);
             }
         }

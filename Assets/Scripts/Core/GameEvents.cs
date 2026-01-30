@@ -80,5 +80,12 @@ namespace Core
         public static void RaisePlayHapticsInARow(HapticManager.HapticType type, int amount) => PlayHapticsInARow?.Invoke(type, amount);
 
         #endregion
+
+        #region Themes
+
+        public static event Action SetNextTheme;
+        public static void RaiseSetNextTheme() => SetNextTheme?.Invoke();
+
+        #endregion
     }
 }

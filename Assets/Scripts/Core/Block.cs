@@ -1,14 +1,16 @@
 using System.Collections;
+using Themes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace Core
 {
-    public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IThemeReceiver
     {
         public Transform[] cells;
         public Color color { get; private set; }
+        public Theme currentTheme;
         [field: SerializeField] public float notPickedSize { get; private set; } = .7f;
         [HideInInspector] public int sizeX = 3;
         [HideInInspector] public int sizeY = 3;
@@ -55,6 +57,17 @@ namespace Core
             GameEvents.OnGameOver -= EndGame;
             GameEvents.OnBlockPicked -= HandleOnBlockPicked;
             GameEvents.OnBlockUnpicked -= HandeOnBlockUnpicked;
+        }
+
+        public void ReceiveThemeOnGameStart(Theme theme){}
+
+        public void ReceiveTheme(Theme theme)
+        {
+            Color newColor = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
+            foreach (Transform cell in cells)
+                StartCoroutine(ThemeTools.SetSpriteRendererColor(cell.GetComponent<SpriteRenderer>(), 
+                    color, newColor, _settings.themeChangeDuration));
+            color = newColor;
         }
 
         public void InitSettings(Settings settings) => _settings = settings;

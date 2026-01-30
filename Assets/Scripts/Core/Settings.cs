@@ -9,7 +9,6 @@ namespace Core
         [field: Header("Blocks")]
         [field: SerializeField] public GameObject[] blockPrefabs { get; private set; }
         [field: SerializeField] public GameObject[] smallBlockPrefabs { get; private set; }
-        [field: SerializeField] public Color[] colors { get; private set; }
     
         [field: Space(10f)]
         [field: Header("Field")]
@@ -20,7 +19,6 @@ namespace Core
         [field: FormerlySerializedAs("<notEmptyCell>k__BackingField")] 
         [field: SerializeField] public Sprite busyCell { get; private set; }
         [SerializeField] public GameObject cellPrefab;
-        [SerializeField] public Color defaultCellColor;
         [field: SerializeField] public float waitTimeBetweenRows {get; private set;} = .1f;
     
     
@@ -82,5 +80,9 @@ namespace Core
         [field: Header("Saves")]
         [field: SerializeField] public string savesFolder {get; private set;} = "Saves";
         [field: SerializeField] public string saveFileName {get; private set;} = "save.json";
+        
+        [field: Space(10f)]
+        [field: Header("Themes")]
+        [field: SerializeField] public float themeChangeDuration {get; private set;} = 1.5f;
     }
 }
