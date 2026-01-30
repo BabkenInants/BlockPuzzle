@@ -25,6 +25,10 @@ namespace Managers
         [SerializeField] private Image[] fieldColor;
         [SerializeField] private Image[] backgroundColor;
         [SerializeField] private Image[] emptyCellColor;
+        [SerializeField] private Image[] primaryTextColorImages;
+        [SerializeField] private TextMeshProUGUI[] primaryTextColorTexts;
+        [SerializeField] private TextMeshProUGUI[] secondaryTextColorTexts;
+        [SerializeField] private TextMeshProUGUI[] tertiaryTextColorTexts;
         private bool _gameIsOver;
         private IEnumerator _scoreUpdateCoroutine;
         private IEnumerator _comboCoroutine;
@@ -234,6 +238,14 @@ namespace Managers
                 StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.backgroundColor, duration));
             foreach (var img in emptyCellColor)
                 StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.cellDefaultColor, duration));
+            foreach (var text in primaryTextColorTexts)
+                StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.primaryTextColor, duration));
+            foreach (var text in secondaryTextColorTexts)
+                StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.secondaryTextColor, duration));
+            foreach (var text in tertiaryTextColorTexts)
+                StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.tertiaryTextColor, duration));
+            foreach (var img in primaryTextColorImages)
+                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.primaryTextColor, duration));
         }
 
         public void ReceiveThemeOnGameStart(Theme theme)
@@ -244,6 +256,14 @@ namespace Managers
                 img.color = theme.backgroundColor;
             foreach (var img in emptyCellColor)
                 img.color = theme.cellDefaultColor;
+            foreach (var text in primaryTextColorTexts) 
+                text.color =  theme.primaryTextColor;
+            foreach (var text in secondaryTextColorTexts) 
+                text.color =  theme.secondaryTextColor;
+            foreach (var text in tertiaryTextColorTexts) 
+                text.color =  theme.tertiaryTextColor;
+            foreach (var img in primaryTextColorImages)
+                img.color =  theme.primaryTextColor;
         }
 
         #endregion
@@ -257,22 +277,10 @@ namespace Managers
             colorMaxAlpha.a = maxAlpha;
             while (true)
             {
-                yield return TextColorLerpRoutine(img, asc? colorMinAlpha : colorMaxAlpha, 
+                yield return ThemeTools.SetTextColor(img, asc? colorMinAlpha : colorMaxAlpha, 
                     asc? colorMaxAlpha : colorMinAlpha, settings.newBestAnimationDuration);
                 asc = !asc;
             }
-        }
-
-        private static IEnumerator TextColorLerpRoutine(TextMeshProUGUI img, Color startColor, Color endColor, float duration)
-        {
-            float elapsedTime = 0;
-            while (elapsedTime < duration)
-            {
-                elapsedTime += Time.deltaTime;
-                img.color = Color.Lerp(startColor, endColor, elapsedTime / duration);
-                yield return null;
-            }
-            img.color = endColor;
         }
     
         private static IEnumerator SizeChangeRoutine(RectTransform rectTransform, Vector3 startSize, Vector3 endSize, float duration)

@@ -23,6 +23,9 @@ MonoBehaviour:
   - {r: 0.5283019, g: 0.11320756, b: 0, a: 1}
   - {r: 0.6746032, g: 1, b: 0, a: 1}
   - {r: 0.3207547, g: 0, b: 0.20140406, a: 1}
+  <primaryTextColor>k__BackingField: {r: 0, g: 0, b: 0, a: 1}
+  <secondaryTextColor>k__BackingField: {r: 1, g: 0.07843137, b: 0.088262916, a: 1}
+  <tertiaryTextColor>k__BackingField: {r: 0, g: 1, b: 0.14507627, a: 1}
   <fieldColor>k__BackingField: {r: 0, g: 0.41509432, b: 0.070566066, a: 1}
   <backgroundColor>k__BackingField: {r: 0, g: 0.16037738, b: 0.0018434032, a: 1}
   <cellDefaultColor>k__BackingField: {r: 0.14960839, g: 0.7735849, b: 0.39076796, a: 1}

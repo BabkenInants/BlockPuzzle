@@ -5,6 +5,7 @@ using Themes;
 using System.Collections.Generic;
 using Core;
 using Saves;
+using TMPro;
 using UnityEngine.UI;
 
 namespace Managers
@@ -83,5 +84,17 @@ public static class ThemeTools
             yield return null;
         }
         image.color = newColor;
+    }
+    
+    public static IEnumerator SetTextColor(TextMeshProUGUI text, Color oldColor, Color newColor, float duration)
+    {
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            text.color = Color.Lerp(oldColor, newColor, elapsedTime / duration);
+            yield return null;
+        }
+        text.color = newColor;
     }
 }

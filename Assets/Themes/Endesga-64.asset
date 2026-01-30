@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1c88151cdc44389a3b7d760839e37bc, type: 3}
-  m_Name: NewTheme
+  m_Name: Endesga-64
   m_EditorClassIdentifier: Assembly-CSharp::Themes.Theme
   <blockColors>k__BackingField:
   - {r: 0.2, g: 0.59607846, b: 0.29411766, a: 1}
@@ -23,6 +23,9 @@ MonoBehaviour:
   - {r: 0.5411765, g: 0.28235295, b: 0.21176471, a: 1}
   - {r: 0.827451, g: 0.9882353, b: 0.49411765, a: 1}
   - {r: 0.99215686, g: 0.8235294, b: 0.92941177, a: 1}
+  <primaryTextColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+  <secondaryTextColor>k__BackingField: {r: 1, g: 0.63529414, b: 0.078431375, a: 1}
+  <tertiaryTextColor>k__BackingField: {r: 0.5803922, g: 0.99215686, b: 1, a: 1}
   <fieldColor>k__BackingField: {r: 0, g: 0.22352941, b: 0.42745098, a: 1}
   <backgroundColor>k__BackingField: {r: 0.011764706, g: 0.09803922, b: 0.24705882, a: 0}
   <cellDefaultColor>k__BackingField: {r: 0, g: 0.4117647, b: 0.6666667, a: 1}

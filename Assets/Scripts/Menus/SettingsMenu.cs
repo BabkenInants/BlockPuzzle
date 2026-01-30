@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Core;
 using Managers;
 using Saves;
+using TMPro;
 
 namespace Menus
 {
@@ -18,7 +19,7 @@ namespace Menus
         [SerializeField] private Sprite toggleDisabled;
         [SerializeField] private Image sfxToggle;
         [SerializeField] private Image hapticsToggle;
-        [SerializeField] private Button hapticsButton;
+        [SerializeField] private Button hapticsButton; 
         private IEnumerator _mainMenuButtonCoroutine;
         private IEnumerator _replayButtonCoroutine;
 
