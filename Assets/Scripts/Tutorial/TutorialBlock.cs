@@ -1,152 +1,140 @@
-using Core;
-using UnityEngine;
 using System.Collections;
-using Themes;
-using UnityEngine.SceneManagement;
+using UnityEngine;
+using Core;
 
 namespace Tutorial
 {
-    public class TutorialBlock : MonoBehaviour, IThemeReceiver
+    public class TutorialBlock : MonoBehaviour
     {
         public Transform[] cells;
-        public Color color { get; private set; }
-        private float _notPickedSize = .7f;
-        [HideInInspector] public int sizeX = 3;
-        [HideInInspector] public int sizeY = 3;
-        ///true - busy, false - free
-        [HideInInspector] public bool[] blockShape;
+        public Vector3 positionOffset;
+        private Camera _mainCam;
+        private float _notPickedSize;
+        private Vector3 _endPos;
         private bool _isPicked;
         private Vector3 _startPos;
         private Settings _settings;
         private IEnumerator _sizeChangeCoroutine;
+        private IEnumerator _previewCoroutine;
 
-        public void ReceiveThemeOnGameStart(Theme theme)
+        private void Start()
         {
-            color = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
-            foreach (Transform cell in cells)
-                cell.GetComponent<SpriteRenderer>().color = color;
+            _mainCam = Camera.main;
+            _previewCoroutine = PreviewRoutine();
+            StartCoroutine(_previewCoroutine);
         }
 
-        public void ReceiveTheme(Theme theme)
+        private IEnumerator PreviewRoutine()
         {
-            Color newColor = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
+            float duration = _settings.blockPlacementPreviewDuration;
+            while (true)
+            {
+                var elapsedTime = 0f;
+                PickBlock(transform.position);
+                while (elapsedTime < duration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    Vector3 position = Vector3.Lerp(_startPos, _endPos, elapsedTime / duration);
+                    UpdatePosition(position);
+                    yield return null;
+                }
+                yield return new WaitForSeconds(_settings.waitForSecondsBeforePuttingBlockBack);
+                PutBlockBack();
+                yield return new WaitForSeconds(_settings.blockPickingAnimationDuration);
+            }
+        }
+        
+        private void HandleOnBlockPicked(Block block)
+        {
+            if(_previewCoroutine != null)
+                StopCoroutine(_previewCoroutine);
+            PutBlockBack(false);
+        }
+
+        private void HandeOnBlockUnpicked(Block block)
+        {
+            _previewCoroutine = PreviewRoutine();
+            StartCoroutine(_previewCoroutine);
+        }
+
+        private void OnEnable()
+        {
+            GameEvents.OnBlockPicked += HandleOnBlockPicked;
+            GameEvents.OnBlockUnpicked += HandeOnBlockUnpicked;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnBlockPicked -= HandleOnBlockPicked;
+            GameEvents.OnBlockUnpicked -= HandeOnBlockUnpicked;
+        }
+
+        #region Init
+
+        public void Init(Settings settings, float notPickedSize, Vector3 endPos, Block block, Color color)
+        {
+            _settings = settings;
+            _notPickedSize = notPickedSize;
+            SetSize(notPickedSize);
+            _endPos = endPos;
+            SetColor(color);
+        }
+
+        #endregion
+
+        #region Preview
+
+        private void PickBlock(Vector2 pos)
+        {
+            if (!_settings || !_mainCam) return;
+            _isPicked = true;
+            _startPos = transform.position;
+            SetSize(_settings.cellSize * 2, _settings.blockPickingAnimationDuration);
             foreach (Transform cell in cells)
             {
-                var sRenderer = cell.GetComponent<SpriteRenderer>();
-                StartCoroutine(ThemeTools.SetSpriteRendererColor(sRenderer, color, newColor,
-                    _settings.themeChangeDuration));
+                cell.GetComponent<SpriteRenderer>().enabled = true;
+                cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.tutorialBlockCellsPickedSpriteLayer;
             }
-
-            color = newColor;
         }
 
-        public void InitSettings(Settings settings) => _settings = settings;
-
-        public void InitNotPickedSize(float size)
+        private void UpdatePosition(Vector2 pos)
         {
-            _notPickedSize = size;
-            SetSize(size);
+            if (!_isPicked) return;
+            transform.position = pos;
         }
-//
-//         #region Drag and drop
-//
-//         public void OnPointerDown(Vector2 pos)
-//         {
-//             if (_settings == null) return;
-//             _isPicked = true;
-//             _startPos = transform.position;
-//             Vector3 mp = pos;
-//             mp.z = -_mainCam.transform.position.z;
-//             Vector3 world = _mainCam.ScreenToWorldPoint(mp);
-//             _mouseOffset = transform.position - world;
-//             SetSize(_settings.cellSize * 2);
-//             _collider.size = _colliderDefaultSize;
-//             foreach (Transform cell in cells)
-//                 cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsPickedSpriteLayer;
-//         }
-//
-//         private void Update()
-//         {
-//             //New input system is not updating OnPointerMove every frame
-//             //like OnMouseDrag, so I have to use Update instead
-//             if (!_isPicked || !_mainCam || !_settings) return;
-//             //moving the block to the mouse position + offset
-//             float minY = _settings.minBlockDistanceFromCursorY;
-//             float maxY = _settings.maxBlockDistanceFromCursorY;
-//             float minX = _settings.minBlockDistanceFromCursorX;
-//             float maxX = _settings.maxBlockDistanceFromCursorX;
-// #if UNITY_EDITOR
-//             if (Mouse.current == null) return;
-//             Vector3 mousePos = Mouse.current.position.ReadValue();
-// #else
-//         if(Touchscreen.current == null) return;
-//         Vector3 mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
-// #endif
-//             float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);
-//             float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxX, minX, maxX);
-//             Vector3 offset = _mouseOffset + new Vector3(xOffset, yOffset);
-//             mousePos.z = -_mainCam.transform.position.z;
-//             Vector3 world = _mainCam.ScreenToWorldPoint(mousePos);
-//             Vector3 position = world + offset;
-//             position.z = 0;
-//             transform.position = position;
-//             GameEvents.RaiseOnBlockMoved();
-//         }
-//
-//         public void OnPointerUp(PointerEventData eventData)
-//         {
-//             if (!_isPicked) return;
-//             GameEvents.RaiseOnBlockUnpicked(this);
-//             _isPicked = false;
-//             foreach (Transform cell in cells)
-//                 cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsDefaultSpriteLayer;
-//         }
-//
-//         public void PutBlockBack(bool disableCanPick = false)
-//         {
-//             _canPick = false;
-//             _isPicked = false;
-//             _collider.size = _notPickedColliderSize;
-//             SetSize(_notPickedSize);
-//             StartCoroutine(PositionTranslateRoutine(transform.position, _startPos, .1f, disableCanPick));
-//         }
-//
-//         #endregion
+
+        private void PutBlockBack(bool spriteRendererIsEnabled = true)
+        {
+            _isPicked = false;
+            SetSize(_notPickedSize, 0);
+            foreach (Transform cell in cells)
+            {
+                cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsDefaultSpriteLayer;
+                cell.GetComponent<SpriteRenderer>().enabled = spriteRendererIsEnabled;
+            }
+            transform.position = _startPos;
+        }
+
+        #endregion
 
         #region Visuals
 
-        public void SetColor(Color newColor)
+        private void SetColor(Color newColor)
         {
-            color = newColor;
             foreach (var cell in cells)
                 cell.GetComponent<SpriteRenderer>().color = newColor;
         }
 
-        private void SetSize(float size)
+        private void SetSize(float size, float duration = .05f)
         {
             if (_sizeChangeCoroutine != null) StopCoroutine(_sizeChangeCoroutine);
-            _sizeChangeCoroutine = SizeChangeRoutine(transform.localScale, new Vector3(size, size, 1), .05f);
+            _sizeChangeCoroutine = SizeChangeRoutine(transform.localScale, new Vector3(size, size, 1), duration);
             StartCoroutine(_sizeChangeCoroutine);
         }
 
         #endregion
 
         #region Coroutines
-
-        private IEnumerator PositionTranslateRoutine(Vector3 startPos, Vector3 endPos, float duration,
-            bool disableCanPick)
-        {
-            var estimatedTime = 0f;
-            while (estimatedTime < duration)
-            {
-                estimatedTime += Time.deltaTime;
-                transform.position = Vector3.Lerp(startPos, endPos, estimatedTime / duration);
-                yield return null;
-            }
-
-            transform.position = endPos;
-            //if (!disableCanPick) _canPick = true;
-        }
 
         private IEnumerator SizeChangeRoutine(Vector3 startSize, Vector3 endSize, float duration)
         {
@@ -157,7 +145,6 @@ namespace Tutorial
                 transform.localScale = Vector3.Lerp(startSize, endSize, estimatedTime / duration);
                 yield return null;
             }
-
             transform.localScale = endSize;
             _sizeChangeCoroutine = null;
         }

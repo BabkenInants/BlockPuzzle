@@ -7,6 +7,8 @@ namespace Tutorial
     public class TutorialExample : ScriptableObject
     {
         public GameObject blockPrefab;
+        public GameObject previewBlockPrefab;
+        [HideInInspector] public Vector3 firstCellPosition;
         public GridPos targetPos;
         [HideInInspector] public int sizeX = 8;
         [HideInInspector] public int sizeY = 8;

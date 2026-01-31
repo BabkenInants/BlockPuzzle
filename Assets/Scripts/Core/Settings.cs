@@ -88,5 +88,10 @@ namespace Core
         [field: Space(10f)]
         [field: Header("Themes")]
         [field: SerializeField] public float themeChangeDuration {get; private set;} = 1.5f;
+        [field: SerializeField] public int tutorialBlockCellsDefaultSpriteLayer {get; private set; } = 2;
+        [field: SerializeField] public int tutorialBlockCellsPickedSpriteLayer {get; private set; } = 3;
+        [field: SerializeField] public float blockPlacementPreviewDuration {get; private set;} = 2f;
+        [field: SerializeField] public float waitForSecondsBeforePuttingBlockBack {get; private set;} = 1.5f;
+        [field: SerializeField] public float blockPickingAnimationDuration {get; private set;} = .3f;
     }
 }

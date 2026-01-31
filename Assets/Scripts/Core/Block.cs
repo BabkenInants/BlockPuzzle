@@ -68,13 +68,13 @@ namespace Core
 
         public void ReceiveTheme(Theme theme)
         {
-            Color newColor = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
+            Color startColor = color;
+            color = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
             foreach (Transform cell in cells)
             {
                 var sRenderer = cell.GetComponent<SpriteRenderer>();
-                StartCoroutine(ThemeTools.SetSpriteRendererColor(sRenderer, color, newColor, _settings.themeChangeDuration));
+                StartCoroutine(ThemeTools.SetSpriteRendererColor(sRenderer, startColor, color, _settings.themeChangeDuration));
             }
-            color = newColor;
         }
 
         public void InitSettings(Settings settings) => _settings = settings;

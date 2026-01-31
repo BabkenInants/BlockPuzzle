@@ -15,6 +15,7 @@ namespace Core
         private bool _gameIsOver;
         private Theme _theme;
         private bool _tutorialMode;
+        private GameObject _lastTutorialPreview;
     
         private void Awake()
         {
@@ -274,12 +275,14 @@ namespace Core
         private void EndTutorial()
         {
             _tutorialMode = false;
+            if(_lastTutorialPreview) Destroy(_lastTutorialPreview);
             SpawnBlocks();
         }
 
         private void LoadTutorialExample(TutorialExample example)
         {
             if (!_tutorialMode) return;
+            if(_lastTutorialPreview) Destroy(_lastTutorialPreview);
             foreach (GameObject b in blocks) Destroy(b);
             Vector3 pos = spawnPoints[Mathf.FloorToInt(spawnPoints.Length / 2f)].position;
             GameObject obj = Instantiate(example.blockPrefab, pos, Quaternion.identity);
@@ -287,6 +290,16 @@ namespace Core
             block.SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
             block.InitSettings(settings);
             block.InitNotPickedSize(settings.maxNotPickedBlockSize);
+            obj = Instantiate(example.previewBlockPrefab, pos, Quaternion.identity);
+            var tutorialBlock = obj.GetComponent<TutorialBlock>();
+            obj.transform.position += tutorialBlock.positionOffset * settings.cellSize * settings.maxNotPickedBlockSize;
+            Vector3 endPos = example.firstCellPosition;
+            endPos.y -= settings.cellSize * example.targetPos.Row;
+            endPos.x += settings.cellSize * example.targetPos.Column;
+            Color color = block.color;
+            color.a = settings.blockPreviewColorTransparency;
+            tutorialBlock.Init(settings, settings.maxNotPickedBlockSize, endPos, block, color);
+            _lastTutorialPreview = obj;
         }
 
         #endregion

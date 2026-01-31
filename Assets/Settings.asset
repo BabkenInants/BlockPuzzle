@@ -101,3 +101,8 @@ MonoBehaviour:
   <savesFolder>k__BackingField: Saves
   <saveFileName>k__BackingField: save.json
   <themeChangeDuration>k__BackingField: 1
+  <tutorialBlockCellsDefaultSpriteLayer>k__BackingField: 2
+  <tutorialBlockCellsPickedSpriteLayer>k__BackingField: 3
+  <blockPlacementPreviewDuration>k__BackingField: 1.5
+  <waitForSecondsBeforePuttingBlockBack>k__BackingField: 0.5
+  <blockPickingAnimationDuration>k__BackingField: 0.3

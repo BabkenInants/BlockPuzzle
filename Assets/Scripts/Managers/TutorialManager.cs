@@ -9,6 +9,7 @@ namespace Managers
     public class TutorialManager : MonoBehaviour, ISavable
     {
         [SerializeField] private TutorialExample[] examples;
+        [SerializeField] private Transform firstCell;
         private bool _nextExample;
         private bool _completedTutorial;
 
@@ -20,6 +21,7 @@ namespace Managers
             yield return null;
             foreach (TutorialExample example in examples)
             {
+                example.firstCellPosition = firstCell.position;
                 GameEvents.RaiseLoadTutorialExample(example);
                 while (!_nextExample) yield return null;
                 _nextExample = false;

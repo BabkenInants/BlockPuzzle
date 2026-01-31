@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Example 3
   m_EditorClassIdentifier: Assembly-CSharp::Tutorial.TutorialExample
   blockPrefab: {fileID: 150464811540760199, guid: b578dfce3ebd44f7f939a2bebea5c866, type: 3}
+  previewBlockPrefab: {fileID: 150464811540760199, guid: 9e5a39b0722414d21bc062729d2eb097, type: 3}
+  firstCellPosition: {x: 0, y: 0, z: 0}
   targetPos:
     Row: 3
     Column: 3

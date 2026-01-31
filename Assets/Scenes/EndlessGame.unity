@@ -1564,6 +1564,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6e8474d8e1753471e839d9577b5c0948, type: 2}
   - {fileID: 11400000, guid: 638bee863d373425bb9fdbd5bfb1a61a, type: 2}
   - {fileID: 11400000, guid: 441f509cb2d6242ae900762f9ab2bcd7, type: 2}
+  firstCell: {fileID: 2064070104}
 --- !u!1 &602428063
 GameObject:
   m_ObjectHideFlags: 0
@@ -5177,7 +5178,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 40837118694815055, guid: a14003c64ddae4ba9b906ac4d09fb07d, type: 3}
       propertyPath: m_Name
-      value: Square
+      value: First Cell
       objectReference: {fileID: 0}
     - target: {fileID: 6709555361408742930, guid: a14003c64ddae4ba9b906ac4d09fb07d, type: 3}
       propertyPath: m_LocalPosition.x
