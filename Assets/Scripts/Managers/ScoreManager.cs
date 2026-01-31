@@ -2,6 +2,7 @@ using System.Linq;
 using UnityEngine;
 using Core;
 using Saves;
+using Tutorial;
 
 namespace Managers
 {
@@ -12,6 +13,7 @@ namespace Managers
         private int _combo = -1;
         private int _comboReset;
         private int _bestScore;
+        private bool _tutorialMode;
 
         private void UpdateScore(ChangesAfterMove changes)
         {
@@ -27,24 +29,34 @@ namespace Managers
             //if multiple lines removed: score += linesRemoved * linesRemoved * multiplier
             int totalLines = rowsScore + colScore;
             if (totalLines > 1) _score += totalLines * totalLines * settings.multipleLinesRemovalScoreMultiplier;
-        
-            //if removed at least one line within next 3 moves: combo++ && score += totalLines * totalLines * 100 * combo
-            //else combo = 0
-            if (totalLines > 0)
+
+            //Combo and all clear bonuses
+            if (!_tutorialMode)
             {
-                _combo += totalLines;
-                _comboReset = 0;
+                //if removed at least one line within next 3 moves: combo++ && score += totalLines * totalLines * 100 * combo
+                //else combo = 0
+                if (totalLines > 0)
+                {
+                    _combo += totalLines;
+                    _comboReset = 0;
+                }
+                else if (_combo > -1 && ++_comboReset >= settings.resetComboAfterMoves)
+                {
+                    _combo = -1;
+                    _comboReset = 0;
+                    GameEvents.RaiseOnComboEnded();
+                }
+
+                if (_combo > 0) _score += totalLines * totalLines * settings.comboScoreMultiplier * _combo;
+
+                //All clear bonus
+                if (changes.FieldIsAllClear)
+                {
+                    _score += settings.allClearBonus;
+                    GameEvents.RaiseShowAllClearBonus();
+                }
             }
-            else if (_combo > -1 && ++_comboReset >= settings.resetComboAfterMoves) { _combo = -1; _comboReset = 0; GameEvents.RaiseOnComboEnded();}
-            if (_combo > 0) _score += totalLines * totalLines * settings.comboScoreMultiplier * _combo;
-        
-            //All clear bonus
-            if (changes.FieldIsAllClear)
-            {
-                _score += settings.allClearBonus;
-                GameEvents.RaiseShowAllClearBonus();
-            }
-        
+
             //Updating best score if needed
             bool updateBestScore = _score > _bestScore;
             if(updateBestScore) _bestScore = _score;
@@ -55,14 +67,32 @@ namespace Managers
             GameEvents.RaiseUpdateScore(_score, updateBestScore);
         
             //Combo
-            if (_combo > 0 && totalLines > 0) 
+            if (_combo > 0 && totalLines > 0 && !_tutorialMode) 
                 GameEvents.RaiseShowCombo(_combo, _combo - totalLines); //UI
         }
+        
+        private void OnEnable()
+        {
+            GameEvents.StartTutorial += StartTutorial;
+            GameEvents.FinishTutorial += EndTutorial;
+            GameEvents.CalculateNewScore += UpdateScore;
+        }
 
-        private void OnEnable() => GameEvents.CalculateNewScore += UpdateScore;
-
-        private void OnDisable() => GameEvents.CalculateNewScore -= UpdateScore;
+        private void OnDisable()
+        {
+            GameEvents.StartTutorial -= StartTutorial;
+            GameEvents.FinishTutorial -= EndTutorial;
+            GameEvents.CalculateNewScore -= UpdateScore;
+        }
     
+        #region Tutorial
+
+        private void StartTutorial() => _tutorialMode = true;
+
+        private void EndTutorial() => _tutorialMode = false;
+        
+        #endregion
+        
         #region Saves
 
         public void Save(SaveData saveData)

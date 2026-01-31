@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Saves;
+using Tutorial;
 
 namespace Core
 {
@@ -12,6 +13,7 @@ namespace Core
         public bool[,] cellIsFree { get; private set; }
         [SerializeField] private Settings settings;
         private Transform _firstCell;
+        private bool _tutorialMode;
 
         private void Awake()
         {
@@ -23,7 +25,39 @@ namespace Core
         }
 
         public void InitFirstCell(Transform firstCell) => _firstCell = firstCell;
-    
+
+        #region Tutorial
+        
+        private void StartTutorial() =>
+            _tutorialMode = true;
+
+        private void EndTutorial() =>
+            _tutorialMode = false;
+
+        private void LoadTutorialExample(TutorialExample example)
+        {
+            if (!_tutorialMode) return;
+            for (var row = 0; row < settings.rowsCount; row++)
+                for (var col = 0; col < settings.columnsCount; col++)
+                    cellIsFree[row, col] = example.cellIsFree[row * settings.columnsCount + col];
+        }
+
+        private void OnEnable()
+        {
+            GameEvents.StartTutorial += StartTutorial;
+            GameEvents.FinishTutorial += EndTutorial;
+            GameEvents.LoadTutorialExample += LoadTutorialExample;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.StartTutorial -= StartTutorial;
+            GameEvents.FinishTutorial -= EndTutorial;
+            GameEvents.LoadTutorialExample -= LoadTutorialExample;
+        }
+        
+        #endregion
+        
         #region Placement
 
         ///Implement only after checking if the cells are free

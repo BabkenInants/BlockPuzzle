@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace Editor
 {
-    [CustomEditor(typeof(Block))]
-    public class BlockShapeEditor : UnityEditor.Editor
+    [CustomEditor(typeof(TutorialBlock))]
+    public class TutorialBlockShapeEditor : UnityEditor.Editor
     {
         private const int CellSize = 25;
 
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            Block shape = (Block)target;
+            TutorialBlock shape = (TutorialBlock)target;
             shape.sizeX = EditorGUILayout.IntSlider("Matrix SizeX", shape.sizeX, 1, 8);
             shape.sizeY = EditorGUILayout.IntSlider("Matrix SizeY", shape.sizeY, 1, 8);
             if (shape.blockShape == null || shape.blockShape.Length != shape.sizeX * shape.sizeY)

@@ -5,6 +5,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 using Saves;
 using Themes;
+using Tutorial;
 
 namespace Core
 {
@@ -25,6 +26,7 @@ namespace Core
         private Queue<ParticleSystem> _lineRemovalParticlesPool = new Queue<ParticleSystem>();
         private Queue<Animator> _lineRemovalAnimationPool = new Queue<Animator>();
         private Theme _theme;
+        private bool _tutorialMode;
 
         private void Awake()
         {
@@ -33,9 +35,21 @@ namespace Core
             GenerateField();
         }
 
-        private void OnEnable() => GameEvents.OnGameOver += FillFieldWithRandomBlocks;
-    
-        private void OnDisable() => GameEvents.OnGameOver -= FillFieldWithRandomBlocks;
+        private void OnEnable()
+        {
+            GameEvents.StartTutorial += StartTutorial;
+            GameEvents.FinishTutorial += EndTutorial;
+            GameEvents.LoadTutorialExample += LoadTutorialExample;
+            GameEvents.OnGameOver += FillFieldWithRandomBlocks;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.StartTutorial -= StartTutorial;
+            GameEvents.FinishTutorial -= EndTutorial;
+            GameEvents.LoadTutorialExample -= LoadTutorialExample;
+            GameEvents.OnGameOver -= FillFieldWithRandomBlocks;
+        }
 
         #region Theme
 
@@ -291,6 +305,29 @@ namespace Core
             spriteRenderer.color = endColor;
         }
 
+        #endregion
+
+        #region Tutorial
+
+        private void StartTutorial() =>
+            _tutorialMode = true;
+
+        private void EndTutorial() =>
+            _tutorialMode = false;
+
+        private void LoadTutorialExample(TutorialExample example)
+        {
+            if (!_tutorialMode) return;
+            Color color = _theme.blockColors[Random.Range(0, _theme.blockColors.Length)];
+            for (var row = 0; row < settings.rowsCount; row++)
+                for (var col = 0; col < settings.columnsCount; col++)
+                {
+                    bool cellIsBusy = !example.cellIsFree[row * settings.columnsCount + col];
+                    _spriteRenderers[row, col].sprite = cellIsBusy? settings.busyCell : settings.emptyCell;
+                    _spriteRenderers[row, col].color = cellIsBusy? color : _theme.cellDefaultColor;
+                }
+        }
+        
         #endregion
     
         private void GenerateField()

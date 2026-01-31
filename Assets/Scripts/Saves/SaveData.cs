@@ -32,7 +32,10 @@ namespace Saves
         public bool HapticsIsOn = true;
         
         //Themes
-        public int CurrentThemeIndex;
+        public int CurrentThemeIndex = 0;
+        
+        //Tutorial
+        public bool CompletedTutorial;
     }
 
     [Serializable]

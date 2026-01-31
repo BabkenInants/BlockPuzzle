@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Themes;
 using UnityEngine;
+using Tutorial;
 
 namespace Core
 {
@@ -13,15 +14,28 @@ namespace Core
         [SerializeField] private Transform[] spawnPoints;
         private bool _gameIsOver;
         private Theme _theme;
+        private bool _tutorialMode;
     
         private void Awake()
         {
             blocks = new GameObject[spawnPoints.Length];
         }
+        
+        private void OnEnable()
+        {
+            GameEvents.StartTutorial += StartTutorial;
+            GameEvents.FinishTutorial += EndTutorial;
+            GameEvents.LoadTutorialExample += LoadTutorialExample;
+            GameEvents.OnGameOver += OnGameOver;
+        }
 
-        private void OnEnable() => GameEvents.OnGameOver += OnGameOver;
-
-        private void OnDisable() => GameEvents.OnGameOver -= OnGameOver;
+        private void OnDisable()
+        {
+            GameEvents.StartTutorial -= StartTutorial;
+            GameEvents.FinishTutorial -= EndTutorial;
+            GameEvents.LoadTutorialExample -= LoadTutorialExample;
+            GameEvents.OnGameOver -= OnGameOver;
+        }
 
         private void OnGameOver()
         {
@@ -29,13 +43,9 @@ namespace Core
             _gameIsOver = true;
         }
 
-        public void ReceiveTheme(Theme theme) => _theme = theme;
-
-        public void ReceiveThemeOnGameStart(Theme theme) => _theme = theme;
-
         public void SpawnBlocks()
         {
-            if(_gameIsOver) return;
+            if(_gameIsOver || _tutorialMode) return;
             GameObject[] blocksToSpawn = GenerateNextBlocks();
             if (blocksToSpawn == null)
             {
@@ -55,8 +65,8 @@ namespace Core
                 block.SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
                 block.InitSettings(settings);
                 //changing block size to look good on screen
-                float notPickedSizeX = distanceForBlock / (blocksToSpawn[i].GetComponent<Block>().sizeX * settings.cellSize);
-                float notPickedSizeY = distanceForBlock / (blocksToSpawn[i].GetComponent<Block>().sizeY * settings.cellSize);
+                float notPickedSizeX = distanceForBlock / (block.sizeX * settings.cellSize);
+                float notPickedSizeY = distanceForBlock / (block.sizeY * settings.cellSize);
                 float notPickedSize = Mathf.Min(notPickedSizeX, notPickedSizeY);
                 if(notPickedSize > settings.maxNotPickedBlockSize) notPickedSize = settings.maxNotPickedBlockSize;
                 block.InitNotPickedSize(notPickedSize);
@@ -74,6 +84,7 @@ namespace Core
                 else if (blocks[i] != null) spawnNewBlocks = false;
             }
             Destroy(block);
+            if(_tutorialMode) return;
             if(spawnNewBlocks) SpawnBlocks();
         }
 
@@ -90,6 +101,7 @@ namespace Core
 
         private GameObject[] GenerateNextBlocks()
         {
+            if (_tutorialMode) return null;
             var nextBlocks = new GameObject[spawnPoints.Length];
             var tempField = (bool[,]) field.cellIsFree.Clone();
         
@@ -112,6 +124,7 @@ namespace Core
         { 
             tempBlock = null;
             tempPosition = new GridPos();
+            if (_tutorialMode) return false;
             var candidates = new List<BlockCandidate>();
             int length = blocksArr.Count;
             for(var i = 0; i < length; i++)
@@ -139,6 +152,9 @@ namespace Core
         ///true - found, false - no position for this block
         private bool GetBestPositionForBlock(Block block, bool[,] tempField, out GridPos position, out int bestGrade)
         {
+            position = new GridPos();
+            bestGrade = 0;
+            if (_tutorialMode) return false;
             var tempPos = new GridPos(-1, -1);
             int maxGrade = -1;
             var foundPosition = false;
@@ -165,6 +181,9 @@ namespace Core
 
         private void PlaceBlockAndUpdateField(ref bool[,] tempField, Block block, GridPos position, out bool[] rowWasRemoved, out bool[] colWasRemoved)
         {
+            rowWasRemoved = null;
+            colWasRemoved = null;
+            if(_tutorialMode) return;
             // Placing block
             for (var y = 0; y < block.sizeY; y++)
             for (var x = 0; x < block.sizeX; x++)
@@ -215,6 +234,7 @@ namespace Core
 
         private void RemoveBlockAndRevertField(ref bool[,] tempField, Block block, GridPos position, bool[] rowWasRemoved, bool[] colWasRemoved)
         {
+            if(_tutorialMode) return;
             //restoring removed rows
             for(var row = 0; row < rowWasRemoved.Length; row++)
                 if (rowWasRemoved[row])
@@ -236,6 +256,39 @@ namespace Core
             }
         }
     
+        #endregion
+        
+        #region Themes
+        
+        public void ReceiveTheme(Theme theme) => _theme = theme;
+
+        public void ReceiveThemeOnGameStart(Theme theme) => _theme = theme;
+
+        #endregion
+
+        #region Tutorial
+
+        private void StartTutorial() =>
+            _tutorialMode = true;
+
+        private void EndTutorial()
+        {
+            _tutorialMode = false;
+            SpawnBlocks();
+        }
+
+        private void LoadTutorialExample(TutorialExample example)
+        {
+            if (!_tutorialMode) return;
+            foreach (GameObject b in blocks) Destroy(b);
+            Vector3 pos = spawnPoints[Mathf.FloorToInt(spawnPoints.Length / 2f)].position;
+            GameObject obj = Instantiate(example.blockPrefab, pos, Quaternion.identity);
+            var block = obj.GetComponent<Block>();
+            block.SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
+            block.InitSettings(settings);
+            block.InitNotPickedSize(settings.maxNotPickedBlockSize);
+        }
+
         #endregion
     }
 

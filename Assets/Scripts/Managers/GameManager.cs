@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Core;
+using Tutorial;
 
 namespace Managers
 {
@@ -17,6 +18,8 @@ namespace Managers
         private Block _pickedBlock;
         private bool _gameIsOver;
         private GridPos[] _lastValidPos;
+        private bool _tutorialMode;
+        private TutorialExample _tutorialExample;
 
         private void OnEnable() => Subscribe();
 
@@ -36,10 +39,10 @@ namespace Managers
             _pickedBlock = block;
             GameEvents.RaisePlaySfx(settings.blockPickupSfx);
         }
-    
+
         private void OnBlockMoved()
         {
-            if(!_pickedBlock || _gameIsOver) return;
+            if (!_pickedBlock || _gameIsOver) return;
             fieldGraphics.HideCellsPreview();
             fieldGraphics.HidePotentiallyRemovedLinesPreview();
             if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells, out GridPos[] cellsPositions))
@@ -81,14 +84,38 @@ namespace Managers
                             _lastValidPos[i].Column += deltaCol;
                     }
                 }
+                if (_tutorialMode)
+                {
+                    lastValidMinRow = _lastValidPos.Min(pos => pos.Row);
+                    lastValidMinCol = _lastValidPos.Min(pos => pos.Column);
+                    if (_tutorialExample.targetPos != new GridPos(lastValidMinRow, lastValidMinCol))
+                    {
+                        _lastValidPos = null;
+                        return;
+                    }
+                }
+
                 fieldGraphics.PreviewCells(_lastValidPos, _pickedBlock.color);
                 fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines
-                        (_pickedBlock, _lastValidPos), _pickedBlock.color);
+                    (_pickedBlock, _lastValidPos), _pickedBlock.color);
                 return;
             }
+
             _lastValidPos = cellsPositions.ToArray();
+            if (_tutorialMode)
+            {
+                int lastValidMinRow = _lastValidPos.Min(pos => pos.Row);
+                int lastValidMinCol = _lastValidPos.Min(pos => pos.Column);
+                if (_tutorialExample.targetPos != new GridPos(lastValidMinRow, lastValidMinCol))
+                {
+                    _lastValidPos = null;
+                    return;
+                }
+            }
+
             fieldGraphics.PreviewCells(cellsPositions, _pickedBlock.color);
-            fieldGraphics.PreviewPotentiallyRemovedLines(field.ReturnCellsOfPotentiallyRemovedLines(_pickedBlock, cellsPositions), _pickedBlock.color);
+            fieldGraphics.PreviewPotentiallyRemovedLines(
+                field.ReturnCellsOfPotentiallyRemovedLines(_pickedBlock, cellsPositions), _pickedBlock.color);
         }
 
         private void OnBlockUnpicked(Block block)
@@ -147,6 +174,20 @@ namespace Managers
     
         #endregion
 
+        #region Tutorial
+
+        private void StartTutorial() => _tutorialMode = true;
+
+        private void EndTutorial() => _tutorialMode = false;
+
+        private void LoadTutorialExample(TutorialExample example)
+        {
+            if(!_tutorialMode) return;
+            _tutorialExample = example;
+        }
+
+        #endregion
+
         private void HandleChangesAfterMove(ChangesAfterMove changes)
         {
             fieldGraphics.PlaceBlock(changes.BlockCellsPositions, changes.BlockColor);
@@ -180,7 +221,8 @@ namespace Managers
             if(rowsAndColsRemoved > 0)
                 cameraShakeManager.ShakeForSeconds(heavyShake? settings.heavyShakeDuration : settings.shakeDuration, heavyShake);
         
-            CheckGameOver();
+            if(_tutorialMode) GameEvents.RaiseOnTutorialExampleCompleted();
+            else CheckGameOver();
         }
     
         private void Subscribe()
@@ -188,6 +230,9 @@ namespace Managers
             GameEvents.OnBlockPicked += OnBlockPicked;
             GameEvents.OnBlockMoved += OnBlockMoved;
             GameEvents.OnBlockUnpicked += OnBlockUnpicked;
+            GameEvents.StartTutorial += StartTutorial;
+            GameEvents.FinishTutorial += EndTutorial;
+            GameEvents.LoadTutorialExample += LoadTutorialExample;
         }
 
         private void Unsubscribe()
@@ -195,6 +240,9 @@ namespace Managers
             GameEvents.OnBlockPicked -= OnBlockPicked;
             GameEvents.OnBlockMoved -= OnBlockMoved;
             GameEvents.OnBlockUnpicked -= OnBlockUnpicked;
+            GameEvents.StartTutorial -= StartTutorial;
+            GameEvents.FinishTutorial -= EndTutorial;
+            GameEvents.LoadTutorialExample -= LoadTutorialExample;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Managers;
+using Tutorial;
 
 namespace Core
 {
@@ -67,6 +68,9 @@ namespace Core
         public static event Action LoadGame;
         public static void RaiseLoadGame() => LoadGame?.Invoke();
 
+        public static event Action DeleteSave;
+        public static void RaiseDeleteSave() => DeleteSave?.Invoke();
+
         #endregion
 
         #region Haptics
@@ -85,6 +89,22 @@ namespace Core
 
         public static event Action SetNextTheme;
         public static void RaiseSetNextTheme() => SetNextTheme?.Invoke();
+
+        #endregion
+
+        #region Tutorial
+
+        public static event Action StartTutorial;
+        public static void RaiseStartTutorial() => StartTutorial?.Invoke();
+        
+        public static event Action FinishTutorial;
+        public static void RaiseFinishTutorial() => FinishTutorial?.Invoke();
+
+        public static event Action<TutorialExample> LoadTutorialExample;
+        public static void RaiseLoadTutorialExample(TutorialExample example) => LoadTutorialExample?.Invoke(example);
+
+        public static event Action OnTutorialExampleCompleted;
+        public static void RaiseOnTutorialExampleCompleted() => OnTutorialExampleCompleted?.Invoke();
 
         #endregion
     }

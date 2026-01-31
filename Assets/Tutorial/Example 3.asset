@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f71af4a48c1a4c4aad4c7b6f3e400441, type: 3}
+  m_Name: Example 3
+  m_EditorClassIdentifier: Assembly-CSharp::Tutorial.TutorialExample
+  blockPrefab: {fileID: 150464811540760199, guid: b578dfce3ebd44f7f939a2bebea5c866, type: 3}
+  targetPos:
+    Row: 3
+    Column: 3
+  sizeX: 8
+  sizeY: 8
+  cellIsFree: 01010100000101010101010000010101010101000001010100000001010000000000000101000000010101000001010101010100000101010101010000010101

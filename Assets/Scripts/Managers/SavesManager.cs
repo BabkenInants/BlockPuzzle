@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using Core;
 using Saves;
+using UnityEngine.SceneManagement;
 
 namespace Managers
 {
@@ -39,6 +40,7 @@ namespace Managers
             GameEvents.LoadGame += Load;
             GameEvents.OnGameOver += HandleGameOver;
             GameEvents.SaveGameForRestart += SaveForRestart;
+            GameEvents.DeleteSave += DeleteSave;
         }
 
         private void OnDisable()
@@ -47,6 +49,7 @@ namespace Managers
             GameEvents.LoadGame -= Load;
             GameEvents.OnGameOver -= HandleGameOver;
             GameEvents.SaveGameForRestart -= SaveForRestart;
+            GameEvents.DeleteSave -= DeleteSave;
         }
 
         private void SaveForRestart()
@@ -57,6 +60,13 @@ namespace Managers
 
         private void HandleGameOver() => _gameIsOver = true;
 
+        private void DeleteSave()
+        {
+            if(File.Exists(_filePath))
+                File.Delete(_filePath);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+        
         private void Save()
         {
             FindAllSavables();
@@ -94,13 +104,15 @@ namespace Managers
 
         private void Load()
         {
+            SaveData saveData = null;
             FindAllSavables();
             if (!File.Exists(_filePath))
             {
                 Debug.LogError("No saves found");
-                blockSpawner?.SpawnBlocks();
-                return;
+                saveData = new SaveData { GameIsOver = _gameIsOver };
+                saveData.GameIsOver = true;
             }
+            
             if (_savables == null)
             {
                 Debug.LogError("No savables found");
@@ -108,35 +120,38 @@ namespace Managers
                 return;
             }
 
-            string jsonString;
-            try
+            if (saveData == null)
             {
-                jsonString = File.ReadAllText(_filePath);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Failed to read from file" + e);
-                blockSpawner?.SpawnBlocks();
-                return;
-            }
-        
-            SaveData saveData;
-            try
-            {
-                saveData = JsonUtility.FromJson<SaveData>(jsonString);
-                if (saveData == null)
+                string jsonString;
+                try
                 {
-                    Debug.LogError("Failed to read data");
+                    jsonString = File.ReadAllText(_filePath);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Failed to read from file" + e);
+                    blockSpawner?.SpawnBlocks();
+                    return;
+                }
+
+                try
+                {
+                    saveData = JsonUtility.FromJson<SaveData>(jsonString);
+                    if (saveData == null)
+                    {
+                        Debug.LogError("Failed to read data");
+                        blockSpawner?.SpawnBlocks();
+                        return;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Failed to load save: " + e);
                     blockSpawner?.SpawnBlocks();
                     return;
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogError("Failed to load save: " + e);
-                blockSpawner?.SpawnBlocks();
-                return;
-            }
+
             foreach (ISavable savable in _savables)
                 savable.Load(saveData);
             blockSpawner?.SpawnBlocks();

@@ -1,12 +1,8 @@
-using System;
-using System.Collections;
 using UnityEngine;
 using Themes;
 using System.Collections.Generic;
 using Core;
 using Saves;
-using TMPro;
-using UnityEngine.UI;
 
 namespace Managers
 {
@@ -60,43 +56,4 @@ namespace Managers
                 receiver.ReceiveThemeOnGameStart(_currentTheme);
         }
     } 
-}
-
-public static class ThemeTools
-{
-    public static IEnumerator SetSpriteRendererColor(SpriteRenderer renderer, Color oldColor, Color newColor, float duration)
-    {
-        float elapsedTime = 0;
-        while (elapsedTime < duration)
-        {
-            elapsedTime += Time.deltaTime;
-            renderer.color = Color.Lerp(oldColor, newColor, elapsedTime / duration);
-            yield return null;
-        }
-        renderer.color = newColor;
-    }
-
-    public static IEnumerator SetImageColor(Image image, Color oldColor, Color newColor, float duration)
-    {
-        float elapsedTime = 0;
-        while (elapsedTime < duration)
-        {
-            elapsedTime += Time.deltaTime;
-            image.color = Color.Lerp(oldColor, newColor, elapsedTime / duration);
-            yield return null;
-        }
-        image.color = newColor;
-    }
-    
-    public static IEnumerator SetTextColor(TextMeshProUGUI text, Color oldColor, Color newColor, float duration)
-    {
-        float elapsedTime = 0;
-        while (elapsedTime < duration)
-        {
-            elapsedTime += Time.deltaTime;
-            text.color = Color.Lerp(oldColor, newColor, elapsedTime / duration);
-            yield return null;
-        }
-        text.color = newColor;
-    }
 }

@@ -6,6 +6,7 @@ using Core;
 using Saves;
 using Themes;
 using UnityEngine.UI;
+using Tutorial;
 
 namespace Managers
 {
@@ -29,6 +30,8 @@ namespace Managers
         [SerializeField] private TextMeshProUGUI[] primaryTextColorTexts;
         [SerializeField] private TextMeshProUGUI[] secondaryTextColorTexts;
         [SerializeField] private TextMeshProUGUI[] tertiaryTextColorTexts;
+        [Header("Tutorial")] 
+        [SerializeField] private GameObject settingsButton;
         private bool _gameIsOver;
         private IEnumerator _scoreUpdateCoroutine;
         private IEnumerator _comboCoroutine;
@@ -40,6 +43,7 @@ namespace Managers
         private int _bestScore;
         private int _lastCombo;
         private bool _isCombo;
+        private bool _tutorialMode;
 
         private void ButtonFeedback()
         {
@@ -136,6 +140,7 @@ namespace Managers
     
         private void ShowCombo(int combo, int lastCombo)
         {
+            if(_tutorialMode) return;
             _isCombo = true;
             if (_comboAnimationCoroutine == null)
             {
@@ -192,6 +197,7 @@ namespace Managers
 
         private void ShowAllClear()
         {
+            if(_tutorialMode) return;
             if(_allClearCoroutine != null) StopCoroutine(_allClearCoroutine);
             _allClearCoroutine = AllClearRoutine(settings.allClearTextAnimationDuration);
             StartCoroutine(_allClearCoroutine);
@@ -268,6 +274,22 @@ namespace Managers
 
         #endregion
 
+        #region Tutorial
+
+        private void StartTutorial()
+        {
+            _tutorialMode = true;
+            settingsButton.SetActive(false);
+        }
+
+        private void EndTutorial()
+        {
+            _tutorialMode = false;
+            settingsButton.SetActive(true);
+        }
+
+        #endregion
+
         private IEnumerator ColorAlphaBlinkRoutine(TextMeshProUGUI img, float minAlpha, float maxAlpha)
         {
             var asc = true;
@@ -306,6 +328,8 @@ namespace Managers
             GameEvents.ShowCombo += ShowCombo;
             GameEvents.ShowAllClearBonus += ShowAllClear;
             GameEvents.OnComboEnded += EndCombo;
+            GameEvents.StartTutorial += StartTutorial;
+            GameEvents.FinishTutorial += EndTutorial;
         }
 
         private void Unsubscribe()
@@ -315,6 +339,8 @@ namespace Managers
             GameEvents.ShowCombo -= ShowCombo;
             GameEvents.ShowAllClearBonus -= ShowAllClear;
             GameEvents.OnComboEnded -= EndCombo;
+            GameEvents.StartTutorial -= StartTutorial;
+            GameEvents.FinishTutorial -= EndTutorial;
         }
     
         #region Saves

@@ -52,6 +52,9 @@ namespace Menus
             hapticsToggle.sprite = _hapticsIsOn ? toggleEnabled : toggleDisabled;
         }
 
+        public void DeleteSaveButton() =>
+            GameEvents.RaiseDeleteSave();
+
         public void SfxButton()
         {
             ButtonFeedback();

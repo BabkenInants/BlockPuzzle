@@ -72,7 +72,8 @@ namespace Core
         public bool FieldIsAllClear;
     }
 
-    public struct GridPos
+    [Serializable]
+    public struct GridPos : IEquatable<GridPos>
     {
         public int Row;
         public int Column;
@@ -88,9 +89,34 @@ namespace Core
             return $"({Row}, {Column})";
         }
 
+        public static bool operator ==(GridPos a, GridPos b)
+        {
+            return a.Row ==  b.Row && a.Column == b.Column;
+        }
+
+        public static bool operator !=(GridPos a, GridPos b)
+        {
+            return a.Row != b.Row || a.Column != b.Column;
+        }
+
         public bool IsValid(int maxRows, int maxColumns)
         {
             return Row >= 0 && Row < maxRows && Column >= 0 && Column < maxColumns;
+        }
+
+        public bool Equals(GridPos other)
+        {
+            return Row == other.Row && Column == other.Column;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is GridPos other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Row, Column);
         }
     }
 }
