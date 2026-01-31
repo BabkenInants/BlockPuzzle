@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace Themes
     public static class ThemeTools
     {
         public static IEnumerator SetSpriteRendererColor(SpriteRenderer renderer, Color oldColor, Color newColor,
-            float duration)
+            float duration, int row = 0, int col = 0, Action<int, int> callback = null)
         {
             float elapsedTime = 0;
             while (elapsedTime < duration)
@@ -17,8 +18,8 @@ namespace Themes
                 renderer.color = Color.Lerp(oldColor, newColor, elapsedTime / duration);
                 yield return null;
             }
-
             renderer.color = newColor;
+            callback?.Invoke(row, col);
         }
 
         public static IEnumerator SetImageColor(Image image, Color oldColor, Color newColor, float duration)

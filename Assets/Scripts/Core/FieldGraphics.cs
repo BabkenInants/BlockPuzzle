@@ -27,6 +27,7 @@ namespace Core
         private Queue<Animator> _lineRemovalAnimationPool = new Queue<Animator>();
         private Theme _theme;
         private bool _tutorialMode;
+        private IEnumerator[,] _cellColorChangeCoroutines;
 
         private void Awake()
         {
@@ -69,7 +70,7 @@ namespace Core
             SetEmptyCellsColors(theme.cellDefaultColor);
             SetFieldBackgroundColor(theme.fieldColor);
         }
-
+        
         public void ReceiveTheme(Theme theme)
         {
             _theme = theme;
@@ -82,8 +83,10 @@ namespace Core
                     {
                         Color oldColor = _spriteRenderers[row, col].color;
                         Color newColor = theme.cellDefaultColor;
-                        StartCoroutine(ThemeTools.SetSpriteRendererColor(_spriteRenderers[row, col], 
-                            oldColor, newColor, duration));
+                        _cellColorChangeCoroutines[row, col] = ThemeTools.SetSpriteRendererColor(
+                            _spriteRenderers[row, col], oldColor, newColor, duration, row, col, 
+                            (r, c) => _cellColorChangeCoroutines[r, c] = null);
+                        StartCoroutine(_cellColorChangeCoroutines[row, col]);
                     }
 
             //setting color of field
@@ -100,11 +103,18 @@ namespace Core
                         {
                             Color newColor = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
                             oldNewColors.Add(_spriteRenderers[row, col].color, newColor);
-                            StartCoroutine(ThemeTools.SetSpriteRendererColor(_spriteRenderers[row, col],
-                                _spriteRenderers[row, col].color, newColor, duration));
+                            _cellColorChangeCoroutines[row, col] = ThemeTools.SetSpriteRendererColor(
+                                _spriteRenderers[row, col],
+                                _spriteRenderers[row, col].color, newColor, duration);
                         }
-                        else StartCoroutine(ThemeTools.SetSpriteRendererColor(_spriteRenderers[row, col],
-                            _spriteRenderers[row, col].color, oldNewColors[_spriteRenderers[row, col].color], duration));
+                        else
+                        {
+                            _cellColorChangeCoroutines[row, col] = ThemeTools.SetSpriteRendererColor(
+                                _spriteRenderers[row, col], _spriteRenderers[row, col].color, 
+                                oldNewColors[_spriteRenderers[row, col].color], duration, row, col, 
+                                (r, c) => _cellColorChangeCoroutines[r, c] = null);
+                        }
+                        StartCoroutine(_cellColorChangeCoroutines[row, col]);
                     }
         }
 
@@ -176,6 +186,8 @@ namespace Core
             foreach (GridPos cell in cells)
             {
                 _spriteRenderers[cell.Row, cell.Column].sprite = settings.busyCell;
+                if(_cellColorChangeCoroutines[cell.Row, cell.Column] != null)
+                    StopCoroutine(_cellColorChangeCoroutines[cell.Row, cell.Column]);
                 _spriteRenderers[cell.Row, cell.Column].color = color;
             }
         }
@@ -185,6 +197,8 @@ namespace Core
             for (var j = 0; j < settings.columnsCount; j++)
             {
                 _spriteRenderers[row, j].sprite = settings.emptyCell;
+                if(_cellColorChangeCoroutines[row, j] != null)
+                    StopCoroutine(_cellColorChangeCoroutines[row, j]);
                 _spriteRenderers[row, j].color = _theme.cellDefaultColor;
             }
             Vector3 particlesPosition = firstCell.position + new Vector3(settings.cellSize * (settings.columnsCount / 2f), -row * settings.cellSize, 0);
@@ -198,6 +212,8 @@ namespace Core
             {
                 if(fullRows[i]) continue;
                 _spriteRenderers[i, col].sprite = settings.emptyCell;
+                if(_cellColorChangeCoroutines[i, col] != null)
+                    StopCoroutine(_cellColorChangeCoroutines[i, col]);
                 _spriteRenderers[i, col].color = _theme.cellDefaultColor;
             }
             Vector3 particlesPosition = firstCell.position + new Vector3(col * settings.cellSize, -settings.cellSize * (settings.rowsCount / 2f),  0);
@@ -219,6 +235,8 @@ namespace Core
             tempColor.a = settings.blockPreviewColorTransparency;
             for (var i = 0; i < cells.Length; i++)
             {
+                if(_cellColorChangeCoroutines[cells[i].Row, cells[i].Column] != null)
+                    StopCoroutine(_cellColorChangeCoroutines[cells[i].Row, cells[i].Column]);
                 _spriteRenderers[cells[i].Row, cells[i].Column].color = tempColor;
                 _spriteRenderers[cells[i].Row, cells[i].Column].sprite = settings.busyCell;
             }
@@ -229,6 +247,8 @@ namespace Core
             if (_lastPreviewedCells == null) return;
             foreach (GridPos cell in _lastPreviewedCells)
             {
+                if(_cellColorChangeCoroutines[cell.Row, cell.Column] != null)
+                    StopCoroutine(_cellColorChangeCoroutines[cell.Row, cell.Column]);
                 _spriteRenderers[cell.Row, cell.Column].color = _theme.cellDefaultColor;
                 _spriteRenderers[cell.Row, cell.Column].sprite = settings.emptyCell;
             }
@@ -243,6 +263,8 @@ namespace Core
             _lastPreviewedPotentiallyRemovedLinesColors = new List<Color>();
             foreach (GridPos cell in cells)
             {
+                if(_cellColorChangeCoroutines[cell.Row, cell.Column] != null)
+                    StopCoroutine(_cellColorChangeCoroutines[cell.Row, cell.Column]);
                 _lastPreviewedPotentiallyRemovedLines.Add(cell);
                 _lastPreviewedPotentiallyRemovedLinesColors.Add(_spriteRenderers[cell.Row, cell.Column].color);
                 _spriteRenderers[cell.Row, cell.Column].color = previewColor;
@@ -255,6 +277,10 @@ namespace Core
                _lastPreviewedPotentiallyRemovedLinesColors == null) return;
             for (var i = 0; i < _lastPreviewedPotentiallyRemovedLines.Count; i++)
             {
+                if(_cellColorChangeCoroutines[_lastPreviewedPotentiallyRemovedLines[i].Row, 
+                       _lastPreviewedPotentiallyRemovedLines[i].Column] != null)
+                    StopCoroutine(_cellColorChangeCoroutines[_lastPreviewedPotentiallyRemovedLines[i].Row, 
+                        _lastPreviewedPotentiallyRemovedLines[i].Column]);
                 _spriteRenderers[_lastPreviewedPotentiallyRemovedLines[i].Row, 
                         _lastPreviewedPotentiallyRemovedLines[i].Column].color = 
                     _lastPreviewedPotentiallyRemovedLinesColors[i];
@@ -334,6 +360,7 @@ namespace Core
         {
             _fieldCells[0, 0] = firstCell;
             _spriteRenderers[0, 0] = firstCell.GetComponent<SpriteRenderer>();
+            _cellColorChangeCoroutines = new IEnumerator[settings.rowsCount, settings.columnsCount];
             for (var row = 0; row < settings.rowsCount; row++)
             {
                 for (var col = 0; col < settings.columnsCount; col++)
@@ -343,6 +370,7 @@ namespace Core
                     _fieldCells[row, col] = Instantiate(settings.cellPrefab, position, 
                         Quaternion.identity, transform).transform;
                     _spriteRenderers[row, col] = _fieldCells[row, col].GetComponent<SpriteRenderer>();
+                    
                 }
             }
             isReady = true;

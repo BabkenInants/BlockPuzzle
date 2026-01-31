@@ -207,7 +207,7 @@ Transform:
   m_GameObject: {fileID: 45406432}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1726,7 +1726,7 @@ Transform:
   m_GameObject: {fileID: 648512305}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2, y: -2.5, z: 0}
+  m_LocalPosition: {x: -2, y: -4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3486,10 +3486,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Managers.ThemeManager
   themes:
+  - {fileID: 11400000, guid: dcf4d1d8938454871be48654ba0aa7ee, type: 2}
   - {fileID: 11400000, guid: 66905d59bf85c454c82bca41f2fb393f, type: 2}
   - {fileID: 11400000, guid: c974d64220885425f80b3408a930fa50, type: 2}
   - {fileID: 11400000, guid: b07cb5a64291b471a8f400ca4e81d68d, type: 2}
-  - {fileID: 11400000, guid: dcf4d1d8938454871be48654ba0aa7ee, type: 2}
 --- !u!1 &1573333488
 GameObject:
   m_ObjectHideFlags: 0
@@ -3515,7 +3515,7 @@ Transform:
   m_GameObject: {fileID: 1573333488}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2, y: -2.5, z: 0}
+  m_LocalPosition: {x: 2, y: -4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4756,7 +4756,7 @@ Transform:
   m_GameObject: {fileID: 1994386144}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.5, z: 0}
+  m_LocalPosition: {x: 0, y: -4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

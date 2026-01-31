@@ -146,12 +146,12 @@ namespace Managers
     
         private void CheckGameOver()
         {
-            List<Block> currentBlocks = (from block in blockSpawner.blocks where block != null 
-                select block.GetComponent<Block>()).ToList();
-            if(currentBlocks.Count == 0) return;
+            if(blockSpawner.blocks.All(block => !block)) return;
             var atLeastOneBlockCanBePlaced = false;
-            foreach(Block block in currentBlocks)
+            foreach(var obj in blockSpawner.blocks)
             {
+                if(!obj) continue;
+                var block = obj.GetComponent<Block>();
                 for (var row = 0; row <= settings.rowsCount - block.sizeY; row++)
                 {
                     for (var col = 0; col <= settings.columnsCount - block.sizeX; col++)

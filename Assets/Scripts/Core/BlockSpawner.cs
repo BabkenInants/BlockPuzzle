@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Themes;
 using UnityEngine;
 using Tutorial;
+using Random = UnityEngine.Random;
 
 namespace Core
 {
@@ -16,10 +18,12 @@ namespace Core
         private Theme _theme;
         private bool _tutorialMode;
         private GameObject _lastTutorialPreview;
+        private bool[,] _tempField;
     
         private void Awake()
         {
             blocks = new GameObject[spawnPoints.Length];
+            _tempField = new bool[settings.rowsCount, settings.columnsCount];
         }
         
         private void OnEnable()
@@ -89,7 +93,7 @@ namespace Core
             if(spawnNewBlocks) SpawnBlocks();
         }
 
-        private void ShuffleArray<T>(ref T[] array)
+        private static void ShuffleArray<T>(ref T[] array)
         {
             for (var i = 0; i < array.Length; i++)
             {
@@ -104,18 +108,18 @@ namespace Core
         {
             if (_tutorialMode) return null;
             var nextBlocks = new GameObject[spawnPoints.Length];
-            var tempField = (bool[,]) field.cellIsFree.Clone();
+            Array.Copy(field.cellIsFree, _tempField, field.cellIsFree.Length);
         
             for (var i = 0; i < spawnPoints.Length; i++)
             {
-                if (!FindBlockForField(tempField, settings.blockPrefabs.ToList(), out GameObject tempBlock, out GridPos tempPosition))
-                    if (!FindBlockForField(tempField, settings.smallBlockPrefabs.ToList(), out tempBlock, out tempPosition))
+                if (!FindBlockForField(_tempField, settings.blockPrefabs.ToList(), out GameObject tempBlock, out GridPos tempPosition))
+                    if (!FindBlockForField(_tempField, settings.smallBlockPrefabs.ToList(), out tempBlock, out tempPosition))
                     {
                         Debug.LogError("No enough block prefabs");
                         return null;
                     }
                 nextBlocks[i] = tempBlock;
-                PlaceBlockAndUpdateField(ref tempField, tempBlock.GetComponent<Block>(), tempPosition, out bool[] rowsRemoved, out bool[] colsRemoved);
+                PlaceBlockAndUpdateField(ref _tempField, tempBlock.GetComponent<Block>(), tempPosition, out bool[] rowsRemoved, out bool[] colsRemoved);
             }
             return nextBlocks;
         }
@@ -140,7 +144,7 @@ namespace Core
             int bestGrade = candidates.Max(candidate => candidate.Score);
             //counting busy cells then calculating field busyness percentage
             float fieldBusynessPercentage = (float) tempField.Cast<bool>().Count(cell => !cell) * 100 / (settings.rowsCount * settings.columnsCount);
-            float betterBlockGenerationProbability = fieldBusynessPercentage >= 60 ? 1f : .85f;
+            float betterBlockGenerationProbability = fieldBusynessPercentage >= settings.requiredFieldBusinessPercentageForBestBlock ? 1f : settings.betterBlockGenerationProbability;
             List<BlockCandidate> bestCandidates = candidates.Where(candidate => candidate.Score >= bestGrade * betterBlockGenerationProbability).ToList();
             BlockCandidate bestCandidate = bestCandidates[Random.Range(0, bestCandidates.Count)];
         
@@ -167,7 +171,7 @@ namespace Core
                     PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), out bool[] rowWasRemoved, out bool[] colWasRemoved);
                     int grade = FieldUtils.RateField(tempField);
                     // bigger block => better field score so it will give you bigger blocks all the time
-                    grade += block.cells.Length * 10; 
+                    grade += block.cells.Length * settings.blockSizeFieldGradeMultiplier; 
                     RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), rowWasRemoved, colWasRemoved);
                     if (grade > maxGrade)
                     {

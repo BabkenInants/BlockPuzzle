@@ -11,6 +11,12 @@ namespace Core
         [field: SerializeField] public GameObject[] smallBlockPrefabs { get; private set; }
         [field: SerializeField] public float distanceBetweenSpawnedBlocks { get; private set; } = .5f;
         [field: SerializeField] public float maxNotPickedBlockSize { get; private set; } = .7f;
+        
+        [field: Space(10f)]
+        [field: Header("Block Generation")]
+        [field: SerializeField] public int blockSizeFieldGradeMultiplier { get; private set; } = 10;
+        [field: SerializeField] public float requiredFieldBusinessPercentageForBestBlock { get; private set; } = 60;
+        [field: SerializeField] public float betterBlockGenerationProbability { get; private set; } = .85f;
     
         [field: Space(10f)]
         [field: Header("Field")]
