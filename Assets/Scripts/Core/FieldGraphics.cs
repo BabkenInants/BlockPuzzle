@@ -27,6 +27,7 @@ namespace Core
         private Queue<Animator> _lineRemovalAnimationPool = new Queue<Animator>();
         private Theme _theme;
         private bool _tutorialMode;
+        ///Matrix of coroutines that are changing theme
         private IEnumerator[,] _cellColorChangeCoroutines;
 
         private void Awake()
@@ -307,6 +308,8 @@ namespace Core
                         _spriteRenderers[row, col].sprite = settings.busyCell;
                         Color temp = _theme.blockColors[Random.Range(0, _theme.blockColors.Length)];
                         temp.a = 0;
+                        if(_cellColorChangeCoroutines[row, col] != null)
+                            StopCoroutine(_cellColorChangeCoroutines[row, col]);
                         _spriteRenderers[row, col].color = temp;
                         StartCoroutine(ColorAlphaTransition(_spriteRenderers[row, col], 0, 1,
                             (settings.waitBeforeGameOverMenuAppears - settings.rowsCount * settings.waitTimeBetweenRows) / 8));

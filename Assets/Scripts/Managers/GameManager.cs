@@ -215,7 +215,7 @@ namespace Managers
                 GameEvents.RaisePlaySfx(settings.lineRemovalSfx);
             }
             
-            if (rowsAndColsRemoved >= 2) GameEvents.RaiseSetNextTheme();
+            if (rowsAndColsRemoved >= 2 && !_tutorialMode) GameEvents.RaiseSetNextTheme();
 
             bool heavyShake = rowsAndColsRemoved >= 3;
             if(rowsAndColsRemoved > 0)
