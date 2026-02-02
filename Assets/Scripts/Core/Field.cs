@@ -28,11 +28,9 @@ namespace Core
 
         #region Tutorial
         
-        private void StartTutorial() =>
-            _tutorialMode = true;
+        private void StartTutorial() => _tutorialMode = true;
 
-        private void EndTutorial() =>
-            _tutorialMode = false;
+        private void EndTutorial() => _tutorialMode = false;
 
         private void LoadTutorialExample(TutorialExample example)
         {
@@ -63,14 +61,12 @@ namespace Core
         ///Implement only after checking if the cells are free
         public ChangesAfterMove PlaceBlock(GridPos[] cells, Color color)
         {
-            var changesAfterMove = new ChangesAfterMove
-            {
-                BlockCellsPositions = cells,
-                BlockColor = color
-            };
             foreach (GridPos cell in cells)
-                cellIsFree[cell.Row, cell.Column] = false;
+                cellIsFree[cell.row, cell.column] = false;
+            
+            var changesAfterMove = new ChangesAfterMove { BlockCellsPositions = cells, BlockColor = color };
             RemoveFullRowsAndColumns(ref changesAfterMove);
+            
             changesAfterMove.FieldIsAllClear = cellIsFree.Cast<bool>().All(x => x);
             return changesAfterMove;
         }
@@ -79,8 +75,9 @@ namespace Core
         public bool CheckIfBlockCanBePlaced(Transform[] cells, out GridPos[] cellPositions)
         {
             cellPositions = new GridPos[cells.Length];
-            var result = true;
+            
             //Checking if the block can be placed in its current position
+            var result = true;
             for (var i = 0; i < cells.Length; i++)
             {
                 GridPos position = FieldUtils.GetCellCoordinatesOnField(cells[i].position, _firstCell.position, settings.cellSize);
@@ -90,7 +87,7 @@ namespace Core
                     result = false;
                     continue;
                 }
-                if (!cellIsFree[position.Row, position.Column]) result = false;
+                if (!cellIsFree[position.row, position.column]) result = false;
             }
             return result;
         }
@@ -101,16 +98,20 @@ namespace Core
 
         private void RemoveFullRowsAndColumns(ref ChangesAfterMove changesAfterMove)
         {
-            var fullRows = new bool[settings.rowsCount];
-            var fullCols = new bool[settings.columnsCount];
-        
+            var removeRow = new bool[settings.rowsCount];
+            var removeCol = new bool[settings.columnsCount];
+            
+            //checking which rows and cols should be removed and removing them are
+            //written separately so there won't be a situation(example) when a row is removed
+            //and a column is not because of already missing cell
+            
             //Checking rows
             for (var row = 0; row < settings.rowsCount; row++)
             {
                 var rowIsFull = true;
                 for (var col = 0; col < settings.columnsCount; col++)
                     if (cellIsFree[row, col]) { rowIsFull = false; break; }
-                fullRows[row] = rowIsFull;
+                removeRow[row] = rowIsFull;
             }
         
             //Checking columns
@@ -119,58 +120,45 @@ namespace Core
                 var colIsFull = true;
                 for (var row = 0; row < settings.rowsCount; row++)
                     if (cellIsFree[row, col]) { colIsFull = false; break; }
-                fullCols[col] = colIsFull;
+                removeCol[col] = colIsFull;
             }
-        
+            
             //Removing full rows
-            for (var row = 0; row < fullRows.Length; row++)
-                if (fullRows[row])
-                    RemoveRow(row);
+            for (var row = 0; row < settings.rowsCount; row++)
+                if (removeRow[row])
+                    for(var j = 0; j < settings.columnsCount; j++)
+                        cellIsFree[row, j] = true;
 
             //Removing full columns
-            for (var col = 0; col < fullCols.Length; col++)
-                if (fullCols[col])
-                    RemoveColumn(col, fullRows);
+            for (var col = 0; col < settings.columnsCount; col++)
+                if (removeCol[col])
+                    for (var i = 0; i < settings.rowsCount; i++)
+                        cellIsFree[i, col] = true;
         
-            changesAfterMove.FullRows = (bool[]) fullRows.Clone();
-            changesAfterMove.FullCols = (bool[]) fullCols.Clone();
+            changesAfterMove.FullRows = removeRow;
+            changesAfterMove.FullCols = removeCol;
         }
-
-        private void RemoveRow(int row)
-        {
-            for(var j = 0; j < settings.columnsCount; j++)
-                cellIsFree[row, j] = true;
-        }
-    
-        private void RemoveColumn(int col, bool[] fullRows)
-        {
-            for (var i = 0; i < settings.rowsCount; i++)
-            {
-                if(fullRows[i]) continue;
-                cellIsFree[i, col] = true;
-            }
-        } 
     
         public List<GridPos> ReturnCellsOfPotentiallyRemovedLines(Block block, GridPos[] cellPositions)
         {
             var result = new List<GridPos>();
             int minRow = settings.rowsCount, minColumn = settings.columnsCount, maxRow = -1, maxColumn = -1;
-            var tempField = (bool[,])cellIsFree.Clone();
+            var tempField = (bool[,]) cellIsFree.Clone();
             
             for (var i = 0; i < block.cells.Length; i++)
             {
                 //calculating minRow/minCol and maxRow/maxCol
-                if(cellPositions[i].Row < minRow)
-                    minRow = cellPositions[i].Row;
-                if(cellPositions[i].Column < minColumn)
-                    minColumn = cellPositions[i].Column;
-                if(cellPositions[i].Row > maxRow)
-                    maxRow = cellPositions[i].Row;
-                if(cellPositions[i].Column > maxColumn)
-                    maxColumn = cellPositions[i].Column;
+                if(cellPositions[i].row < minRow)
+                    minRow = cellPositions[i].row;
+                if(cellPositions[i].column < minColumn)
+                    minColumn = cellPositions[i].column;
+                if(cellPositions[i].row > maxRow)
+                    maxRow = cellPositions[i].row;
+                if(cellPositions[i].column > maxColumn)
+                    maxColumn = cellPositions[i].column;
             
                 //placing block on tempField
-                tempField[cellPositions[i].Row, cellPositions[i].Column] = false;
+                tempField[cellPositions[i].row, cellPositions[i].column] = false;
             }
 
             //adding rows
@@ -215,16 +203,16 @@ namespace Core
             if (saveData.GameIsOver) return;
             saveData.CellIsFree = new bool[settings.rowsCount * settings.columnsCount];
             for (var row = 0; row < settings.rowsCount; row++)
-            for (var col = 0; col < settings.columnsCount; col++)
-                saveData.CellIsFree[row * settings.columnsCount + col] = cellIsFree[row, col];
+                for (var col = 0; col < settings.columnsCount; col++)
+                    saveData.CellIsFree[row * settings.columnsCount + col] = cellIsFree[row, col];
         }
 
         public void Load(SaveData saveData)
         {
             if (saveData.GameIsOver) return;
             for (var row = 0; row < settings.rowsCount; row++)
-            for (var col = 0; col < settings.columnsCount; col++) 
-                cellIsFree[row, col] = saveData.CellIsFree[row * settings.columnsCount + col];
+                for (var col = 0; col < settings.columnsCount; col++) 
+                    cellIsFree[row, col] = saveData.CellIsFree[row * settings.columnsCount + col];
         }
     
         #endregion

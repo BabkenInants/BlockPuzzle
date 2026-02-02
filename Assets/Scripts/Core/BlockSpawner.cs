@@ -25,6 +25,54 @@ namespace Core
             blocks = new GameObject[spawnPoints.Length];
             _tempField = new bool[settings.rowsCount, settings.columnsCount];
         }
+
+        public void SpawnBlocks()
+        {
+            if(_gameIsOver || _tutorialMode) return;
+            
+            GameObject[] blocksToSpawn = GenerateNextBlocks();
+            if (blocksToSpawn == null) { GameEvents.RaiseGameOver(); return; }
+            ShuffleArray(ref blocksToSpawn);
+            
+            //calculating how much space is available for each block
+            float distanceForBlock = (settings.screenWidth - settings.distanceBetweenSpawnedBlocks * 
+                                         (2 + spawnPoints.Length - 1)) / spawnPoints.Length;
+            // block horizontal length * cellSize * notPickedSize = distanceForBlock =>
+            // notPickedSize = distanceForBlock/(length * cellSize)
+            
+            for (var i = 0; i < spawnPoints.Length; i++)
+            {
+                blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
+                var block = blocks[i].GetComponent<Block>();
+                
+                //changing block size to look good on screen
+                float notPickedSizeX = distanceForBlock / (block.sizeX * settings.cellSize);
+                float notPickedSizeY = distanceForBlock / (block.sizeY * settings.cellSize);
+                float notPickedSize = Mathf.Min(notPickedSizeX, notPickedSizeY);
+                if (notPickedSize > settings.maxNotPickedBlockSize) notPickedSize = settings.maxNotPickedBlockSize;
+                var color = _theme.blockColors[Random.Range(0, _theme.blockColors.Length)];
+                
+                block.Init(settings, notPickedSize, color);
+            }
+        }
+
+        public void RemoveBlock(GameObject block)
+        {
+            if(_gameIsOver) return;
+            
+            var spawnNewBlocks = true;
+            for (var i = 0; i < spawnPoints.Length; i++)
+            {
+                if (blocks[i] == block)
+                    blocks[i] = null;
+                else if (blocks[i]) spawnNewBlocks = false;
+            }
+            Destroy(block);
+            
+            if(spawnNewBlocks && !_tutorialMode) SpawnBlocks();
+        }
+        
+        #region Events
         
         private void OnEnable()
         {
@@ -47,63 +95,12 @@ namespace Core
             foreach (GameObject block in blocks) Destroy(block);
             _gameIsOver = true;
         }
-
-        public void SpawnBlocks()
-        {
-            if(_gameIsOver || _tutorialMode) return;
-            GameObject[] blocksToSpawn = GenerateNextBlocks();
-            if (blocksToSpawn == null)
-            {
-                GameEvents.RaiseGameOver();
-                return;
-            }
-            ShuffleArray(ref blocksToSpawn);
-            float distanceForBlock = (settings.screenWidth -
-                                     settings.distanceBetweenSpawnedBlocks * (2 + spawnPoints.Length - 1)) 
-                                     / spawnPoints.Length;
-            // block horizontal length * cellSize * notPickedSize = distanceForBlock =>
-            // notPickedSize = distanceForBlock/(length * cellSize)
-            for (var i = 0; i < spawnPoints.Length; i++)
-            {
-                blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
-                var block = blocks[i].GetComponent<Block>();
-                block.SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
-                block.InitSettings(settings);
-                //changing block size to look good on screen
-                float notPickedSizeX = distanceForBlock / (block.sizeX * settings.cellSize);
-                float notPickedSizeY = distanceForBlock / (block.sizeY * settings.cellSize);
-                float notPickedSize = Mathf.Min(notPickedSizeX, notPickedSizeY);
-                if(notPickedSize > settings.maxNotPickedBlockSize) notPickedSize = settings.maxNotPickedBlockSize;
-                block.InitNotPickedSize(notPickedSize);
-            }
-        }
-
-        public void RemoveBlock(GameObject block)
-        {
-            if(_gameIsOver) return;
-            var spawnNewBlocks = true;
-            for (var i = 0; i < spawnPoints.Length; i++)
-            {
-                if (blocks[i] == block)
-                    blocks[i] = null;
-                else if (blocks[i] != null) spawnNewBlocks = false;
-            }
-            Destroy(block);
-            if(_tutorialMode) return;
-            if(spawnNewBlocks) SpawnBlocks();
-        }
-
-        private static void ShuffleArray<T>(ref T[] array)
-        {
-            for (var i = 0; i < array.Length; i++)
-            {
-                int r = Random.Range(0, array.Length);
-                (array[i], array[r]) = (array[r], array[i]);
-            }
-        }
-
+        
+        #endregion
+        
         #region Field simulation and new blocks generation
-
+        
+        /// <returns>GameObject[] array of blocks that can be placed on current field</returns>
         private GameObject[] GenerateNextBlocks()
         {
             if (_tutorialMode) return null;
@@ -121,29 +118,36 @@ namespace Core
                 nextBlocks[i] = tempBlock;
                 PlaceBlockAndUpdateField(ref _tempField, tempBlock.GetComponent<Block>(), tempPosition, out bool[] rowsRemoved, out bool[] colsRemoved);
             }
+            
             return nextBlocks;
         }
 
-        ///true - found, false - no blocks for this field
-        private bool FindBlockForField(bool[,] tempField, List<GameObject> blocksArr, out GameObject tempBlock, out GridPos tempPosition)
+        /// <returns>true - found, false - no blocks for this field</returns>
+        private bool FindBlockForField(bool[,] tempField, List<GameObject> blocksArr, 
+            out GameObject tempBlock, out GridPos tempPosition)
         { 
             tempBlock = null;
             tempPosition = new GridPos();
             if (_tutorialMode) return false;
+            
+            //finding candidates - blocks that can be placed on field with their best positions and grades
             var candidates = new List<BlockCandidate>();
-            int length = blocksArr.Count;
-            for(var i = 0; i < length; i++)
+            foreach (GameObject block in blocksArr)
             {
-                tempBlock = blocksArr[i];
+                tempBlock = block;
                 if (GetBestPositionForBlock(tempBlock.GetComponent<Block>(), tempField, out GridPos position,  out int grade))
                     candidates.Add(new BlockCandidate(tempBlock, position, grade));
             }
-
             if (candidates.Count == 0) return false;
-
+            
             int bestGrade = candidates.Max(candidate => candidate.Score);
-            //counting busy cells then calculating field busyness percentage
-            float fieldBusynessPercentage = (float) tempField.Cast<bool>().Count(cell => !cell) * 100 / (settings.rowsCount * settings.columnsCount);
+            
+            //calculating field business percentage
+            int busyCellsCount = tempField.Cast<bool>().Count(cell => !cell);
+            int cellsCount = settings.rowsCount * settings.columnsCount;
+            float fieldBusynessPercentage = busyCellsCount * 100f / cellsCount;
+            
+            //choosing candidate from best candidates
             float betterBlockGenerationProbability = fieldBusynessPercentage >= settings.requiredFieldBusinessPercentageForBestBlock ? 1f : settings.betterBlockGenerationProbability;
             List<BlockCandidate> bestCandidates = candidates.Where(candidate => candidate.Score >= bestGrade * betterBlockGenerationProbability).ToList();
             BlockCandidate bestCandidate = bestCandidates[Random.Range(0, bestCandidates.Count)];
@@ -154,92 +158,103 @@ namespace Core
             return true;
         }
     
-        ///true - found, false - no position for this block
-        private bool GetBestPositionForBlock(Block block, bool[,] tempField, out GridPos position, out int bestGrade)
+        /// <returns>true - found, false - no position for this block</returns>
+        private bool GetBestPositionForBlock(Block block, bool[,] tempField, out GridPos position, 
+            out int bestGrade)
         {
             position = new GridPos();
             bestGrade = 0;
             if (_tutorialMode) return false;
+            
             var tempPos = new GridPos(-1, -1);
             int maxGrade = -1;
             var foundPosition = false;
+            
             for (var row = 0; row <= settings.rowsCount - block.sizeY; row++)
-            for (var col = 0; col <= settings.columnsCount - block.sizeX; col++)
-                if (FieldUtils.CheckIfBlockCanBePlacedAtCell(tempField, block, row, col))
-                {
-                    foundPosition = true;
-                    PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), out bool[] rowWasRemoved, out bool[] colWasRemoved);
-                    int grade = FieldUtils.RateField(tempField);
-                    // bigger block => better field score so it will give you bigger blocks all the time
-                    grade += block.cells.Length * settings.blockSizeFieldGradeMultiplier; 
-                    RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), rowWasRemoved, colWasRemoved);
-                    if (grade > maxGrade)
+                for (var col = 0; col <= settings.columnsCount - block.sizeX; col++)
+                    if (FieldUtils.CheckIfBlockCanBePlacedAtCell(tempField, block, row, col))
                     {
-                        maxGrade = grade;
-                        tempPos = new GridPos(row, col);
+                        foundPosition = true;
+                        PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), 
+                            out bool[] rowWasRemoved, out bool[] colWasRemoved);
+                        int grade = FieldUtils.RateField(tempField, settings);
+                        // bigger block => better field score so it will give you bigger blocks all the time
+                        grade += block.cells.Length * settings.blockSizeFieldGradeMultiplier;
+                        RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), 
+                            rowWasRemoved, colWasRemoved);
+                        if (grade > maxGrade)
+                        {
+                            maxGrade = grade;
+                            tempPos = new GridPos(row, col);
+                        }
                     }
-                }
+
             position = tempPos;
             bestGrade = maxGrade;
             return foundPosition;
         }
 
-        private void PlaceBlockAndUpdateField(ref bool[,] tempField, Block block, GridPos position, out bool[] rowWasRemoved, out bool[] colWasRemoved)
+        private void PlaceBlockAndUpdateField(ref bool[,] tempField, Block block, GridPos position, 
+            out bool[] rowWasRemoved, out bool[] colWasRemoved)
         {
             rowWasRemoved = null;
             colWasRemoved = null;
             if(_tutorialMode) return;
-            // Placing block
+            
+            var removeRow = new bool[settings.rowsCount];
+            var removeCol = new bool[settings.columnsCount];
+            
+            //checking which rows and cols should be removed and removing them are
+            //written separately so there won't be a situation(example) when a row is removed
+            //and a column is not because of already missing cell
+            
+            //Placing block
             for (var y = 0; y < block.sizeY; y++)
-            for (var x = 0; x < block.sizeX; x++)
-            {
-                if (!block.blockShape[y * block.sizeX + x]) continue;
-                tempField[y + position.Row, x + position.Column] = false;
-            }
-
-            var rowsToRemove = new bool[settings.rowsCount];
-            var colsToRemove = new bool[settings.columnsCount];
-
-            // Rows
+                for (var x = 0; x < block.sizeX; x++)
+                {
+                    if (!block.blockShape[y * block.sizeX + x]) continue;
+                    tempField[y + position.row, x + position.column] = false;
+                }
+            
+            //Checking and removing rows
             for (var y = 0; y < settings.rowsCount; y++)
             {
                 var rowIsFull = true;
                 for (var x = 0; x < settings.columnsCount; x++)
                     if (tempField[y, x]) { rowIsFull = false; break; }
-                if (rowIsFull) rowsToRemove[y] = true;
+                removeRow[y] = rowIsFull;
             }
 
-            // Cols
+            //Checking and removing cols
             for (var x = 0; x < settings.columnsCount; x++)
             {
                 var colIsFull = true;
                 for (var y = 0; y < settings.rowsCount; y++)
                     if (tempField[y, x]) { colIsFull = false; break; }
-                if (colIsFull) colsToRemove[x] = true;
+                removeCol[x] = colIsFull;
             }
-
+            
             // Remove rows
             for (var y = 0; y < settings.rowsCount; y++)
-                if(rowsToRemove[y])
+                if(removeRow[y])
                     for (var x = 0; x < settings.columnsCount; x++)
                         tempField[y, x] = true;
 
             // Remove cols
             for (var x = 0; x < settings.columnsCount; x++)
-                if(colsToRemove[x])
+                if(removeCol[x])
                     for (var y = 0; y < settings.rowsCount; y++)
-                    {
-                        if (rowsToRemove[y]) continue;
                         tempField[y, x] = true;
-                    }
         
-            rowWasRemoved = rowsToRemove;
-            colWasRemoved = colsToRemove;
+            rowWasRemoved = removeRow;
+            colWasRemoved = removeCol;
         }
 
-        private void RemoveBlockAndRevertField(ref bool[,] tempField, Block block, GridPos position, bool[] rowWasRemoved, bool[] colWasRemoved)
+        private void RemoveBlockAndRevertField(ref bool[,] tempField, Block block, GridPos position, 
+            bool[] rowWasRemoved, bool[] colWasRemoved)
         {
             if(_tutorialMode) return;
+            
             //restoring removed rows
             for(var row = 0; row < rowWasRemoved.Length; row++)
                 if (rowWasRemoved[row])
@@ -254,11 +269,11 @@ namespace Core
         
             //removing block
             for (var y = 0; y < block.sizeY; y++)
-            for (var x = 0; x < block.sizeX; x++)
-            {
-                if (!block.blockShape[y * block.sizeX + x]) continue;
-                tempField[y + position.Row, x + position.Column] = true;
-            }
+                for (var x = 0; x < block.sizeX; x++)
+                {
+                    if (!block.blockShape[y * block.sizeX + x]) continue;
+                    tempField[y + position.row, x + position.column] = true;
+                }
         }
     
         #endregion
@@ -273,8 +288,7 @@ namespace Core
 
         #region Tutorial
 
-        private void StartTutorial() =>
-            _tutorialMode = true;
+        private void StartTutorial() => _tutorialMode = true;
 
         private void EndTutorial()
         {
@@ -286,20 +300,30 @@ namespace Core
         private void LoadTutorialExample(TutorialExample example)
         {
             if (!_tutorialMode) return;
+            
+            //destroying preview from previous tutorial example
             if(_lastTutorialPreview) Destroy(_lastTutorialPreview);
+            
+            //destroying blocks generated on game start
             foreach (GameObject b in blocks) Destroy(b);
+            
+            //getting position of the central spawn point
             Vector3 pos = spawnPoints[Mathf.FloorToInt(spawnPoints.Length / 2f)].position;
+            
+            //instantiating and initializing block
             GameObject obj = Instantiate(example.blockPrefab, pos, Quaternion.identity);
             var block = obj.GetComponent<Block>();
-            block.SetColor(_theme.blockColors[Random.Range(0, _theme.blockColors.Length)]);
-            block.InitSettings(settings);
-            block.InitNotPickedSize(settings.maxNotPickedBlockSize);
+            var blockColor = _theme.blockColors[Random.Range(0, _theme.blockColors.Length)];
+            block.Init(settings, settings.maxNotPickedBlockSize, blockColor);
+            
+            //instantiating and initializing tutorial block preview
             obj = Instantiate(example.previewBlockPrefab, pos, Quaternion.identity);
             var tutorialBlock = obj.GetComponent<TutorialBlock>();
-            obj.transform.position += tutorialBlock.positionOffset * settings.cellSize * settings.maxNotPickedBlockSize;
+            Vector3 previewOffset = tutorialBlock.positionOffset * settings.cellSize;
+            obj.transform.position += previewOffset * settings.maxNotPickedBlockSize;
             Vector3 endPos = example.firstCellPosition;
-            endPos.y -= settings.cellSize * example.targetPos.Row;
-            endPos.x += settings.cellSize * example.targetPos.Column;
+            endPos.y -= settings.cellSize * example.targetPos.row;
+            endPos.x += settings.cellSize * example.targetPos.column;
             Color color = block.color;
             color.a = settings.blockPreviewColorTransparency;
             tutorialBlock.Init(settings, settings.maxNotPickedBlockSize, endPos, block, color);
@@ -307,8 +331,21 @@ namespace Core
         }
 
         #endregion
-    }
 
+        #region Utils
+        
+        private static void ShuffleArray<T>(ref T[] array)
+        {
+            for (var i = 0; i < array.Length; i++)
+            {
+                int r = Random.Range(0, array.Length);
+                (array[i], array[r]) = (array[r], array[i]);
+            }
+        }
+
+        #endregion
+    }
+    
     public struct BlockCandidate
     {
         public GameObject Block;

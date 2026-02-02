@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tutorial.TutorialExample
   blockPrefab: {fileID: 3086999690743695201, guid: eea33de01f67f4d8bb7c1dcd9a0f40e5, type: 3}
   previewBlockPrefab: {fileID: 3086999690743695201, guid: 66d49becb48504d17b90e727dd092514, type: 3}
-  firstCellPosition: {x: 0, y: 0, z: 0}
+  firstCellPosition: {x: -2.275, y: 2.275, z: 0}
   targetPos:
-    Row: 3
-    Column: 2
+    row: 3
+    column: 2
   sizeX: 8
   sizeY: 8
   cellIsFree: 01010101010101010101010101010101010101010101010100000001000000000000010101000000010101010101010101010101010101010101010101010101

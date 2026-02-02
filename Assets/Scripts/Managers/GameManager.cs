@@ -48,10 +48,10 @@ namespace Managers
             if (!field.CheckIfBlockCanBePlaced(_pickedBlock.cells, out GridPos[] cellsPositions))
             {
                 if (_lastValidPos == null) return;
-                int lastValidMinRow = _lastValidPos.Min(pos => pos.Row);
-                int lastValidMinCol = _lastValidPos.Min(pos => pos.Column);
-                int currMinRow = cellsPositions.Min(pos => pos.Row);
-                int currMinCol = cellsPositions.Min(pos => pos.Column);
+                int lastValidMinRow = _lastValidPos.Min(pos => pos.row);
+                int lastValidMinCol = _lastValidPos.Min(pos => pos.column);
+                int currMinRow = cellsPositions.Min(pos => pos.row);
+                int currMinCol = cellsPositions.Min(pos => pos.column);
                 int deltaRow = currMinRow - lastValidMinRow;
                 int deltaCol = currMinCol - lastValidMinCol;
                 if (Math.Abs(deltaRow) > 1 || Math.Abs(deltaCol) > 1)
@@ -60,9 +60,9 @@ namespace Managers
                     return;
                 }
                 int minRowAfterShift = lastValidMinRow + deltaRow;
-                int maxRowAfterShift = _lastValidPos.Max(pos => pos.Row) + deltaRow;
+                int maxRowAfterShift = _lastValidPos.Max(pos => pos.row) + deltaRow;
                 int minColAfterShift = lastValidMinCol + deltaCol;
-                int maxColAfterShift = _lastValidPos.Max(pos => pos.Column) + deltaCol;
+                int maxColAfterShift = _lastValidPos.Max(pos => pos.column) + deltaCol;
 
                 var foundPos = false;
                 if (minRowAfterShift >= 0 && maxRowAfterShift < settings.rowsCount)
@@ -72,7 +72,7 @@ namespace Managers
                     {
                         foundPos = true;
                         for (var i = 0; i < _lastValidPos.Length; i++)
-                            _lastValidPos[i].Row += deltaRow;
+                            _lastValidPos[i].row += deltaRow;
                     }
                 }
                 if (!foundPos && minColAfterShift >= 0 && maxColAfterShift < settings.columnsCount)
@@ -81,13 +81,13 @@ namespace Managers
                             lastValidMinRow, minColAfterShift))
                     {
                         for (var i = 0; i < _lastValidPos.Length; i++)
-                            _lastValidPos[i].Column += deltaCol;
+                            _lastValidPos[i].column += deltaCol;
                     }
                 }
                 if (_tutorialMode)
                 {
-                    lastValidMinRow = _lastValidPos.Min(pos => pos.Row);
-                    lastValidMinCol = _lastValidPos.Min(pos => pos.Column);
+                    lastValidMinRow = _lastValidPos.Min(pos => pos.row);
+                    lastValidMinCol = _lastValidPos.Min(pos => pos.column);
                     if (_tutorialExample.targetPos != new GridPos(lastValidMinRow, lastValidMinCol))
                     {
                         _lastValidPos = null;
@@ -104,8 +104,8 @@ namespace Managers
             _lastValidPos = cellsPositions.ToArray();
             if (_tutorialMode)
             {
-                int lastValidMinRow = _lastValidPos.Min(pos => pos.Row);
-                int lastValidMinCol = _lastValidPos.Min(pos => pos.Column);
+                int lastValidMinRow = _lastValidPos.Min(pos => pos.row);
+                int lastValidMinCol = _lastValidPos.Min(pos => pos.column);
                 if (_tutorialExample.targetPos != new GridPos(lastValidMinRow, lastValidMinCol))
                 {
                     _lastValidPos = null;

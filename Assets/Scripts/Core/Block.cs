@@ -6,17 +6,18 @@ using UnityEngine.InputSystem;
 
 namespace Core
 {
-    public class Block : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IThemeReceiver
+    public class Block : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler, IThemeReceiver
     {
         public Transform[] cells;
         public Color color { get; private set; }
-        private float _notPickedSize  = .7f;
-        private Vector2 _notPickedColliderSize;
-        private Vector2 _colliderDefaultSize;
         [HideInInspector] public int sizeX = 3;
         [HideInInspector] public int sizeY = 3;
         ///true - busy, false - free
         [HideInInspector] public bool[] blockShape;
+        private SpriteRenderer[] _cellsSpriteRenderers;
+        private float _notPickedSize  = .7f;
+        private Vector2 _notPickedColliderSize;
+        private Vector2 _colliderDefaultSize;
         private bool _isPicked;
         private Camera _mainCam;
         private Vector3 _startPos;
@@ -27,9 +28,36 @@ namespace Core
         private bool _otherBlockIsPicked;
         private BoxCollider2D _collider;
 
+        private void Awake()
+        {
+            _collider = GetComponent<BoxCollider2D>();
+            _cellsSpriteRenderers = new SpriteRenderer[cells.Length];
+            for(var i = 0; i < cells.Length; i++)
+                _cellsSpriteRenderers[i] = cells[i].GetComponent<SpriteRenderer>();
+        }
+        
         private void Start() => _mainCam = Camera.main;
+        
+        public void Init(Settings settings, float notPickedSize, Color blockColor)
+        {
+            _settings = settings;
+            _notPickedSize = notPickedSize;
+            SetBlockSize(notPickedSize);
+            SetColor(blockColor);
+            CalculateAndChangeColliderSize();
+        }
 
-        private void EndGame()
+        private void CalculateAndChangeColliderSize()
+        {
+            float blockSizePercentage = _notPickedSize * 100 / _settings.maxNotPickedBlockSize;
+            _colliderDefaultSize = _collider.size;
+            _notPickedColliderSize = _colliderDefaultSize * 100 / blockSizePercentage;
+            _collider.size = _notPickedColliderSize;
+        }
+
+        #region Events
+        
+        private void HandleEndGame()
         {
             _canPick = false;
             if(_isPicked) PutBlockBack(true);
@@ -47,78 +75,66 @@ namespace Core
 
         private void OnEnable()
         {
-            GameEvents.OnGameOver += EndGame;
+            GameEvents.OnGameOver += HandleEndGame;
             GameEvents.OnBlockPicked += HandleOnBlockPicked;
             GameEvents.OnBlockUnpicked +=  HandeOnBlockUnpicked;
         }
 
         private void OnDisable()
         {
-            GameEvents.OnGameOver -= EndGame;
+            GameEvents.OnGameOver -= HandleEndGame;
             GameEvents.OnBlockPicked -= HandleOnBlockPicked;
             GameEvents.OnBlockUnpicked -= HandeOnBlockUnpicked;
         }
 
+        #endregion
+
+        #region Themes
+        
         public void ReceiveThemeOnGameStart(Theme theme)
         {
             color = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
-            foreach (Transform cell in cells)
-                cell.GetComponent<SpriteRenderer>().color = color;
+            foreach (SpriteRenderer spriteRenderer in _cellsSpriteRenderers)
+                spriteRenderer.color = color;
         }
 
         public void ReceiveTheme(Theme theme)
         {
             Color startColor = color;
             color = theme.blockColors[Random.Range(0, theme.blockColors.Length)];
-            foreach (Transform cell in cells)
-            {
-                var sRenderer = cell.GetComponent<SpriteRenderer>();
-                StartCoroutine(ThemeTools.SetSpriteRendererColor(sRenderer, startColor, color, _settings.themeChangeDuration));
-            }
+            foreach (SpriteRenderer spriteRenderer in _cellsSpriteRenderers)
+                StartCoroutine(ThemeTools.SetSpriteRendererColor(spriteRenderer, startColor, 
+                    color, _settings.themeChangeDuration));
         }
-
-        public void InitSettings(Settings settings) => _settings = settings;
-
-        public void InitNotPickedSize(float size)
-        {
-            _notPickedSize = size;
-            SetSize(size);
-            float percentage = size * 100 / _settings.maxNotPickedBlockSize;
-            _collider = GetComponent<BoxCollider2D>();
-            _colliderDefaultSize = _collider.size;
-            _notPickedColliderSize = _colliderDefaultSize * 100 / percentage;
-            _collider.size = _notPickedColliderSize;
-        }
+        
+        #endregion
     
         #region Drag and drop
     
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (_settings == null || !_canPick || !_mainCam || _otherBlockIsPicked) return;
+            if (!_settings || !_canPick || !_mainCam || _otherBlockIsPicked) return;
             GameEvents.RaiseOnBlockPicked(this);
             _isPicked = true;
             _startPos = transform.position;
 #if UNITY_EDITOR
             Vector3 mp = Mouse.current.position.ReadValue();
 #else
-        if(Touchscreen.current == null) return;
-        Vector3 mp = Touchscreen.current.primaryTouch.position.ReadValue();
+            if(Touchscreen.current == null) return;
+            Vector3 mp = Touchscreen.current.primaryTouch.position.ReadValue();
 #endif
-            mp.z = -_mainCam.transform.position.z;
-            Vector3 world = _mainCam.ScreenToWorldPoint(mp);
-            _mouseOffset = transform.position - world;
-            SetSize(_settings.cellSize * 2);
+            mp.z = -_mainCam.transform.position.z;   
+            Vector3 mouseWorldPos = _mainCam.ScreenToWorldPoint(mp);
+            _mouseOffset = transform.position - mouseWorldPos;
+            SetBlockSize(_settings.cellSize * 2);
             _collider.size = _colliderDefaultSize;
-            foreach (Transform cell in cells)
-                cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsPickedSpriteLayer;
+            foreach (SpriteRenderer spriteRenderer in _cellsSpriteRenderers)
+                spriteRenderer.sortingOrder = _settings.pickedBlockCellsSpriteLayer;
         }
 
-        private void Update()
+        public void OnDrag(PointerEventData eventData)
         {
-            //New input system is not updating OnPointerMove every frame
-            //like OnMouseDrag, so I have to use Update instead
             if (!_isPicked || !_mainCam || !_settings) return;
-            //moving the block to the mouse position + offset
             float minY = _settings.minBlockDistanceFromCursorY;
             float maxY = _settings.maxBlockDistanceFromCursorY;
             float minX = _settings.minBlockDistanceFromCursorX;
@@ -127,16 +143,16 @@ namespace Core
             if (Mouse.current == null) return;
             Vector3 mousePos = Mouse.current.position.ReadValue();
 #else
-        if(Touchscreen.current == null) return;
-        Vector3 mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
+            if(Touchscreen.current == null) return;
+            Vector3 mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
 #endif
+            mousePos.z = -_mainCam.transform.position.z;
+            Vector3 mouseWorldPos = _mainCam.ScreenToWorldPoint(mousePos);
             float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);
             float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxX, minX, maxX);
             Vector3 offset = _mouseOffset + new Vector3(xOffset, yOffset);
-            mousePos.z = -_mainCam.transform.position.z;
-            Vector3 world = _mainCam.ScreenToWorldPoint(mousePos);
-            Vector3 position = world + offset;
-            position.z = 0;
+            //setting position (using vector2 so the z will be 0)
+            Vector2 position = mouseWorldPos + offset;
             transform.position = position;
             GameEvents.RaiseOnBlockMoved();
         }
@@ -146,8 +162,8 @@ namespace Core
             if(!_isPicked) return;
             GameEvents.RaiseOnBlockUnpicked(this);
             _isPicked = false;
-            foreach (Transform cell in cells)
-                cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsDefaultSpriteLayer;
+            foreach (SpriteRenderer spriteRenderer in _cellsSpriteRenderers)
+                spriteRenderer.sortingOrder = _settings.notPickedBlockCellsSpriteLayer;
         }
     
         public void PutBlockBack(bool disableCanPick = false)
@@ -155,7 +171,7 @@ namespace Core
             _canPick = false;
             _isPicked = false;
             _collider.size = _notPickedColliderSize;
-            SetSize(_notPickedSize);
+            SetBlockSize(_notPickedSize);
             StartCoroutine(PositionTranslateRoutine(transform.position, _startPos, .1f, disableCanPick));
         }
     
@@ -166,11 +182,11 @@ namespace Core
         public void SetColor(Color newColor)
         {
             color = newColor;
-            foreach (var cell in cells)
-                cell.GetComponent<SpriteRenderer>().color = newColor;
+            foreach (SpriteRenderer spriteRenderer in _cellsSpriteRenderers)
+                spriteRenderer.color = newColor;
         }
 
-        private void SetSize(float size)
+        private void SetBlockSize(float size)
         {
             if(_sizeChangeCoroutine != null) StopCoroutine(_sizeChangeCoroutine);
             _sizeChangeCoroutine = SizeChangeRoutine(transform.localScale, new Vector3(size, size, 1), .05f);

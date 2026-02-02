@@ -55,6 +55,10 @@ MonoBehaviour:
   - {fileID: 6096826533973895730, guid: 3aab28830967141899fc4c8378236fa5, type: 3}
   <distanceBetweenSpawnedBlocks>k__BackingField: 0.4
   <maxNotPickedBlockSize>k__BackingField: 0.7
+  <blockSizeFieldGradeMultiplier>k__BackingField: 10
+  <requiredFieldBusinessPercentageForBestBlock>k__BackingField: 60
+  <betterBlockGenerationProbability>k__BackingField: 0.85
+  <fineForSingleCell>k__BackingField: 150
   <cellSize>k__BackingField: 0.65
   <columnsCount>k__BackingField: 8
   <rowsCount>k__BackingField: 8
@@ -66,8 +70,8 @@ MonoBehaviour:
   <maxBlockDistanceFromCursorY>k__BackingField: 5
   <minBlockDistanceFromCursorX>k__BackingField: -0.5
   <maxBlockDistanceFromCursorX>k__BackingField: 1
-  <blockCellsDefaultSpriteLayer>k__BackingField: 1
-  <blockCellsPickedSpriteLayer>k__BackingField: 2
+  <notPickedBlockCellsSpriteLayer>k__BackingField: 1
+  <pickedBlockCellsSpriteLayer>k__BackingField: 2
   <blockPreviewColorTransparency>k__BackingField: 0.6
   <screenWidth>k__BackingField: 6
   <screenHeight>k__BackingField: 12

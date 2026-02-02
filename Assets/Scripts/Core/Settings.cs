@@ -9,14 +9,16 @@ namespace Core
         [field: Header("Blocks")]
         [field: SerializeField] public GameObject[] blockPrefabs { get; private set; }
         [field: SerializeField] public GameObject[] smallBlockPrefabs { get; private set; }
-        [field: SerializeField] public float distanceBetweenSpawnedBlocks { get; private set; } = .5f;
+        [field: SerializeField] public float distanceBetweenSpawnedBlocks { get; private set; } = .4f;
         [field: SerializeField] public float maxNotPickedBlockSize { get; private set; } = .7f;
         
         [field: Space(10f)]
         [field: Header("Block Generation")]
+        [field: Tooltip("Grade += blockCellsCount * multiplier")]
         [field: SerializeField] public int blockSizeFieldGradeMultiplier { get; private set; } = 10;
         [field: SerializeField] public float requiredFieldBusinessPercentageForBestBlock { get; private set; } = 60;
         [field: SerializeField] public float betterBlockGenerationProbability { get; private set; } = .85f;
+        [field: SerializeField] public int fineForSingleCell { get; private set; } = 5;
     
         [field: Space(10f)]
         [field: Header("Field")]
@@ -36,17 +38,17 @@ namespace Core
         [field: SerializeField] public float maxBlockDistanceFromCursorY {get; private set; } = 5f;
         [field: SerializeField] public float minBlockDistanceFromCursorX {get; private set; } = -.5f;
         [field: SerializeField] public float maxBlockDistanceFromCursorX {get; private set; } = 1f;
-        [field: SerializeField] public int blockCellsDefaultSpriteLayer {get; private set; } = 1;
-        [field: SerializeField] public int blockCellsPickedSpriteLayer {get; private set; } = 4;
+        [field: SerializeField] public int notPickedBlockCellsSpriteLayer {get; private set; } = 1;
+        [field: SerializeField] public int pickedBlockCellsSpriteLayer {get; private set; } = 2;
         [Range(0, 1)]
-        [field: SerializeField] public float blockPreviewColorTransparency {get; private set; } = .25f;
+        [field: SerializeField] public float blockPreviewColorTransparency {get; private set; } = .6f;
     
         [field: Space(10f)]
         [field: Header("Camera")]
         [field: SerializeField] public float screenWidth {get; private set; } = 6f;
         [field: SerializeField] public float screenHeight {get; private set; } = 12f;
         [field: SerializeField] public Vector3 camCenter {get; private set; } = new Vector3(0, -1, -10);
-        [field: SerializeField] public float shakeDuration {get; private set; } = .3f;
+        [field: SerializeField] public float shakeDuration {get; private set; } = .1f;
         [field: SerializeField] public float heavyShakeDuration {get; private set;} = .4f;
     
         [field: Header("Camera Shake")]
@@ -78,11 +80,11 @@ namespace Core
         [field: SerializeField] public float allClearTextAnimationDuration {get; private set;} = .75f;
         [field: SerializeField] public float scoreUpdateAnimationDuration {get; private set;} = 2.5f;
         [field: SerializeField] public float scoreHeartBeatFrequency {get; private set;} = .15f;
-        [field: SerializeField] public float waitBeforeGameOverMenuAppears {get; private set;} = 1f;
+        [field: SerializeField] public float waitBeforeGameOverMenuAppears {get; private set;} = 2.5f;
         [field: SerializeField] public float gameOverMenuScoreAnimationDuration {get; private set;} = 1f;
-        [field: SerializeField] public float newBestAnimationDuration {get; private set;} = .6f;
+        [field: SerializeField] public float newBestAnimationDuration {get; private set;} = .5f;
         [Range(0, 1)]
-        [field: SerializeField] public float newBestAnimationMinAlpha {get; private set;} = 0f;
+        [field: SerializeField] public float newBestAnimationMinAlpha {get; private set;} = .2f;
         [Range(0, 1)]
         [field: SerializeField] public float newBestAnimationMaxAlpha {get; private set;} = 1f;
     
@@ -93,11 +95,11 @@ namespace Core
         
         [field: Space(10f)]
         [field: Header("Themes")]
-        [field: SerializeField] public float themeChangeDuration {get; private set;} = 1.5f;
+        [field: SerializeField] public float themeChangeDuration {get; private set;} = 1f;
         [field: SerializeField] public int tutorialBlockCellsDefaultSpriteLayer {get; private set; } = 2;
         [field: SerializeField] public int tutorialBlockCellsPickedSpriteLayer {get; private set; } = 3;
-        [field: SerializeField] public float blockPlacementPreviewDuration {get; private set;} = 2f;
-        [field: SerializeField] public float waitForSecondsBeforePuttingBlockBack {get; private set;} = 1.5f;
+        [field: SerializeField] public float blockPlacementPreviewDuration {get; private set;} = 1.5f;
+        [field: SerializeField] public float waitForSecondsBeforePuttingBlockBack {get; private set;} = .5f;
         [field: SerializeField] public float blockPickingAnimationDuration {get; private set;} = .3f;
     }
 }

@@ -109,7 +109,7 @@ namespace Tutorial
             SetSize(_notPickedSize, 0);
             foreach (Transform cell in cells)
             {
-                cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.blockCellsDefaultSpriteLayer;
+                cell.GetComponent<SpriteRenderer>().sortingOrder = _settings.notPickedBlockCellsSpriteLayer;
                 cell.GetComponent<SpriteRenderer>().enabled = spriteRendererIsEnabled;
             }
             transform.position = _startPos;
