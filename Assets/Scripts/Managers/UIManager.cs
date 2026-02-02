@@ -6,12 +6,13 @@ using Core;
 using Saves;
 using Themes;
 using UnityEngine.UI;
-using Tutorial;
 
 namespace Managers
 {
     public class UIManager : MonoBehaviour, ISavable, IThemeReceiver
     {
+        #region Variables
+        
         [SerializeField] private Settings settings;
         [SerializeField] private GameObject gameOverMenu;
         [SerializeField] private GameObject settingsMenu;
@@ -45,6 +46,8 @@ namespace Managers
         private bool _isCombo;
         private bool _tutorialMode;
 
+        #endregion
+
         private void ButtonFeedback()
         {
             GameEvents.RaisePlayHaptics(HapticManager.HapticType.Light);
@@ -61,11 +64,15 @@ namespace Managers
 
         private IEnumerator EndGameRoutine()
         {
+            _gameIsOver = true;
+            
+            //waiting for field filling animation
             yield return new WaitForSeconds(settings.waitBeforeGameOverMenuAppears - settings.gameOverSfx.length);
             GameEvents.RaisePlaySfx(settings.gameOverSfx);
             yield return new WaitForSeconds(settings.gameOverSfx.length);
             gameOverMenu.SetActive(true);
-            _gameIsOver = true;
+            
+            //score animation
             var elapsedTime = 0f;
             float duration = settings.gameOverMenuScoreAnimationDuration;
             GameEvents.RaisePlaySfx(settings.scoreCountingSfx);
@@ -78,6 +85,8 @@ namespace Managers
                 gameOverBestScoreText.text = tempBestScore.ToString();
                 yield return null;
             }
+            
+            //showing new best text if necessary
             if (_endScore == _bestScore)
             {
                 gameOverNewBestText.gameObject.SetActive(true);
@@ -85,6 +94,7 @@ namespace Managers
                 StartCoroutine(ColorAlphaBlinkRoutine(gameOverNewBestText, settings.newBestAnimationMinAlpha, 
                     settings.newBestAnimationMaxAlpha));
             }
+            
             gameOverScoreText.text = _endScore.ToString();
             gameOverBestScoreText.text = _bestScore.ToString();
         }
@@ -120,8 +130,6 @@ namespace Managers
         private IEnumerator UpdateScoreRoutine(float duration, bool updateBestScore, int prevBestScore)
         {
             float elapsedTime = 0;
-            if (_endScore - _lastScore < 10)
-                duration = .5f;
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
@@ -141,13 +149,16 @@ namespace Managers
         private void ShowCombo(int combo, int lastCombo)
         {
             if(_tutorialMode) return;
+            
             _isCombo = true;
+            //score animation during combo
             if (_comboAnimationCoroutine == null)
             {
                 _comboAnimationCoroutine = ComboScoreAnimationRoutine();
                 StartCoroutine(_comboAnimationCoroutine);
             }
 
+            //showing combo text
             if(_comboCoroutine != null)
                 StopCoroutine(_comboCoroutine);
             _lastCombo = lastCombo;
@@ -290,6 +301,8 @@ namespace Managers
 
         #endregion
 
+        #region Coroutines
+
         private IEnumerator ColorAlphaBlinkRoutine(TextMeshProUGUI img, float minAlpha, float maxAlpha)
         {
             var asc = true;
@@ -317,11 +330,11 @@ namespace Managers
             rectTransform.localScale = endSize;
         }
 
-        private void OnEnable() => Subscribe();
-
-        private void OnDisable() => Unsubscribe();
-
-        private void Subscribe()
+        #endregion
+        
+        #region Events
+        
+        private void OnEnable()
         {
             GameEvents.OnGameOver += EndGame;
             GameEvents.UpdateScore += UpdateScore;
@@ -332,7 +345,7 @@ namespace Managers
             GameEvents.FinishTutorial += EndTutorial;
         }
 
-        private void Unsubscribe()
+        private void OnDisable()
         {
             GameEvents.OnGameOver -= EndGame;
             GameEvents.UpdateScore -= UpdateScore;
@@ -342,6 +355,8 @@ namespace Managers
             GameEvents.StartTutorial -= StartTutorial;
             GameEvents.FinishTutorial -= EndTutorial;
         }
+
+        #endregion
     
         #region Saves
 

@@ -34,6 +34,8 @@ namespace Managers
                     _savables.Add(savable);
         }
 
+        #region Events
+        
         private void OnEnable()
         {
             GameEvents.SaveGame += Save;
@@ -66,7 +68,11 @@ namespace Managers
                 File.Delete(_filePath);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-        
+
+        #endregion
+
+        #region Saves
+
         private void Save()
         {
             FindAllSavables();
@@ -75,9 +81,11 @@ namespace Managers
                 Debug.LogError("No savables found");
                 return;
             }
+            
             var saveData = new SaveData { GameIsOver = _gameIsOver };
             foreach (ISavable savable in _savables)
                 savable.Save(saveData);
+            
             string jsonString;
             try
             {
@@ -88,6 +96,8 @@ namespace Managers
                 Debug.LogError("Failed to convert to json in save func: " + e);
                 return;
             }
+            
+            //saving in a .tmp file then replacing original so in case of an error last save won't be damaged
             string tempPath = _filePath + ".tmp";
             try
             {
@@ -106,6 +116,7 @@ namespace Managers
         {
             SaveData saveData = null;
             FindAllSavables();
+            
             if (!File.Exists(_filePath))
             {
                 Debug.LogError("No saves found");
@@ -156,5 +167,7 @@ namespace Managers
                 savable.Load(saveData);
             blockSpawner?.SpawnBlocks();
         }
+        
+        #endregion
     }
 }

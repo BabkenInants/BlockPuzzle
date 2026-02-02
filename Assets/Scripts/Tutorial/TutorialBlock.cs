@@ -30,7 +30,7 @@ namespace Tutorial
             while (true)
             {
                 var elapsedTime = 0f;
-                PickBlock(transform.position);
+                PickBlock();
                 while (elapsedTime < duration)
                 {
                     elapsedTime += Time.deltaTime;
@@ -43,6 +43,8 @@ namespace Tutorial
                 yield return new WaitForSeconds(_settings.blockPickingAnimationDuration);
             }
         }
+
+        #region Events
         
         private void HandleOnBlockPicked(Block block)
         {
@@ -68,10 +70,12 @@ namespace Tutorial
             GameEvents.OnBlockPicked -= HandleOnBlockPicked;
             GameEvents.OnBlockUnpicked -= HandeOnBlockUnpicked;
         }
+        
+        #endregion
 
         #region Init
 
-        public void Init(Settings settings, float notPickedSize, Vector3 endPos, Block block, Color color)
+        public void Init(Settings settings, float notPickedSize, Vector3 endPos, Color color)
         {
             _settings = settings;
             _notPickedSize = notPickedSize;
@@ -84,7 +88,7 @@ namespace Tutorial
 
         #region Preview
 
-        private void PickBlock(Vector2 pos)
+        private void PickBlock()
         {
             if (!_settings || !_mainCam) return;
             _isPicked = true;

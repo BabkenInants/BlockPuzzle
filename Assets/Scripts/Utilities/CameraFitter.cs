@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using Core;
@@ -34,15 +33,14 @@ namespace Utilities
             _cam.transform.position = settings.camCenter;
         }
 
-        public void ReceiveTheme(Theme theme)
-        {
-            StartCoroutine(CamColorLerp(_cam.backgroundColor, theme.backgroundColor, settings.themeChangeDuration));
-        }
+        #region Themes
+        
+        public void ReceiveTheme(Theme theme) =>
+            StartCoroutine(CamColorLerp(_cam.backgroundColor, theme.backgroundColor, 
+                settings.themeChangeDuration));
 
-        public void ReceiveThemeOnGameStart(Theme theme)
-        {
+        public void ReceiveThemeOnGameStart(Theme theme) =>
             _cam.backgroundColor = theme.backgroundColor;
-        }
 
         private IEnumerator CamColorLerp(Color start, Color end, float duration)
         {
@@ -55,5 +53,7 @@ namespace Utilities
             }
             _cam.backgroundColor = end;
         }
+
+        #endregion
     }
 }

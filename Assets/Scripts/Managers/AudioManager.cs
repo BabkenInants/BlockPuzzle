@@ -10,11 +10,26 @@ namespace Managers
     {
         private bool _sfxOn = true;
         private Queue<AudioSource> _audioSourcesPool = new Queue<AudioSource>();
+        
+        private void PlaySfx(AudioClip clip)
+        {
+            if(!_sfxOn || !clip) return;
+            StartCoroutine(PlayAndEnqueueAtTheEnd(GetFreeSource(), clip));
+        }
 
-        public void Save(SaveData data){}
+        #region Object Pooling
 
-        public void Load(SaveData data) => _sfxOn = data.SfxIsOn;
-    
+        private IEnumerator PlayAndEnqueueAtTheEnd(AudioSource source, AudioClip clip)
+        { 
+            source.gameObject.SetActive(true);
+            source.clip = clip;
+            source.Play();
+            yield return new WaitForSeconds(source.clip.length + .1f);
+            source.clip = null;
+            source.gameObject.SetActive(false);
+            _audioSourcesPool.Enqueue(source);
+        }
+        
         private void AddSource()
         {
             var sourceObj = new GameObject("SFX" + _audioSourcesPool.Count);
@@ -34,23 +49,10 @@ namespace Managers
             return obj;
         }
 
-        private IEnumerator PlayAndEnqueueAtTheEnd(AudioSource source, AudioClip clip)
-        { 
-            source.gameObject.SetActive(true);
-            source.clip = clip;
-            source.Play();
-            yield return new WaitForSeconds(source.clip.length + .1f);
-            source.clip = null;
-            source.gameObject.SetActive(false);
-            _audioSourcesPool.Enqueue(source);
-        }
-    
-        private void PlaySfx(AudioClip clip)
-        {
-            if(!_sfxOn || !clip) return;
-            StartCoroutine(PlayAndEnqueueAtTheEnd(GetFreeSource(), clip));
-        }
-    
+        #endregion
+
+        #region Events
+
         private void SetSfxState(bool state) => _sfxOn = state;
 
         private void OnEnable()
@@ -64,5 +66,15 @@ namespace Managers
             GameEvents.SetSfxState -= SetSfxState;
             GameEvents.PlaySfx -= PlaySfx;
         }
+        
+        #endregion
+        
+        #region Saves
+        
+        public void Save(SaveData data){}
+
+        public void Load(SaveData data) => _sfxOn = data.SfxIsOn;
+        
+        #endregion
     }
 }

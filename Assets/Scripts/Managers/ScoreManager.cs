@@ -2,7 +2,6 @@ using System.Linq;
 using UnityEngine;
 using Core;
 using Saves;
-using Tutorial;
 
 namespace Managers
 {
@@ -70,7 +69,9 @@ namespace Managers
             if (_combo > 0 && totalLines > 0 && !_tutorialMode) 
                 GameEvents.RaiseShowCombo(_combo, _combo - totalLines); //UI
         }
-        
+
+        #region Events
+
         private void OnEnable()
         {
             GameEvents.StartTutorial += StartTutorial;
@@ -84,6 +85,8 @@ namespace Managers
             GameEvents.FinishTutorial -= EndTutorial;
             GameEvents.CalculateNewScore -= UpdateScore;
         }
+
+        #endregion
     
         #region Tutorial
 

@@ -8,8 +8,8 @@ namespace Themes
 {
     public static class ThemeTools
     {
-        public static IEnumerator SetSpriteRendererColor(SpriteRenderer renderer, Color oldColor, Color newColor,
-            float duration, int row = 0, int col = 0, Action<int, int> callback = null)
+        public static IEnumerator SetSpriteRendererColor(SpriteRenderer renderer, Color oldColor, 
+            Color newColor, float duration, int row = 0, int col = 0, Action<int, int> callback = null)
         {
             float elapsedTime = 0;
             while (elapsedTime < duration)
@@ -31,7 +31,6 @@ namespace Themes
                 image.color = Color.Lerp(oldColor, newColor, elapsedTime / duration);
                 yield return null;
             }
-
             image.color = newColor;
         }
 
@@ -44,7 +43,6 @@ namespace Themes
                 text.color = Color.Lerp(oldColor, newColor, elapsedTime / duration);
                 yield return null;
             }
-
             text.color = newColor;
         }
     }

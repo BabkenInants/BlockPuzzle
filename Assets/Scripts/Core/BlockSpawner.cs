@@ -326,7 +326,7 @@ namespace Core
             endPos.x += settings.cellSize * example.targetPos.column;
             Color color = block.color;
             color.a = settings.blockPreviewColorTransparency;
-            tutorialBlock.Init(settings, settings.maxNotPickedBlockSize, endPos, block, color);
+            tutorialBlock.Init(settings, settings.maxNotPickedBlockSize, endPos, color);
             _lastTutorialPreview = obj;
         }
 

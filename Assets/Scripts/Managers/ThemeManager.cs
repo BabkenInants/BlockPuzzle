@@ -13,10 +13,6 @@ namespace Managers
         private int _currentThemeIndex;
         private List<IThemeReceiver> _themeReceivers;
 
-        private void OnEnable() => GameEvents.SetNextTheme += SetNextTheme;
-        
-        private void OnDisable() => GameEvents.SetNextTheme -= SetNextTheme;
-
         private void GetAllReceivers()
         {
             _themeReceivers = new List<IThemeReceiver>();
@@ -25,7 +21,8 @@ namespace Managers
                     _themeReceivers.Add(receiver);
         }
 
-        private void SetNextTheme() => SetThemeWithIndex(_currentThemeIndex + 1 == themes.Length ? 0 : _currentThemeIndex + 1);
+        private void SetNextTheme() => 
+            SetThemeWithIndex(_currentThemeIndex + 1 == themes.Length ? 0 : _currentThemeIndex + 1);
 
         private void SetThemeWithIndex(int index)
         {
@@ -40,6 +37,16 @@ namespace Managers
             foreach (IThemeReceiver receiver in _themeReceivers)
                 receiver.ReceiveTheme(_currentTheme);
         }
+        
+        #region Events
+
+        private void OnEnable() => GameEvents.SetNextTheme += SetNextTheme;
+        
+        private void OnDisable() => GameEvents.SetNextTheme -= SetNextTheme;
+
+        #endregion
+
+        #region Saves
 
         public void Save(SaveData saveData)
         {
@@ -55,5 +62,7 @@ namespace Managers
             foreach (var receiver in _themeReceivers)
                 receiver.ReceiveThemeOnGameStart(_currentTheme);
         }
+
+        #endregion
     } 
 }

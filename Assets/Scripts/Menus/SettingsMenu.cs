@@ -20,7 +20,7 @@ namespace Menus
         [SerializeField] private Image hapticsToggle;
         [SerializeField] private Button hapticsButton; 
         private IEnumerator _mainMenuButtonCoroutine;
-        private IEnumerator _replayButtonCoroutine;
+        private IEnumerator _restartButtonCoroutine;
 
 #if !UNITY_IOS || UNITY_EDITOR
         public void Start()
@@ -32,26 +32,14 @@ namespace Menus
         }
 #endif
 
+        #region Buttons
+
         private void ButtonFeedback()
         {
             GameEvents.RaisePlayHaptics(HapticManager.HapticType.Light);
             GameEvents.RaisePlaySfx(settings.buttonSfx);
         }
-    
-        public void Save(SaveData saveData)
-        {
-            saveData.SfxIsOn = _sfxIsOn;
-            saveData.HapticsIsOn = _hapticsIsOn;
-        }
-
-        public void Load(SaveData saveData)
-        {
-            _sfxIsOn = saveData.SfxIsOn;
-            _hapticsIsOn = saveData.HapticsIsOn;
-            sfxToggle.sprite = _sfxIsOn ? toggleEnabled : toggleDisabled;
-            hapticsToggle.sprite = _hapticsIsOn ? toggleEnabled : toggleDisabled;
-        }
-
+        
         public void DeleteSaveButton() =>
             GameEvents.RaiseDeleteSave();
 
@@ -90,17 +78,37 @@ namespace Menus
     
         public void Restart()
         {
-            if(_replayButtonCoroutine != null) return;
-            _replayButtonCoroutine = ReplayButtonRoutine();
-            StartCoroutine(_replayButtonCoroutine);
+            if(_restartButtonCoroutine != null) return;
+            _restartButtonCoroutine = RestartButtonRoutine();
+            StartCoroutine(_restartButtonCoroutine);
         }
     
-        private IEnumerator ReplayButtonRoutine()
+        private IEnumerator RestartButtonRoutine()
         {
             ButtonFeedback();
-            yield return new WaitForSeconds(settings.buttonSfx.length);
             GameEvents.RaiseSaveGameForRestart();
+            yield return new WaitForSeconds(settings.buttonSfx.length);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
+
+        #endregion
+        
+        #region Saves
+
+        public void Save(SaveData saveData)
+        {
+            saveData.SfxIsOn = _sfxIsOn;
+            saveData.HapticsIsOn = _hapticsIsOn;
+        }
+
+        public void Load(SaveData saveData)
+        {
+            _sfxIsOn = saveData.SfxIsOn;
+            _hapticsIsOn = saveData.HapticsIsOn;
+            sfxToggle.sprite = _sfxIsOn ? toggleEnabled : toggleDisabled;
+            hapticsToggle.sprite = _hapticsIsOn ? toggleEnabled : toggleDisabled;
+        }
+
+        #endregion
     }
 }

@@ -9,33 +9,20 @@ namespace Managers
     public class HapticManager : MonoBehaviour, ISavable
     {
         private bool _hapticsIsOn;
-    
 #if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern void _TriggerLightHaptic();
+        [DllImport("__Internal")]
+        private static extern void _TriggerLightHaptic();
     
-    [DllImport("__Internal")]
-    private static extern void _TriggerMediumHaptic();
+        [DllImport("__Internal")]
+        private static extern void _TriggerMediumHaptic();
     
-    [DllImport("__Internal")]
-    private static extern void _TriggerHeavyHaptic();
+        [DllImport("__Internal")]
+        private static extern void _TriggerHeavyHaptic();
 #endif
 
+        #region Events
+        
         private void SetHapticsState(bool isOn) => _hapticsIsOn = isOn;
-
-        public void OnEnable()
-        {
-            GameEvents.SetHapticsState += SetHapticsState;
-            GameEvents.PlayHaptics += PlayHaptics;
-            GameEvents.PlayHapticsInARow += PlayHapticsInARow;
-        }
-
-        public void OnDisable()
-        {
-            GameEvents.SetHapticsState -= SetHapticsState;
-            GameEvents.PlayHaptics -= PlayHaptics;
-            GameEvents.PlayHapticsInARow -= PlayHapticsInARow;
-        }
 
         private void PlayHaptics(HapticType type)
         {
@@ -59,10 +46,24 @@ namespace Managers
         private void PlayHapticsInARow(HapticType type, int count) => 
             StartCoroutine(PlayHapticsInARowRoutine(type, count));
 
-        public void Save(SaveData data){}
+        public void OnEnable()
+        {
+            GameEvents.SetHapticsState += SetHapticsState;
+            GameEvents.PlayHaptics += PlayHaptics;
+            GameEvents.PlayHapticsInARow += PlayHapticsInARow;
+        }
 
-        public void Load(SaveData data) => SetHapticsState(data.HapticsIsOn);
+        public void OnDisable()
+        {
+            GameEvents.SetHapticsState -= SetHapticsState;
+            GameEvents.PlayHaptics -= PlayHaptics;
+            GameEvents.PlayHapticsInARow -= PlayHapticsInARow;
+        }
 
+        #endregion
+        
+        #region Haptics
+        
         private void Light()
         {
             if(!_hapticsIsOn) return;
@@ -86,8 +87,8 @@ namespace Managers
         _TriggerHeavyHaptic();
 #endif
         }
-
-        public IEnumerator PlayHapticsInARowRoutine(HapticType type, int count)
+        
+        private IEnumerator PlayHapticsInARowRoutine(HapticType type, int count)
         {
             if(!_hapticsIsOn) yield break;
 #if UNITY_IOS && !UNITY_EDITOR
@@ -119,5 +120,15 @@ namespace Managers
             Medium,
             Heavy
         }
+        
+        #endregion
+        
+        #region Saves
+        
+        public void Save(SaveData data){}
+
+        public void Load(SaveData data) => SetHapticsState(data.HapticsIsOn);
+
+        #endregion
     }
 }

@@ -8,7 +8,7 @@ namespace Managers
     public class CameraShakeManager : MonoBehaviour
     {
         [SerializeField] private Settings settings;
-        private IEnumerator _coroutine = null;
+        private IEnumerator _coroutine;
 
         public void ShakeForSeconds(float duration, bool heavy)
         {
@@ -25,23 +25,22 @@ namespace Managers
         {
             var elapsedTime = 0f;
             var direction = 1;
-            var backToCenter = false;
+            var backToCenter = true;
+            
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
+                yield return null;
+                backToCenter = !backToCenter;
                 if (backToCenter)
                 {
-                    backToCenter = false;
                     transform.position = settings.camCenter;
-                    yield return null;
                     continue;
                 }
-                backToCenter = true;
                 direction *= -1;
                 float deltaX = Random.Range(heavy? settings.minDist * 2 : settings.minDist, heavy? settings.maxDist * 2 : settings.maxDist) * direction;
                 float deltaY = Random.Range(heavy? settings.minDist * 2 : settings.minDist, heavy? settings.maxDist * 2 : settings.maxDist) * direction;
                 transform.position += new Vector3(deltaX, deltaY, 0);
-                yield return null;
             }
 
             transform.position = settings.camCenter;

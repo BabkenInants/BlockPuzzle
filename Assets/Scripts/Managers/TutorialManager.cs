@@ -12,8 +12,6 @@ namespace Managers
         [SerializeField] private Transform firstCell;
         private bool _nextExample;
         private bool _completedTutorial;
-
-        private void NextExample() => _nextExample = true;
         
         private IEnumerator StartTutorial()
         {
@@ -31,15 +29,17 @@ namespace Managers
             GameEvents.RaiseSaveGame();
         }
 
-        private void OnEnable()
-        {
-            GameEvents.OnTutorialExampleCompleted += NextExample;
-        }
+        #region Events
 
-        private void OnDisable()
-        {
-            GameEvents.OnTutorialExampleCompleted -= NextExample;
-        }
+        private void NextExample() => _nextExample = true;
+
+        private void OnEnable() => GameEvents.OnTutorialExampleCompleted += NextExample;
+
+        private void OnDisable() => GameEvents.OnTutorialExampleCompleted -= NextExample;
+
+        #endregion
+        
+        #region Saves
 
         public void Save(SaveData saveData)
         {
@@ -52,5 +52,7 @@ namespace Managers
             _completedTutorial = saveData.CompletedTutorial;
             if(!saveData.CompletedTutorial) StartCoroutine(StartTutorial());
         }
+
+        #endregion
     }
 }

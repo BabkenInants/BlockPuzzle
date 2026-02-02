@@ -1,5 +1,4 @@
 using Core;
-using Tutorial;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,20 +12,22 @@ namespace Editor
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            Block shape = (Block)target;
+            var shape = (Block)target;
             shape.sizeX = EditorGUILayout.IntSlider("Matrix SizeX", shape.sizeX, 1, 8);
             shape.sizeY = EditorGUILayout.IntSlider("Matrix SizeY", shape.sizeY, 1, 8);
+            
+            //Resetting blockshape if the size was changed, or it wasn't initialized
             if (shape.blockShape == null || shape.blockShape.Length != shape.sizeX * shape.sizeY)
                 shape.blockShape = new bool[shape.sizeX * shape.sizeY];
             GUILayout.Space(10);
         
             //Draw grid
-            for (int y = 0; y < shape.sizeY; y++)
+            for (var row = 0; row < shape.sizeY; row++)
             {
                 GUILayout.BeginHorizontal();
-                for (int x = 0; x < shape.sizeX; x++)
+                for (var col = 0; col < shape.sizeX; col++)
                 {
-                    int index = y *  shape.sizeX + x;
+                    int index = row *  shape.sizeX + col;
                     bool value = shape.blockShape[index];
                     GUI.backgroundColor = value ? Color.green : Color.gray;
                     if (GUILayout.Button("", GUILayout.Width(CellSize), GUILayout.Height(CellSize)))

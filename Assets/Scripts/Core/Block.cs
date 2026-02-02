@@ -36,10 +36,9 @@ namespace Core
                 _cellsSpriteRenderers[i] = cells[i].GetComponent<SpriteRenderer>();
         }
         
-        private void Start() => _mainCam = Camera.main;
-        
         public void Init(Settings settings, float notPickedSize, Color blockColor)
         {
+            _mainCam = Camera.main;
             _settings = settings;
             _notPickedSize = notPickedSize;
             SetBlockSize(notPickedSize);
