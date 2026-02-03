@@ -135,7 +135,7 @@ namespace Core
             foreach (GameObject block in blocksArr)
             {
                 tempBlock = block;
-                if (GetBestPositionForBlock(tempBlock.GetComponent<Block>(), tempField, out GridPos position,  out int grade))
+                if (GetBestPositionForBlock(tempBlock.GetComponent<Block>(), tempField, out GridPos position, out int grade))
                     candidates.Add(new BlockCandidate(tempBlock, position, grade));
             }
             if (candidates.Count == 0) return false;
@@ -177,7 +177,7 @@ namespace Core
                         foundPosition = true;
                         PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), 
                             out bool[] rowWasRemoved, out bool[] colWasRemoved);
-                        int grade = FieldUtils.RateField(tempField, settings);
+                        int grade = FieldUtils.RateField(tempField);
                         // bigger block => better field score so it will give you bigger blocks all the time
                         grade += block.cells.Length * settings.blockSizeFieldGradeMultiplier;
                         RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), 
@@ -216,7 +216,7 @@ namespace Core
                     tempField[y + position.row, x + position.column] = false;
                 }
             
-            //Checking and removing rows
+            //Checking rows
             for (var y = 0; y < settings.rowsCount; y++)
             {
                 var rowIsFull = true;
@@ -225,7 +225,7 @@ namespace Core
                 removeRow[y] = rowIsFull;
             }
 
-            //Checking and removing cols
+            //Checking cols
             for (var x = 0; x < settings.columnsCount; x++)
             {
                 var colIsFull = true;
@@ -234,13 +234,13 @@ namespace Core
                 removeCol[x] = colIsFull;
             }
             
-            // Remove rows
+            //Removing rows
             for (var y = 0; y < settings.rowsCount; y++)
                 if(removeRow[y])
                     for (var x = 0; x < settings.columnsCount; x++)
                         tempField[y, x] = true;
 
-            // Remove cols
+            //Removing cols
             for (var x = 0; x < settings.columnsCount; x++)
                 if(removeCol[x])
                     for (var y = 0; y < settings.rowsCount; y++)

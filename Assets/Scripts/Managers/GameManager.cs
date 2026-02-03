@@ -115,10 +115,12 @@ namespace Managers
         private void OnBlockUnpicked(Block block)
         {
             HidePreviews();
-            if (!block || _gameIsOver || _pickedBlock != block) return;
-            _pickedBlock = null;
+            if (!block || _gameIsOver || _pickedBlock != block) { _pickedBlock = null; return; }
+            
             if (_lastValidPos != null) PlaceBlock(block);
             else block.PutBlockBack();
+            
+            _pickedBlock = null;
         }
 
         private void PlaceBlock(Block block)

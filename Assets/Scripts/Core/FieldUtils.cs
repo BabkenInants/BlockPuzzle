@@ -1,5 +1,4 @@
 using System;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Core
@@ -21,7 +20,7 @@ namespace Core
             return new GridPos(row, col);
         }
 
-        public static int RateField(bool[,] field, Settings settings)
+        public static int RateField(bool[,] field)
         {
             var score = 0;
             var fieldIsAllClear = true;
@@ -40,8 +39,6 @@ namespace Core
                     if(row + 1 < field.GetLength(0) && field[row + 1, col]) temp++;
                     if(col > 0 && field[row, col - 1]) temp++;
                     if(col + 1 < field.GetLength(1) && field[row, col + 1]) temp++;
-                    
-                    if (temp == 1) {score -= settings.fineForSingleCell; continue;}
                     
                     score += temp * temp;
                 }
