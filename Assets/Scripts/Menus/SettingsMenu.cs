@@ -72,7 +72,8 @@ namespace Menus
         {
             ButtonFeedback();
             GameEvents.RaiseSaveGame();
-            yield return new WaitForSeconds(settings.buttonSfx.length);
+            if(settings.buttonSfx)
+                yield return new WaitForSeconds(settings.buttonSfx.length);
             SceneManager.LoadScene(mainMenuBuildIndex);
         }
     
@@ -87,7 +88,8 @@ namespace Menus
         {
             ButtonFeedback();
             GameEvents.RaiseSaveGameForRestart();
-            yield return new WaitForSeconds(settings.buttonSfx.length);
+            if(settings.buttonSfx)
+                yield return new WaitForSeconds(settings.buttonSfx.length);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 

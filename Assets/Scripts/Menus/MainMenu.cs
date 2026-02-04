@@ -28,7 +28,8 @@ namespace Menus
         private IEnumerator PlayButtonRoutine()
         {
             ButtonFeedback();
-            yield return new WaitForSeconds(settings.buttonSfx.length);
+            if(settings.buttonSfx)
+                yield return new WaitForSeconds(settings.buttonSfx.length);
             SceneManager.LoadScene(endlessModeBuildIndex);
         }
     }

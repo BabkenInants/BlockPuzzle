@@ -58,6 +58,7 @@ MonoBehaviour:
   <blockSizeFieldGradeMultiplier>k__BackingField: 10
   <requiredFieldBusinessPercentageForBestBlock>k__BackingField: 60
   <betterBlockGenerationProbability>k__BackingField: 0.85
+  <fieldIsAllClearMultiplier>k__BackingField: 2
   <cellSize>k__BackingField: 0.65
   <columnsCount>k__BackingField: 8
   <rowsCount>k__BackingField: 8

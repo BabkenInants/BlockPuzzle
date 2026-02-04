@@ -67,9 +67,10 @@ namespace Managers
             _gameIsOver = true;
             
             //waiting for field filling animation
-            yield return new WaitForSeconds(settings.waitBeforeGameOverMenuAppears - settings.gameOverSfx.length);
+            yield return new WaitForSeconds(settings.waitBeforeGameOverMenuAppears - (settings.gameOverSfx? settings.gameOverSfx.length : 0));
             GameEvents.RaisePlaySfx(settings.gameOverSfx);
-            yield return new WaitForSeconds(settings.gameOverSfx.length);
+            if(settings.buttonSfx)
+                yield return new WaitForSeconds(settings.gameOverSfx.length);
             gameOverMenu.SetActive(true);
             
             //score animation
@@ -109,7 +110,8 @@ namespace Managers
         private IEnumerator RestartButtonRoutine()
         {
             ButtonFeedback();
-            yield return new WaitForSeconds(settings.buttonSfx.length);
+            if(settings.buttonSfx)
+                yield return new WaitForSeconds(settings.buttonSfx.length);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 

@@ -20,7 +20,7 @@ namespace Core
             return new GridPos(row, col);
         }
 
-        public static int RateField(bool[,] field)
+        public static int RateField(bool[,] field, Settings settings)
         {
             var score = 0;
             var fieldIsAllClear = true;
@@ -43,7 +43,7 @@ namespace Core
                     score += temp * temp;
                 }
             
-            if (fieldIsAllClear) score *= 2;
+            if (fieldIsAllClear) score *= settings.fieldIsAllClearMultiplier;
             return score;
         }
     

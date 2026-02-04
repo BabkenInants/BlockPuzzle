@@ -177,7 +177,7 @@ namespace Core
                         foundPosition = true;
                         PlaceBlockAndUpdateField(ref tempField, block, new GridPos(row, col), 
                             out bool[] rowWasRemoved, out bool[] colWasRemoved);
-                        int grade = FieldUtils.RateField(tempField);
+                        int grade = FieldUtils.RateField(tempField, settings);
                         // bigger block => better field score so it will give you bigger blocks all the time
                         grade += block.cells.Length * settings.blockSizeFieldGradeMultiplier;
                         RemoveBlockAndRevertField(ref tempField, block, new GridPos(row, col), 
