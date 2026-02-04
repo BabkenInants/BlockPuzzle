@@ -79,14 +79,14 @@ MonoBehaviour:
   <heavyShakeDuration>k__BackingField: 0.4
   <minDist>k__BackingField: 0.04
   <maxDist>k__BackingField: 0.05
-  <blockPickupSfx>k__BackingField: {fileID: 8300000, guid: d528dc997788a47c48cb190d70a8c58b, type: 3}
-  <blockPlacementSfx>k__BackingField: {fileID: 8300000, guid: 723b0584438474ae3b3663e37ea3c944, type: 3}
-  <lineRemovalSfx>k__BackingField: {fileID: 8300000, guid: 4a7460c84aee64d0d94dc6478ddbeca1, type: 3}
-  <gameOverSfx>k__BackingField: {fileID: 8300000, guid: 7a9521ccd6bfc4784a547e433eeb36aa, type: 3}
-  <buttonSfx>k__BackingField: {fileID: 8300000, guid: 133a3e8cf1737451090b1a92c2aed732, type: 3}
-  <scoreCountingSfx>k__BackingField: {fileID: 8300000, guid: 861682f73094542d7ac58f02524bc09a, type: 3}
-  <fieldFillingSfx>k__BackingField: {fileID: 8300000, guid: 3856d990b85b34b308fa804fe5b7682f, type: 3}
-  <newBestSfx>k__BackingField: {fileID: 8300000, guid: 168a4d8b06d364ec6a1817125e9e59cb, type: 3}
+  <blockPickupSfx>k__BackingField: {fileID: 0}
+  <blockPlacementSfx>k__BackingField: {fileID: 0}
+  <lineRemovalSfx>k__BackingField: {fileID: 0}
+  <gameOverSfx>k__BackingField: {fileID: 0}
+  <buttonSfx>k__BackingField: {fileID: 0}
+  <scoreCountingSfx>k__BackingField: {fileID: 0}
+  <fieldFillingSfx>k__BackingField: {fileID: 0}
+  <newBestSfx>k__BackingField: {fileID: 0}
   <lineRemovalScoreMultiplier>k__BackingField: 10
   <multipleLinesRemovalScoreMultiplier>k__BackingField: 50
   <comboScoreMultiplier>k__BackingField: 50

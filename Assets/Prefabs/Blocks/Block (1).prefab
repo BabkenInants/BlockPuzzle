@@ -237,7 +237,6 @@ MonoBehaviour:
   sizeX: 3
   sizeY: 2
   blockShape: 000100010101
-  notPickedSize: 0.7
 --- !u!61 &4797533283027662331
 BoxCollider2D:
   m_ObjectHideFlags: 0
