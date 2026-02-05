@@ -7,7 +7,6 @@ namespace Tutorial
     public class TutorialBlock : MonoBehaviour
     {
         public Transform[] cells;
-        public Vector3 positionOffset;
         private Camera _mainCam;
         private float _notPickedSize;
         private Vector3 _endPos;

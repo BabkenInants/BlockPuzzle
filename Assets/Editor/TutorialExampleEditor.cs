@@ -65,7 +65,7 @@ namespace Editor
                 {
                     int index = row * example.sizeX + col;
                     bool value = example.cellIsFree[index];
-                    GUI.color = value ? Color.green : Color.gray;
+                    GUI.color = value ? Color.gray : Color.green;
                     if (GUILayout.Button(_showPositionHint? $"{row},{col}" : "", GUILayout.Width(CellSize), GUILayout.Height(CellSize)))
                     {
                         example.cellIsFree[index] = !value;

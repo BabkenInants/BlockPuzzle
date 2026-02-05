@@ -317,10 +317,10 @@ namespace Core
             block.Init(settings, settings.maxNotPickedBlockSize, blockColor);
             
             //instantiating and initializing tutorial block preview
+            var offset = new Vector3(-(block.sizeX - 1) / 2f, (block.sizeY - 1) / 2f, 0) * .5f;
+            pos += offset * settings.maxNotPickedBlockSize; 
             obj = Instantiate(example.previewBlockPrefab, pos, Quaternion.identity);
             var tutorialBlock = obj.GetComponent<TutorialBlock>();
-            Vector3 previewOffset = tutorialBlock.positionOffset * settings.cellSize;
-            obj.transform.position += previewOffset * settings.maxNotPickedBlockSize;
             Vector3 endPos = example.firstCellPosition;
             endPos.y -= settings.cellSize * example.targetPos.row;
             endPos.x += settings.cellSize * example.targetPos.column;
