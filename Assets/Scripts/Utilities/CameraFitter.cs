@@ -5,6 +5,7 @@ using Themes;
 
 namespace Utilities
 {
+    [ExecuteAlways]
     [RequireComponent(typeof(Camera))]
     public class CameraFitter : MonoBehaviour, IThemeReceiver
     {

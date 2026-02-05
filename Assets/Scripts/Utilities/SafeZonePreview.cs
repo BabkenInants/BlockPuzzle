@@ -14,6 +14,7 @@ namespace Utilities
             Vector3 pos = settings.camCenter;
             pos.z = 0;
             transform.position = pos;
+            transform.localScale = new Vector3(settings.screenWidth,  settings.screenHeight, 1);
 #endif
         }
     }
