@@ -116,15 +116,33 @@ namespace Core
             GameEvents.RaiseOnBlockPicked(this);
             _isPicked = true;
             _startPos = transform.position;
-#if UNITY_EDITOR
-            Vector3 mp = Mouse.current.position.ReadValue();
-#else
+            float minY = _settings.minBlockDistanceFromCursorY;
+            float maxY = _settings.maxBlockDistanceFromCursorY;
+            float minX = _settings.minBlockDistanceFromCursorX;
+            float maxX = _settings.maxBlockDistanceFromCursorX;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Vector3 mousePos;
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+                mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
+            else if (Mouse.current != null)
+                mousePos = Mouse.current.position.ReadValue();
+            else return;
+            
+#elif (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
             if(Touchscreen.current == null) return;
-            Vector3 mp = Touchscreen.current.primaryTouch.position.ReadValue();
+            Vector3 mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
+#else
+            if (Mouse.current == null) return;
+            Vector3 mousePos = Mouse.current.position.ReadValue();
 #endif
-            mp.z = -_mainCam.transform.position.z;   
-            Vector3 mouseWorldPos = _mainCam.ScreenToWorldPoint(mp);
-            _mouseOffset = transform.position - mouseWorldPos;
+            mousePos.z = -_mainCam.transform.position.z;
+            Vector3 mouseWorldPos = _mainCam.ScreenToWorldPoint(mousePos);
+            float yOffset = Mathf.Clamp(mousePos.y / Screen.height * maxY, minY, maxY);
+            float xOffset = Mathf.Clamp((mousePos.x / Screen.width - .5f) * maxX, minX, maxX);
+            Vector3 offset = _mouseOffset + new Vector3(xOffset, yOffset);
+            //setting position (using vector2 so the z will be 0)
+            Vector2 position = mouseWorldPos + offset;
+            transform.position = position;
             SetBlockSize(_settings.cellSize * 2);
             _collider.size = _colliderDefaultSize;
             foreach (SpriteRenderer spriteRenderer in _cellsSpriteRenderers)
@@ -138,12 +156,20 @@ namespace Core
             float maxY = _settings.maxBlockDistanceFromCursorY;
             float minX = _settings.minBlockDistanceFromCursorX;
             float maxX = _settings.maxBlockDistanceFromCursorX;
-#if UNITY_EDITOR
-            if (Mouse.current == null) return;
-            Vector3 mousePos = Mouse.current.position.ReadValue();
-#else
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Vector3 mousePos;
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+                mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
+            else if (Mouse.current != null)
+                mousePos = Mouse.current.position.ReadValue();
+            else return;
+            
+#elif (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
             if(Touchscreen.current == null) return;
             Vector3 mousePos = Touchscreen.current.primaryTouch.position.ReadValue();
+#else
+            if (Mouse.current == null) return;
+            Vector3 mousePos = Mouse.current.position.ReadValue();
 #endif
             mousePos.z = -_mainCam.transform.position.z;
             Vector3 mouseWorldPos = _mainCam.ScreenToWorldPoint(mousePos);

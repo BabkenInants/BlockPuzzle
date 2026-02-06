@@ -64,14 +64,18 @@ namespace Managers
 
         private void DeleteSave()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerPrefs.DeleteAll();
+#else
             if(File.Exists(_filePath))
                 File.Delete(_filePath);
+#endif
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         #endregion
 
-        #region Saves
+        #region Save/Load
 
         private void Save()
         {
@@ -96,7 +100,10 @@ namespace Managers
                 Debug.LogError("Failed to convert to json in save func: " + e);
                 return;
             }
-            
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerPrefs.SetString("Save", jsonString);
+            PlayerPrefs.Save();
+#else
             //saving in a .tmp file then replacing original so in case of an error last save won't be damaged
             string tempPath = _filePath + ".tmp";
             try
@@ -110,6 +117,7 @@ namespace Managers
             {
                 Debug.LogError("Failed to save to json file" + e);
             }
+            #endif
         }
 
         private void Load()
@@ -117,11 +125,11 @@ namespace Managers
             SaveData saveData = null;
             FindAllSavables();
             
-            if (!File.Exists(_filePath))
+            bool checkPlayerPrefsSave = Application.platform == RuntimePlatform.WebGLPlayer;
+            if ((checkPlayerPrefsSave && !PlayerPrefs.HasKey("Save")) || (!checkPlayerPrefsSave && !File.Exists(_filePath)))
             {
                 Debug.LogError("No saves found");
-                saveData = new SaveData { GameIsOver = _gameIsOver };
-                saveData.GameIsOver = true;
+                saveData = new SaveData { GameIsOver = true };
             }
             
             if (_savables == null)
@@ -134,6 +142,9 @@ namespace Managers
             if (saveData == null)
             {
                 string jsonString;
+#if UNITY_WEBGL && !UNITY_EDITOR
+                jsonString = PlayerPrefs.GetString("Save");
+#else
                 try
                 {
                     jsonString = File.ReadAllText(_filePath);
@@ -144,7 +155,7 @@ namespace Managers
                     blockSpawner?.SpawnBlocks();
                     return;
                 }
-
+#endif
                 try
                 {
                     saveData = JsonUtility.FromJson<SaveData>(jsonString);
