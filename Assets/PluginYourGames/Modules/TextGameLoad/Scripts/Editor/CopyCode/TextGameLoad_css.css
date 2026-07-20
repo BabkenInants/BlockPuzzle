@@ -1,0 +1,20 @@
+#loading-text {
+    display: block;
+    width: 100%;
+    margin-top: ___TOP___px;
+    text-align: center;
+    white-space: normal;
+    font-family: ___FONT___;
+    font-size: ___SIZE___px;
+    font-weight: ___WEIGHT___;
+    line-height: 1.3;
+    color: ___COLOR___;
+    user-select: none;
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    #loading-text {
+        font-size: calc(___SIZE___px * 0.8);
+    }
+}
