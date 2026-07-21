@@ -1,9 +1,14 @@
 {
-    "stringPrefs": [],
+    "stringPrefs": [
+        {
+            "key": "SelectModuleToggle_YG2",
+            "value": ""
+        }
+    ],
     "intPrefs": [
         {
             "key": "FirstStartup_YG2",
-            "value": 1
+            "value": 2
         }
     ],
     "floatPrefs": []

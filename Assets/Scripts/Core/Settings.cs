@@ -144,5 +144,11 @@ namespace Core
         [field: SerializeField] public float blockPickingAnimationDuration {get; private set;} = .3f;
         
         #endregion
+
+        #region Ads
+
+        public int reviveSuggestionDuration = 5;
+
+        #endregion
     }
 }

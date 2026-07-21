@@ -217,7 +217,7 @@ namespace Managers
             }
 
             if (!atLeastOneBlockCanBePlaced)
-                GameEvents.RaiseGameOver();
+                GameEvents.RaiseOnReviveSuggestion();
             GameEvents.RaiseSaveGame();
         }
     

@@ -37,7 +37,10 @@ namespace Core
         #endregion
 
         #region Game Flow
-    
+
+        public static event Action OnReviveSuggestion;
+        public static void RaiseOnReviveSuggestion() => OnReviveSuggestion?.Invoke();
+        
         public static event Action OnGameOver;
         public static void RaiseGameOver() => OnGameOver?.Invoke();
     
@@ -105,6 +108,16 @@ namespace Core
 
         public static event Action OnTutorialExampleCompleted;
         public static void RaiseOnTutorialExampleCompleted() => OnTutorialExampleCompleted?.Invoke();
+
+        #endregion
+
+        #region Ads
+
+        public static event Action<string, Action> ShowRewardedAd;
+        public static void RaiseShowRewardedAd(string rewardId, Action callback) => ShowRewardedAd?.Invoke(rewardId, callback);
+
+        public static event Action SpawnNewBlocksForRevival;
+        public static void RaiseSpawnNewBlocksForRevival() => SpawnNewBlocksForRevival?.Invoke();
 
         #endregion
     }

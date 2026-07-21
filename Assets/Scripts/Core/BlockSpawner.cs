@@ -71,6 +71,12 @@ namespace Core
             
             if(spawnNewBlocks && !_tutorialMode) SpawnBlocks();
         }
+
+        private void RespawnBlocks()
+        {
+            foreach (GameObject block in blocks) Destroy(block);
+            SpawnBlocks();
+        }
         
         #region Events
         
@@ -80,6 +86,7 @@ namespace Core
             GameEvents.FinishTutorial += EndTutorial;
             GameEvents.LoadTutorialExample += LoadTutorialExample;
             GameEvents.OnGameOver += OnGameOver;
+            GameEvents.SpawnNewBlocksForRevival += RespawnBlocks;
         }
 
         private void OnDisable()
@@ -88,6 +95,7 @@ namespace Core
             GameEvents.FinishTutorial -= EndTutorial;
             GameEvents.LoadTutorialExample -= LoadTutorialExample;
             GameEvents.OnGameOver -= OnGameOver;
+            GameEvents.SpawnNewBlocksForRevival += RespawnBlocks;
         }
 
         private void OnGameOver()
