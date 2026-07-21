@@ -10,7 +10,15 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5924b8eb-1e31-4505-aa4d-c4cbaa55d391" name="Changes" comment="" />
+    <list default="true" id="5924b8eb-1e31-4505-aa4d-c4cbaa55d391" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animations/Animation Border.controller" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animations/Animation Border.controller.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animations/Appear.anim" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animations/Appear.anim.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/EndlessGame.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/EndlessGame.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/BlockSpawner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Core/BlockSpawner.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,6 +27,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2,
   &quot;fromUser&quot;: false
@@ -32,6 +41,7 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
@@ -95,12 +105,14 @@
       <updated>1784567824668</updated>
       <workItem from="1784567827402" duration="563000" />
       <workItem from="1784569895351" duration="761000" />
+      <workItem from="1784663981127" duration="738000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="false" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityProjectDiscoverer">
     <option name="hasUnityReference" value="true" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Themes;
 using UnityEngine;
+using UnityEngine.UI;
 using Tutorial;
 using Random = UnityEngine.Random;
 
@@ -14,6 +15,8 @@ namespace Core
         [SerializeField] private Settings settings;
         [SerializeField] private Field field;
         [SerializeField] private Transform[] spawnPoints;
+        [SerializeField] private List<SpriteRenderer> spawnPointBackgrounds;
+        [SerializeField] private ParticleSystem[] spawnPointParticles;
         private bool _gameIsOver;
         private Theme _theme;
         private bool _tutorialMode;
@@ -42,6 +45,7 @@ namespace Core
             
             for (var i = 0; i < spawnPoints.Length; i++)
             {
+                PlayBlockSpawnAnimations(i);
                 blocks[i] = Instantiate(blocksToSpawn[i], spawnPoints[i].position, Quaternion.identity);
                 var block = blocks[i].GetComponent<Block>();
                 
@@ -70,6 +74,12 @@ namespace Core
             Destroy(block);
             
             if(spawnNewBlocks && !_tutorialMode) SpawnBlocks();
+        }
+
+        private void PlayBlockSpawnAnimations(int i)
+        {
+            spawnPointBackgrounds[i].GetComponent<Animator>().SetTrigger("Spawn");
+            spawnPointParticles[i].Play();
         }
         
         #region Events
@@ -279,10 +289,22 @@ namespace Core
         #endregion
         
         #region Themes
-        
-        public void ReceiveTheme(Theme theme) => _theme = theme;
 
-        public void ReceiveThemeOnGameStart(Theme theme) => _theme = theme;
+        public void ReceiveTheme(Theme theme) => SetTheme(theme);
+
+        public void ReceiveThemeOnGameStart(Theme theme) => SetTheme(theme);
+
+        private void SetTheme(Theme theme)
+        {
+            _theme = theme;
+            foreach (SpriteRenderer bg in spawnPointBackgrounds)
+                StartCoroutine(ThemeTools.SetSpriteRendererColor(bg, bg.color, theme.cellDefaultColor, settings.themeChangeDuration));
+            foreach (ParticleSystem ps in spawnPointParticles)
+            {
+                var main = ps.main;
+                main.startColor = theme.primaryTextColor;
+            }
+        }
 
         #endregion
 
