@@ -10,32 +10,8 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5924b8eb-1e31-4505-aa4d-c4cbaa55d391" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.vscode/extensions.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.vscode/launch.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Block Spawn Background.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Block Spawn Background/Block Spawn Animation.anim" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Block Spawn Background/Block Spawn Animation.anim.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Block Spawn Background/Block Spawn Background.controller" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Block Spawn Background/Block Spawn Background.controller.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Block Spawn Background/Idle.anim" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Block Spawn Background/Idle.anim.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Animations/Line Removal Animation Border.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Block Spawn Point.prefab" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Block Spawn Point.prefab.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Sprites/Spawn Effect.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Sprites/Spawn Effect.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/Animation Border.controller" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animations/Line Removal Animation Border/Animation Border.controller" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/Animation Border.controller.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animations/Line Removal Animation Border/Animation Border.controller.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/Appear.anim" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animations/Line Removal Animation Border/Appear.anim" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/Appear.anim.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animations/Line Removal Animation Border/Appear.anim.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/DefaultVolumeProfile.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/DefaultVolumeProfile.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/EndlessGame.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/EndlessGame.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/BlockSpawner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Core/BlockSpawner.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/UniversalRP.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/UniversalRP.asset" afterDir="false" />
+    <list default="true" id="5924b8eb-1e31-4505-aa4d-c4cbaa55d391" name="Changes" comment="Merged branch 'main' into yandex-games">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +42,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "Merging yandex-games",
+    "git-widget-placeholder": "yandex-games",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -140,6 +116,8 @@
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Merged branch 'main' into yandex-games" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merged branch 'main' into yandex-games" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
