@@ -17,20 +17,8 @@ namespace Menus
         [SerializeField] private Sprite toggleEnabled;
         [SerializeField] private Sprite toggleDisabled;
         [SerializeField] private Image sfxToggle;
-        [SerializeField] private Image hapticsToggle;
-        [SerializeField] private Button hapticsButton; 
         private IEnumerator _mainMenuButtonCoroutine;
         private IEnumerator _restartButtonCoroutine;
-
-#if !UNITY_IOS || UNITY_EDITOR
-        public void Start()
-        {
-            _hapticsIsOn = false;
-            hapticsToggle.sprite = toggleDisabled;
-            GameEvents.RaiseSetHapticsState(_hapticsIsOn);
-            hapticsButton.interactable = false;
-        }
-#endif
 
         #region Buttons
 
@@ -56,7 +44,6 @@ namespace Menus
         {
             ButtonFeedback();
             _hapticsIsOn = !_hapticsIsOn;
-            hapticsToggle.sprite = _hapticsIsOn ? toggleEnabled : toggleDisabled;
             GameEvents.RaiseSetHapticsState(_hapticsIsOn);
             GameEvents.RaiseSaveGame();
         }
@@ -108,7 +95,6 @@ namespace Menus
             _sfxIsOn = saveData.SfxIsOn;
             _hapticsIsOn = saveData.HapticsIsOn;
             sfxToggle.sprite = _sfxIsOn ? toggleEnabled : toggleDisabled;
-            hapticsToggle.sprite = _hapticsIsOn ? toggleEnabled : toggleDisabled;
         }
 
         #endregion

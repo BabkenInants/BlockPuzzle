@@ -27,6 +27,7 @@ namespace YG.LanguageLegacy
         public int fontNumber;
         public Font uniqueFont;
         public LangYGAdditionalText additionalText;
+        public string lastTranslation { get; private set; }
         int baseFontSize;
 
         private void Awake()
@@ -70,7 +71,10 @@ namespace YG.LanguageLegacy
                 if (lang == UtilsLang.LangName(i))
                 {
                     if (!changeOnlyFont)
+                    {
                         AssignTranslate(languages[i]);
+                        lastTranslation = languages[i];
+                    }
 
                     if (textLComponent)
                         ChangeFont(UtilsLang.GetFont(i, info));

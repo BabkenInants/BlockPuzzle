@@ -6,6 +6,7 @@ using Core;
 using Saves;
 using Themes;
 using UnityEngine.UI;
+using YG.LanguageLegacy;
 
 namespace Managers
 {
@@ -174,7 +175,8 @@ namespace Managers
         {
             //showing text
             comboText.gameObject.SetActive(true);
-            comboText.text = _lastCombo <= 1? "Combo" : $"Combo {_lastCombo}";
+            string localizedCombo = comboText.GetComponent<LanguageYG>().lastTranslation;
+            comboText.text = _lastCombo <= 1? localizedCombo : $"{localizedCombo} {_lastCombo}";
             yield return SizeChangeRoutine(comboText.rectTransform, Vector3.zero, new Vector3(1.2f, 1.2f, 1.2f), duration / 3f * .8f);
             yield return SizeChangeRoutine(comboText.rectTransform, new Vector3(1.2f, 1.2f, 1.2f), Vector3.one, duration / 3f * .2f);
         
@@ -184,7 +186,7 @@ namespace Managers
             while (_lastCombo < combo)
             {
                 _lastCombo++;
-                comboText.text = _lastCombo <= 1? "Combo" : $"Combo {_lastCombo}";
+                comboText.text = _lastCombo <= 1? localizedCombo : $"{localizedCombo} {_lastCombo}";
                 yield return new WaitForSeconds(t);
             }
         
