@@ -2,6 +2,7 @@ using System.Linq;
 using UnityEngine;
 using Core;
 using Saves;
+using YG;
 
 namespace Managers
 {
@@ -13,6 +14,7 @@ namespace Managers
         private int _comboReset;
         private int _bestScore;
         private bool _tutorialMode;
+        private bool _newBestScore;
 
         private void UpdateScore(ChangesAfterMove changes)
         {
@@ -57,17 +59,22 @@ namespace Managers
             }
 
             //Updating best score if needed
-            bool updateBestScore = _score > _bestScore;
-            if(updateBestScore) _bestScore = _score;
+            _newBestScore = _score > _bestScore;
+            if(_newBestScore) _bestScore = _score;
         
             //Updating UI
         
             //Score
-            GameEvents.RaiseUpdateScore(_score, updateBestScore);
+            GameEvents.RaiseUpdateScore(_score, _newBestScore);
         
             //Combo
             if (_combo > 0 && totalLines > 0 && !_tutorialMode) 
                 GameEvents.RaiseShowCombo(_combo, _combo - totalLines); //UI
+        }
+
+        private void UpdateLeaderBoard()
+        {
+            if(_newBestScore) YG2.SetLeaderboard("BestPlayers", _bestScore);
         }
 
         #region Events
@@ -77,6 +84,7 @@ namespace Managers
             GameEvents.StartTutorial += StartTutorial;
             GameEvents.FinishTutorial += EndTutorial;
             GameEvents.CalculateNewScore += UpdateScore;
+            GameEvents.OnGameOver += UpdateLeaderBoard;
         }
 
         private void OnDisable()
@@ -84,6 +92,7 @@ namespace Managers
             GameEvents.StartTutorial -= StartTutorial;
             GameEvents.FinishTutorial -= EndTutorial;
             GameEvents.CalculateNewScore -= UpdateScore;
+            GameEvents.OnGameOver -= UpdateLeaderBoard;
         }
 
         #endregion

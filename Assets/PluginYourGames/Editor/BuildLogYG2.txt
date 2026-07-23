@@ -1,0 +1,3 @@
+﻿Build path: /Users/babkeninants/Desktop/BlockPuzzleWebGlYG
+Build number: 1
+PluginYG version: 2.0092
