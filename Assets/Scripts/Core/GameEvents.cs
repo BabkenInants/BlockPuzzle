@@ -71,9 +71,6 @@ namespace Core
         public static event Action LoadGame;
         public static void RaiseLoadGame() => LoadGame?.Invoke();
 
-        public static event Action DeleteSave;
-        public static void RaiseDeleteSave() => DeleteSave?.Invoke();
-
         #endregion
 
         #region Haptics

@@ -5,6 +5,8 @@ using UnityEngine;
 using Core;
 using Saves;
 using UnityEngine.SceneManagement;
+using YG;
+using YG.Insides;
 
 namespace Managers
 {
@@ -13,15 +15,7 @@ namespace Managers
         [SerializeField] private Settings settings;
         [SerializeField] private BlockSpawner blockSpawner;
         private List<ISavable> _savables;
-        private string _filePath;
         private bool _gameIsOver;
-
-        private void Awake()
-        {
-            _filePath = Path.Combine(Application.persistentDataPath, settings.savesFolder);
-            if(!Directory.Exists(_filePath)) Directory.CreateDirectory(_filePath);
-            _filePath = Path.Combine(_filePath, settings.saveFileName);
-        }
 
         private void Start() => Load();
 
@@ -42,7 +36,6 @@ namespace Managers
             GameEvents.LoadGame += Load;
             GameEvents.OnGameOver += HandleGameOver;
             GameEvents.SaveGameForRestart += SaveForRestart;
-            GameEvents.DeleteSave += DeleteSave;
         }
 
         private void OnDisable()
@@ -51,7 +44,6 @@ namespace Managers
             GameEvents.LoadGame -= Load;
             GameEvents.OnGameOver -= HandleGameOver;
             GameEvents.SaveGameForRestart -= SaveForRestart;
-            GameEvents.DeleteSave -= DeleteSave;
         }
 
         private void SaveForRestart()
@@ -61,17 +53,6 @@ namespace Managers
         }
 
         private void HandleGameOver() => _gameIsOver = true;
-
-        private void DeleteSave()
-        {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerPrefs.DeleteAll();
-#else
-            if(File.Exists(_filePath))
-                File.Delete(_filePath);
-#endif
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
 
         #endregion
 
@@ -100,33 +81,17 @@ namespace Managers
                 Debug.LogError("Failed to convert to json in save func: " + e);
                 return;
             }
-#if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerPrefs.SetString("Save", jsonString);
-            PlayerPrefs.Save();
-#else
-            //saving in a .tmp file then replacing original so in case of an error last save won't be damaged
-            string tempPath = _filePath + ".tmp";
-            try
-            {
-                File.WriteAllText(tempPath, jsonString);
-                if (File.Exists(_filePath))
-                    File.Delete(_filePath);
-                File.Move(tempPath, _filePath);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Failed to save to json file" + e);
-            }
-            #endif
+
+            YG2.saves.json = jsonString;
+            YG2.SaveProgress();
         }
 
         private void Load()
         {
             SaveData saveData = null;
             FindAllSavables();
-            
-            bool checkPlayerPrefsSave = Application.platform == RuntimePlatform.WebGLPlayer;
-            if ((checkPlayerPrefsSave && !PlayerPrefs.HasKey("Save")) || (!checkPlayerPrefsSave && !File.Exists(_filePath)))
+            YGInsides.LoadProgress();
+            if (string.IsNullOrEmpty(YG2.saves.json))
             {
                 Debug.LogError("No saves found");
                 saveData = new SaveData { GameIsOver = true };
@@ -141,21 +106,7 @@ namespace Managers
 
             if (saveData == null)
             {
-                string jsonString;
-#if UNITY_WEBGL && !UNITY_EDITOR
-                jsonString = PlayerPrefs.GetString("Save");
-#else
-                try
-                {
-                    jsonString = File.ReadAllText(_filePath);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Failed to read from file" + e);
-                    blockSpawner?.SpawnBlocks();
-                    return;
-                }
-#endif
+                string jsonString = YG2.saves.json;
                 try
                 {
                     saveData = JsonUtility.FromJson<SaveData>(jsonString);

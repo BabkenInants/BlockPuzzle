@@ -27,9 +27,6 @@ namespace Menus
             GameEvents.RaisePlayHaptics(HapticManager.HapticType.Light);
             GameEvents.RaisePlaySfx(settings.buttonSfx);
         }
-        
-        public void DeleteSaveButton() =>
-            GameEvents.RaiseDeleteSave();
 
         public void SfxButton()
         {
