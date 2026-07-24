@@ -252,21 +252,21 @@ namespace Managers
 
         public void ReceiveTheme(Theme theme)
         {
-            var duration = settings.themeChangeDuration;
+            float duration = settings.themeChangeDuration;
             foreach (var img in fieldColor)
-                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.fieldColor, duration));
+                if (img) StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.fieldColor, duration));
             foreach (var img in backgroundColor)    
-                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.backgroundColor, duration));
+                if (img) StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.backgroundColor, duration));
             foreach (var img in emptyCellColor)
-                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.cellDefaultColor, duration));
+                if (img) StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.cellDefaultColor, duration));
             foreach (var text in primaryTextColorTexts)
-                StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.primaryTextColor, duration));
+                if (text) StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.primaryTextColor, duration));
             foreach (var text in secondaryTextColorTexts)
-                StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.secondaryTextColor, duration));
+                if (text) StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.secondaryTextColor, duration));
             foreach (var text in tertiaryTextColorTexts)
-                StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.tertiaryTextColor, duration));
+                if (text) StartCoroutine(ThemeTools.SetTextColor(text, scoreText.color, theme.tertiaryTextColor, duration));
             foreach (var img in primaryTextColorImages)
-                StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.primaryTextColor, duration));
+                if (img) StartCoroutine(ThemeTools.SetImageColor(img, img.color, theme.primaryTextColor, duration));
         }
 
         public void ReceiveThemeOnGameStart(Theme theme)

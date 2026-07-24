@@ -1980,7 +1980,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 6.3379307
+  orthographic size: 6.3325634
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5658,7 +5658,6 @@ MonoBehaviour:
   - {fileID: 1278953903}
   - {fileID: 2114802905}
   - {fileID: 1025530689}
-  - {fileID: 0}
   primaryTextColorImages:
   - {fileID: 401502072}
   primaryTextColorTexts:
@@ -5669,7 +5668,6 @@ MonoBehaviour:
   - {fileID: 1436976828}
   - {fileID: 2080332566}
   - {fileID: 269125956}
-  - {fileID: 0}
   secondaryTextColorTexts:
   - {fileID: 746855987}
   - {fileID: 1673071587}

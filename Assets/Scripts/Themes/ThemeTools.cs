@@ -11,6 +11,7 @@ namespace Themes
         public static IEnumerator SetSpriteRendererColor(SpriteRenderer renderer, Color oldColor, 
             Color newColor, float duration, int row = 0, int col = 0, Action<int, int> callback = null)
         {
+            if (!renderer) yield break;
             float elapsedTime = 0;
             while (elapsedTime < duration)
             {
@@ -24,6 +25,7 @@ namespace Themes
 
         public static IEnumerator SetImageColor(Image image, Color oldColor, Color newColor, float duration)
         {
+            if(!image) yield break;
             float elapsedTime = 0;
             while (elapsedTime < duration)
             {
@@ -36,6 +38,7 @@ namespace Themes
 
         public static IEnumerator SetTextColor(TextMeshProUGUI text, Color oldColor, Color newColor, float duration)
         {
+            if(!text) yield break;
             float elapsedTime = 0;
             while (elapsedTime < duration)
             {
