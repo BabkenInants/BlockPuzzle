@@ -70,6 +70,9 @@ namespace Managers
             //Combo
             if (_combo > 0 && totalLines > 0 && !_tutorialMode) 
                 GameEvents.RaiseShowCombo(_combo, _combo - totalLines); //UI
+            
+            //Updating LeaderBoard
+            UpdateLeaderBoard();
         }
 
         private void UpdateLeaderBoard()
@@ -84,7 +87,6 @@ namespace Managers
             GameEvents.StartTutorial += StartTutorial;
             GameEvents.FinishTutorial += EndTutorial;
             GameEvents.CalculateNewScore += UpdateScore;
-            GameEvents.OnGameOver += UpdateLeaderBoard;
         }
 
         private void OnDisable()
@@ -92,7 +94,6 @@ namespace Managers
             GameEvents.StartTutorial -= StartTutorial;
             GameEvents.FinishTutorial -= EndTutorial;
             GameEvents.CalculateNewScore -= UpdateScore;
-            GameEvents.OnGameOver -= UpdateLeaderBoard;
         }
 
         #endregion
