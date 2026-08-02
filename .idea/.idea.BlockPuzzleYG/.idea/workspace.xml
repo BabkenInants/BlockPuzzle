@@ -12,11 +12,11 @@
   <component name="ChangeListManager">
     <list default="true" id="5924b8eb-1e31-4505-aa4d-c4cbaa55d391" name="Changes" comment="Merged branch 'main' into yandex-games">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BlockPuzzleYG/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/PluginYourGames/Editor/BuildLogYG2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/PluginYourGames/Editor/BuildLogYG2.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/PluginYourGames/Editor/SavesEditorYG2.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/PluginYourGames/Editor/SavesEditorYG2.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/EndlessGame.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/EndlessGame.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/YandexGames/AuthCheck.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/YandexGames/AuthCheck.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/ScoreManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/ScoreManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,6 +111,7 @@
       <workItem from="1784569895351" duration="761000" />
       <workItem from="1784663981127" duration="738000" />
       <workItem from="1784668916921" duration="17977000" />
+      <workItem from="1785692180184" duration="993000" />
     </task>
     <servers />
   </component>

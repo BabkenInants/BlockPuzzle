@@ -49,7 +49,7 @@ namespace Managers
 
         #endregion
 
-        private void ButtonFeedback()
+        public void ButtonFeedback()
         {
             GameEvents.RaisePlayHaptics(HapticManager.HapticType.Light);
             GameEvents.RaisePlaySfx(settings.buttonSfx);
